@@ -28,16 +28,16 @@ class RoomRect(Rect):
 
 
 class Map:
-    map = {}
-    rooms = []
-    halls = []
+    def __init__(self):
+        self.map = {}
+        self.rooms = []
+        self.halls = []
 
-    @classmethod
-    def make_map(cls, width, height):
-        cls.map = {}
+    def make_map(self, width, height):
+        self.map = {}
         for y in range(height):
             for x in range(width):
-                cls.map[x, y] = tile.Wall()
+                self.map[x, y] = tile.Wall()
 
         num_rooms = 0
         for r in range(MAX_ROOMS):
@@ -49,7 +49,7 @@ class Map:
             new_room = RoomRect(x, y, w, h)
 
             failed = False
-            for other_room in cls.rooms:
+            for other_room in self.rooms:
                 if new_room.colliderect(other_room):
                     failed = True
                     break
@@ -57,7 +57,7 @@ class Map:
                 # this means there are no intersections, so this room is valid
 
                 # "paint" it to the map's tiles
-                cls.create_room(new_room)
+                self.create_room(new_room)
 
                 # center coordinates of new room, will be useful later
                 new_x, new_y = new_room.center
@@ -68,55 +68,51 @@ class Map:
                     # connect it to the previous room with a tunnel
 
                     # center coordinates of previous room
-                    prev_x, prev_y = cls.rooms[num_rooms - 1].center
+                    prev_x, prev_y = self.rooms[num_rooms - 1].center
 
                     # draw a coin (random number that is either 0 or 1)
                     if random.randint(0, 1) == 1:
                         # first move horizontally, then vertically
-                        cls.create_h_tunnel(prev_x, new_x, prev_y)
-                        cls.create_v_tunnel(prev_y, new_y, new_x)
+                        self.create_h_tunnel(prev_x, new_x, prev_y)
+                        self.create_v_tunnel(prev_y, new_y, new_x)
                     else:
                         # first move vertically, then horizontally
-                        cls.create_v_tunnel(prev_y, new_y, prev_x)
-                        cls.create_h_tunnel(prev_x, new_x, new_y)
+                        self.create_v_tunnel(prev_y, new_y, prev_x)
+                        self.create_h_tunnel(prev_x, new_x, new_y)
 
                 # finally, append the new room to the list
-                cls.rooms.append(new_room)
+                self.rooms.append(new_room)
                 num_rooms += 1
 
-        return dict(cls.map)
+        return self.map, self.rooms, self.halls
 
-    @classmethod
-    def create_room(cls, room):
+    def create_room(self, room):
         # go through the tiles in the rectangle and make them passable
         for x in range(room.x1 + 1, room.x2):
             for y in range(room.y1 + 1, room.y2):
-                cls.map[x, y] = tile.Floor()
-        cls.rooms.append(room)
+                self.map[x, y] = tile.Floor()
+        self.rooms.append(room)
 
-    @classmethod
-    def create_h_tunnel(cls, x1, x2, y):
+    def create_h_tunnel(self, x1, x2, y):
         # horizontal tunnel
         min_x = min(x1, x2)
         max_x = max(x1, x2)
         for x in range(min_x, max_x + 1):
-            cls.map[x, y] = tile.Floor()
-        cls.halls.append(RoomRect(min_x, y, max_x - min_x, 0))
+            self.map[x, y] = tile.Floor()
+        self.halls.append(RoomRect(min_x, y, max_x - min_x, 0))
 
-    @classmethod
-    def create_v_tunnel(cls, y1, y2, x):
+    def create_v_tunnel(self, y1, y2, x):
         # vertical tunnel
         min_y = min(y1, y2)
         max_y = max(y1, y2) + 1
         for y in range(min_y, max_y + 1):
-            cls.map[x, y] = tile.Floor()
-        cls.halls.append(RoomRect(x, min_y, 0, max_y - min_y))
+            self.map[x, y] = tile.Floor()
+        self.halls.append(RoomRect(x, min_y, 0, max_y - min_y))
 
-    @classmethod
-    def rnd_open_tile(cls):
-        big_list = list(cls.rooms)
-        big_list.extend(cls.halls)
+    def rnd_open_tile(self):
+        big_list = list(self.rooms)
+        big_list.extend(self.halls)
         place = random.choice(big_list)
 
-        x, y = place.random_point(map=cls.map)
+        x, y = place.random_point(map=self.map)
         return x, y

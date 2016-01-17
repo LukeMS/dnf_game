@@ -1,4 +1,4 @@
-# import traceback
+# import traceback  # print(traceback.format_exc())
 import math
 import random
 # import sys
@@ -112,8 +112,8 @@ class GameObject(pygame.sprite.Sprite):
         self.color = color
         if name is None:
             self.name = str(type(self))
-            self.name = self.name.replace("<class '", "")
-            self.name = self.name.replace("'>", "")
+            for trash in ["<class '", "'>", "Sprite.", "sprite."]:
+                self.name = self.name.replace(trash, "")
         else:
             self.name = name
         self.blocks = blocks
@@ -137,7 +137,7 @@ class GameObject(pygame.sprite.Sprite):
 
     @pos.setter
     def pos(self, value):
-        self.rect.x, self.rect.y = value
+        self.rect.x, self.rect.y = value.x, value.y
 
     @property
     def x(self):
@@ -161,50 +161,28 @@ class GameObject(pygame.sprite.Sprite):
         elif isinstance(n, (int, float)):
             return (int(self.x // n), int(self.y // n))
 
-    def move(self, dx, dy, target=None):
-        pos = (self.x + dx, self.y + dy)
+    def move(self, pos):
         blocked, obj = self.map.is_blocked(pos, self)
 
         if not blocked:
             # move by the given amount
-            print(self.name, "moving")
-            self.x += dx
-            self.y += dy
-        elif target is not None:
-            # correct that mistake
-            self.move_towards(target, mode="B")
+            # print(self.name, "moving")
+            self.pos = pos
 
-    def move_towards(self, target, mode="A"):
-        start_pos = self.x, self.y
-        end_pos = target.x, target.y
+    def move_towards(self, target):
+        start_pos = self.pos
+        end_pos = target.pos
 
-        end = None
-        if mode == "A":
-            try:
-                self.path = self.map.map.get_path(start_pos, end_pos)
-            except:
-                self.path = self.map.map.new_path(start_pos, end_pos)
-            end = self.path[len(self.path) - 2]
-        elif mode == "B":
-            distance = self.distance_to(self, target)
-            neighbors = self.map.map.neighbors(start_pos)
-            for neighbor in neighbors:
-                if (
-                    (self.distance_to(neighbor, target) < distance) and
-                    not self.map.is_blocked(neighbor)[0]
-                ):
-                        end = neighbor
-                        break
-            if end is None:
-                random.shuffle(neighbors)
-                for neighbor in neighbors:
-                    if not self.map.is_blocked(neighbor)[0]:
-                        end = neighbor
-                        break
+        path = self.map.map.new_path(start_pos, end_pos)
 
-        step = end[0] - start_pos[0], end[1] - start_pos[1]
-        # print("Step:{}".format(step))
-        self.move(*step, target)
+        if len(path) >= 2:
+            next_step = path[1]
+        else:
+            # the path must be blocked
+            next_step = random.choice(self.map.map.get_neighbors(start_pos))
+            # print(self.name, "moves erratically")
+
+        self.move(next_step)
 
     def distance_to(self, other, another=None):
         if isinstance(other, tuple):
@@ -249,7 +227,8 @@ class Player(GameObject):
             **kwargs)
 
     def move(self, dx, dy):
-        super().move(dx, dy)
+        new_pos = self.pos + (dx, dy)
+        super().move(new_pos)
         self.map.set_fov()
         # self.active = False
 

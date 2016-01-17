@@ -26,13 +26,17 @@ class LevelScene(BaseScene):
         self.turn = 0
         self.player_acted = False
 
-        self.max_y = max(SCREEN_ROWS, MAP_ROWS)
-        self.max_x = max(SCREEN_COLS, MAP_COLS)
-        self.map = gamemap.Map(width=MAP_COLS, height=MAP_ROWS)
-        self.tiles = self.map.grid
-
         self.objects = pygame.sprite.Group()
         self.remains = pygame.sprite.Group()
+
+        self.max_y = max(SCREEN_ROWS, MAP_ROWS)
+        self.max_x = max(SCREEN_COLS, MAP_COLS)
+        self.map = gamemap.Map(
+            width=MAP_COLS, height=MAP_ROWS,
+            objects=self.objects)
+        self.rooms, self.halls = self.map.rooms, self.map.halls
+        self.tiles = self.map.grid
+
         self.place_objects()
 
         self.offset = self.player // 2
@@ -116,11 +120,11 @@ class LevelScene(BaseScene):
                 tile = self.tiles[x + self.offset[0], y + self.offset[1]]
                 tile.visible = False
 
-        fov.fieldOfView(self.player.rect.x, self.player.rect.y,
+        fov.fieldOfView(self.player.x, self.player.y,
                         MAP_COLS, MAP_ROWS, EXPLORE_RADIUS,
                         self.func_explored, self.blocks_sight)
 
-        fov.fieldOfView(self.player.rect.x, self.player.rect.y,
+        fov.fieldOfView(self.player.x, self.player.y,
                         MAP_COLS, MAP_ROWS, FOV_RADIUS,
                         self.func_visible, self.blocks_sight)
 
@@ -133,19 +137,22 @@ class LevelScene(BaseScene):
     def blocks_sight(self, x, y):
         return self.tiles[x, y].block_sight
 
+    def new_turn(self):
+        self.turn += 1
+        print("Turn {}".format(self.turn))
+        self.player.active = True
+        for object in self.objects:
+                object.active = True
+
     def handle_turn(self):
-        all_done = True
+        # all_done = True
         for object in self.objects:
             if object.ai and object.active:
                 object.ai.take_turn()
-                all_done = False
-        if all_done and not self.player.active:
-            self.turn += 1
-            print("Turn {}".format(self.turn))
-            self.player.active = True
-            for object in self.objects:
-                if object != self.player:
-                    object.active = True
+                # all_done = False
+        # if all_done and not self.player.active:
+        if not self.player.active:
+            self.new_turn()
 
     def on_update(self, force=False):
         # loop all tiles, and draw
