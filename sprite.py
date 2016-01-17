@@ -176,7 +176,7 @@ class GameObject(pygame.sprite.Sprite):
         path = self.map.map.new_path(start_pos, end_pos)
 
         if len(path) >= 2:
-            next_step = path[1]
+            next_step = Position(*path[1])
         else:
             # the path must be blocked
             next_step = random.choice(self.map.map.get_neighbors(start_pos))
@@ -215,22 +215,17 @@ class GameObject(pygame.sprite.Sprite):
 class Player(GameObject):
 
     def __init__(
-        self,
-        id=ord('@'), color=GameColor.yellow,
-        **kwargs
-    ):
-        fighter_component = Fighter(
-            hp=30, defense=2, power=5, death_func=Death.player
-        )
-        super().__init__(
-            id=id, color=color, fighter=fighter_component,
-            **kwargs)
+            self, id=ord('@'), color=GameColor.yellow, **kwargs):
 
-    def move(self, dx, dy):
-        new_pos = self.pos + (dx, dy)
-        super().move(new_pos)
+        fighter_component = Fighter(
+            hp=30, defense=2, power=5, death_func=Death.player)
+
+        super().__init__(
+            id=id, color=color, fighter=fighter_component, **kwargs)
+
+    def move(self, dxy):
+        super().move(self.pos + dxy)
         self.map.set_fov()
-        # self.active = False
 
     def action(self, dx, dy):
         # the coordinates the player is moving to/attacking
@@ -246,7 +241,7 @@ class Player(GameObject):
         if target is not None:
             self.fighter.attack(target)
         else:
-            self.move(dx, dy)
+            self.move((dx, dy))
 
         self.active = False
 

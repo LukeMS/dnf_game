@@ -43,21 +43,7 @@ class Position:
         return "Position{}".format((self.x, self.y))
 
     def __str__(self):
-        return "x, y: ({}, {})".format(self.x, self.y)
-
-    def _neighbors(self):
-        lst = []
-        changes_dict = dict()
-        changes_lst = [-1, 0, 1]
-        for i in changes_lst:
-            changes_dict[i] = changes_lst
-
-        for x in changes_dict:
-            for y in changes_dict[x]:
-                if x == 0 and y == 0:
-                    continue
-                lst.append(Position(self.x + x, self.y + y))
-        return lst
+        return "x, y: {}".format((self.x, self.y))
 
 
 if __name__ == '__main__':
@@ -68,3 +54,4 @@ if __name__ == '__main__':
     #d[pos] = 1
     #print(pos + (1, -1))
     print(Position(2, 4) == Position(2, 5))
+    print(tuple(pos))

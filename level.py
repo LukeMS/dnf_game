@@ -139,7 +139,7 @@ class LevelScene(BaseScene):
 
     def new_turn(self):
         self.turn += 1
-        print("Turn {}".format(self.turn))
+        # print("Turn {}".format(self.turn))
         self.player.active = True
         for object in self.objects:
                 object.active = True
