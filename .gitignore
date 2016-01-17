@@ -1,0 +1,5 @@
+*.sublime-workspace
+*.sublime-project
+*.bat
+run_env_cmd.cmd
+__pycache__
