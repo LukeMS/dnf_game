@@ -82,18 +82,20 @@ class BasicMonsterAI:
     def take_turn(self):
         # a basic monster takes its turn. If you can see it, it can see you
         monster = self.owner
-        if monster.map.tiles[monster.pos].visible:
-            target = monster.map.player
-            # move towards player if far away
-            if monster.distance_to(monster.map.player) > 1:
-                # print("{} moves".format(monster.name))
-                monster.move_towards(target=target)
 
-            # close enough, attack! (if the player is still alive.)
-            elif target.fighter.hp > 0:
-                monster.fighter.attack(target)
+        # if monster.map.tiles[monster.pos].visible:
+        target = monster.map.player
+        # move towards player if far away
+        if monster.distance_to(monster.map.player) > 1:
+            print("{} moves".format(monster.name))
+            monster.move_towards(target=target)
 
-        monster.active = False
+        # close enough, attack! (if the player is still alive.)
+        elif target.fighter.hp > 0:
+            print("{} attacks".format(monster.name))
+            monster.fighter.attack(target)
+
+        # monster.active = False
 
 
 class GameObject(pygame.sprite.Sprite):
@@ -131,6 +133,18 @@ class GameObject(pygame.sprite.Sprite):
         if self.ai:  # let the AI component know who owns it
             self.ai.owner = self
 
+        self.set_next_to_vis()
+
+    # next to a visible tile
+    def set_next_to_vis(self):
+        for x in [-1, 0, 1]:
+            for y in [-1, 0, 1]:
+                n = self.pos + (x, y)
+                if self.map.tiles[n].visible:
+                    self.next_to_vis = True
+                    return
+        self.next_to_vis = False
+
     @property
     def pos(self):
         return Position(self.rect.x, self.rect.y)
@@ -157,9 +171,9 @@ class GameObject(pygame.sprite.Sprite):
 
     def __floordiv__(self, n):
         if isinstance(n, tuple):
-            return (int(self.x // n[0]), int(self.y // n[1]))
+            return Position(int(self.x // n[0]), int(self.y // n[1]))
         elif isinstance(n, (int, float)):
-            return (int(self.x // n), int(self.y // n))
+            return Position(int(self.x // n), int(self.y // n))
 
     def move(self, pos):
         blocked, obj = self.map.is_blocked(pos, self)
@@ -168,6 +182,7 @@ class GameObject(pygame.sprite.Sprite):
             # move by the given amount
             # print(self.name, "moving")
             self.pos = pos
+            self.set_next_to_vis()
 
     def move_towards(self, target):
         start_pos = self.pos
@@ -176,6 +191,13 @@ class GameObject(pygame.sprite.Sprite):
         path = self.map.map.new_path(start_pos, end_pos)
 
         if len(path) >= 2:
+
+            try:
+                self.map.pathing = []
+                for p in path[2:-1]:
+                    self.map.pathing.append(p)
+            except:
+                pass
             next_step = Position(*path[1])
         else:
             # the path must be blocked
@@ -227,21 +249,22 @@ class Player(GameObject):
         super().move(self.pos + dxy)
         self.map.set_fov()
 
-    def action(self, dx, dy):
-        # the coordinates the player is moving to/attacking
-        pos = self.pos + (dx, dy)
+    def action(self, dx=0, dy=0):
+        if not (dx == 0 == dy):
+            # the coordinates the player is moving to/attacking
+            pos = self.pos + (dx, dy)
 
-        # try to find an attackable object there
-        target = None
-        for object in self.group:
-            if object.fighter and object.pos == pos:
-                target = object
-                break
+            # try to find an attackable object there
+            target = None
+            for object in self.group:
+                if object.fighter and object.pos == pos:
+                    target = object
+                    break
 
-        if target is not None:
-            self.fighter.attack(target)
-        else:
-            self.move((dx, dy))
+            if target is not None:
+                self.fighter.attack(target)
+            else:
+                self.move((dx, dy))
 
         self.active = False
 

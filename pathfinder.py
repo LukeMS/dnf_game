@@ -1,4 +1,5 @@
 import heapq
+import random
 
 
 class PriorityQueue:
@@ -24,7 +25,19 @@ class AStarSearch:
         goal = tuple(end_pos)
 
         came_from, cost_so_far = cls.search(start, goal)
-        path = cls.reconstruct_path(came_from, start, goal)
+        try:
+            path = cls.reconstruct_path(came_from, start, goal)
+        except KeyError:
+            # import traceback
+            # print(traceback.format_exc())
+            path = [tuple(start_pos), random.choice(cls.neighbors(
+                start_pos, end_pos))]
+            # print("start_pos", start_pos)
+            # print("end_pos", end_pos)
+            # print("path", path)
+            # print("Error handled at AStarSearch.new_search")
+            # print("Remove forced quitting if everything is ok")
+            # exit()
         return path
 
     @staticmethod
@@ -73,7 +86,7 @@ class AStarSearch:
         return reconstruct_path
 
     @classmethod
-    def neighbors(cls, node, goal):
+    def neighbors(cls, node, goal=None):
         dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
         result = []
         for dir in dirs:

@@ -27,13 +27,18 @@ class Map:
             return self._objects
 
     def valid_tile(self, pos):
-        for obj in self.objects:
-            if obj.pos == pos and obj.blocks:
-                return False
-        return (
-            0 <= pos[0] < self.width and
-            0 <= pos[1] < self.height and
-            not self.get_cell_at_pos(pos).block_mov)
+        if not (
+            pos is not None and
+            not self.grid[pos].block_mov and
+            0 <= pos[0] < self.width
+            and 0 <= pos[1] < self.height
+        ):
+            return False
+        else:
+            for obj in self.objects:
+                if obj.pos == pos and obj.blocks:
+                    return False
+            return True
 
     def get_neighbors(self, pos):
         lst = []

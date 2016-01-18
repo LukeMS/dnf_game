@@ -236,4 +236,5 @@ class Game:
         self.current_scene.start()
 
     def quit(self):
+        self.current_scene.quit()
         self.alive = False

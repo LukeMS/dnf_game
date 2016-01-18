@@ -1,5 +1,8 @@
+import sys
 import random
-# import traceback
+import threading
+import time
+import traceback
 
 import pygame
 from pygame.locals import *
@@ -12,6 +15,7 @@ import sprite
 # import rnd_gen
 import gamemap
 import fov
+from game_types import Position
 
 
 class LevelScene(BaseScene):
@@ -39,10 +43,16 @@ class LevelScene(BaseScene):
 
         self.place_objects()
 
-        self.offset = self.player // 2
-        print(self.player.pos, self.offset)
+        self.set_offset(self.player)
+        # print(self.player.pos, self.offset)
 
         self.set_fov()
+
+        self.thread_handle_turn = threading.Thread(
+            target=self.handle_turn, daemon=True)
+        self.thread_handle_turn.start()
+
+        self.pathing = []
 
     def place_objects(self):
         x, y = self.map.rooms[0].random_point(map=self.tiles)
@@ -97,27 +107,43 @@ class LevelScene(BaseScene):
 
         return False, None
 
+    def validate_pos(self, pos, mode='screen'):
+        if mode == 'screen':
+            x, y = pos
+            x = max(0, x)
+            x = min(self.max_x - SCREEN_COLS, x)
+
+            x = max(0, y)
+            x = min(self.max_y - SCREEN_ROWS, y)
+            return Position((x, y))
+
+    def set_offset(self, object):
+        self.offset = object // 2
+
     def scroll(self, rel):
         """scroll map using relative coordinates"""
         if not self.scrolling:
             return
 
-        self.offset = [self.offset[0] + rel[0], self.offset[1] + rel[1]]
+        x, y = [self.offset[0] + rel[0], self.offset[1] + rel[1]]
 
-        self.offset[0] = max(0, self.offset[0])
-        self.offset[0] = min(self.max_x - SCREEN_COLS, self.offset[0])
+        x = max(0, x)
+        x = min(self.max_x - SCREEN_COLS, x)
 
-        self.offset[1] = max(0, self.offset[1])
-        self.offset[1] = min(self.max_y - SCREEN_ROWS, self.offset[1])
+        y = max(0, y)
+        y = min(self.max_y - SCREEN_ROWS, y)
+
+        self.offset = Position(x, y)
 
         if DEBUG:
             print((self.offset))
 
     def set_fov(self):
+        self.set_offset(self.player)
         for y in range(SCREEN_ROWS):
             for x in range(SCREEN_COLS):
                 # draw tile at (x,y)
-                tile = self.tiles[x + self.offset[0], y + self.offset[1]]
+                tile = self.tiles[self.offset + (x, y)]
                 tile.visible = False
 
         fov.fieldOfView(self.player.x, self.player.y,
@@ -139,50 +165,73 @@ class LevelScene(BaseScene):
 
     def new_turn(self):
         self.turn += 1
-        # print("Turn {}".format(self.turn))
+        print("Turn {}".format(self.turn))
         self.player.active = True
         for object in self.objects:
                 object.active = True
 
     def handle_turn(self):
-        # all_done = True
-        for object in self.objects:
-            if object.ai and object.active:
-                object.ai.take_turn()
-                # all_done = False
-        # if all_done and not self.player.active:
-        if not self.player.active:
-            self.new_turn()
+        # thread_handle_turn
+        while True:
+            if self.game_state == 'playing':
+                self.pathing = []
+                for object in self.objects:
+                    if (
+                        object.ai and object.active and
+                        (object.next_to_vis or self.tiles[object.pos].visible)
+                    ):
+                        object.ai.take_turn()
+                        time.sleep(0.1)
+                    if object is not self.player:
+                        object.active = False
 
-    def on_update(self, force=False):
+                if not self.player.active:
+                    self.new_turn()
+            time.sleep(0.2)
+
+    def on_update(self):
         # loop all tiles, and draw
         for y in range(SCREEN_ROWS):
             for x in range(SCREEN_COLS):
                 # draw tile at (x,y)
-                tile = self.tiles[x + self.offset[0], y + self.offset[1]]
+                try:
+                    pos = self.offset + (x, y)
+                    tile = self.tiles[pos]
+                except KeyError:
+                    print("(x, y)", (x, y))
+                    print("self.offset", self.offset)
+                    print("pos", pos)
+                    print(traceback.format_exc())
+                    sys.exit(-1)
                 if tile.visible:
-                    self.game.gfx.draw(tile.id, (x, y))
+                    if pos not in self.remains:
+                        if pos in self.pathing:
+                            self.game.gfx.draw(tile.id, (x, y),
+                                               color=GameColor.red)
+                        else:
+                            self.game.gfx.draw(tile.id, (x, y))
                 elif tile.explored:
                     self.game.gfx.draw(tile.id, (x, y),
                                        color=GameColor.darkest_grey)
 
         self.remains.update()
         self.objects.update()
-        self.handle_turn()
+        # self.handle_turn()
         self.game.gfx.hud.text = "HP: {}".format(self.player.fighter.hp)
         self.game.gfx.hud.draw()
 
     def on_key_press(self, event):
-        if event.type == pygame.KEYDOWN:
-            if self.game_state == 'playing' and self.player.active:
-                if event.key == pygame.K_UP:
-                    self.player.action(0, -1)
-                elif event.key == pygame.K_DOWN:
-                    self.player.action(0, 1)
-                elif event.key == pygame.K_LEFT:
-                    self.player.action(-1, 0)
-                elif event.key == pygame.K_RIGHT:
-                    self.player.action(1, 0)
+        if self.game_state == 'playing' and self.player.active:
+            if event.key == pygame.K_UP:
+                self.player.action(0, -1)
+            elif event.key == pygame.K_DOWN:
+                self.player.action(0, 1)
+            elif event.key == pygame.K_LEFT:
+                self.player.action(-1, 0)
+            elif event.key == pygame.K_RIGHT:
+                self.player.action(1, 0)
+            elif event.key == pygame.K_SPACE:
+                self.player.action()
 
     def on_mouse_scroll(self, event):
         keys = pygame.key.get_pressed()
@@ -201,8 +250,14 @@ class LevelScene(BaseScene):
             else:
                 self.scroll((0, 1))
 
+    def quit(self):
+        # threading.Thread.
+        # self.thread_handle_turn
+        pass
+
 if __name__ == '__main__':
     from constants import LIMIT_FPS, SCREEN_WIDTH, SCREEN_HEIGHT
     game = Game(
         scene=LevelScene, framerate=LIMIT_FPS,
-        width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+        width=SCREEN_WIDTH, height=SCREEN_HEIGHT,
+        show_fps=False)

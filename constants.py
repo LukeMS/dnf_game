@@ -22,6 +22,7 @@ ROOM_MIN_SIZE = 6
 MAX_ROOMS = 30
 
 MAX_ROOM_MONSTERS = 3
+ROOM_ITEM_CHANCE = [80, 15, 5]
 
 
 class GameColor:
