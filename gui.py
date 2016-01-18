@@ -5,7 +5,40 @@ from constants import GameColor
 import resources
 
 
-class _Hud:
+class MsgLog:
+
+    def __init__(self, gfx):
+        self.gfx = gfx
+        self.screen = self.gfx.screen
+        self.fonts = self.gfx.fonts
+        self.font = self.fonts.load('caladea-regular.ttf', 20)
+
+        self.line_height = self.font.get_height()
+
+        self.ypos = int(self.screen.get_height() - self.line_height * 1.2)
+        self._history = []
+
+    def add(self, string, color=None):
+        if color is None:
+            color = GameColor.desaturated_green
+        img = self.font.render(string, 1, color)
+        self._history.append(img)
+        self._history = self._history[-5:]
+        # (50, 200, 50)
+
+    @property
+    def history(self):
+        return reversed(self._history)
+
+    def draw(self):
+        ypos = int(self.ypos)
+        for line in self.history:
+            self.screen.blit(line, (10, ypos))
+            # win.fill(0, (r.right, r.top, 620, r.height))
+            ypos -= self.line_height
+
+
+class Bar:
     """Semi-Abstract object for subclassing"""
     x = 16
     y = 16
@@ -21,13 +54,14 @@ class _Hud:
         (range(75, 101), GameColor.green)
     ]
 
-    def __init__(self, name, value, maximum):
+    def __init__(self, name, value, maximum, gfx):
         self.name = name
         self.value = value
         self.maximum = maximum
+        self.gfx = gfx
+        self.screen = self.gfx.screen
+        self.fonts = self.gfx.fonts
         self.set_color()
-
-        self.screen = pygame.display.get_surface()
 
         if self.alpha is None:
             flags = 0
@@ -38,7 +72,7 @@ class _Hud:
             self.bar_color = tuple(bar_color)
 
         while True:
-            test_font = fonts.load('caladea-regular.ttf', self.font_size)
+            test_font = self.fonts.load('caladea-regular.ttf', self.font_size)
             test_size = test_font.size(self.text)[0]
             if test_size > self.total_width - 16:
                 self.font_size -= 1
@@ -56,7 +90,9 @@ class _Hud:
         else:
             return int(value / self.maximum * self.total_width)
 
-    def set_value(self, value):
+    def set_value(self, value, maximum=None):
+        if max is not None:
+            self.maximum = maximum
         self.value = value
         w, h = [self.bar_width(), self.bg_surface.get_height()]
         if w < 1:
@@ -98,6 +134,26 @@ class _Hud:
         return str(self.name + " {}/{}".format(self.value, self.maximum))
 
 
+class Hud:
+
+    def __init__(self, gfx):
+        self.gfx = gfx
+        self.screen = self.gfx.screen
+        self.fonts = self.gfx.fonts
+
+        self.text = " "
+        self.font = self.fonts.load('caladea-bold.ttf', 14)
+        self.x, self.y = self.screen.get_size()
+        self.x -= 32
+        self.y = 0
+
+    def draw(self):
+        self.display = self.font.render(
+            self.text, False, GameColor.desaturated_green)
+        w, h = self.font.size(self.text)
+        self.screen.blit(self.display, (self.x - w, self.y + h))
+
+
 if __name__ == '__main__':
     pygame.init()
 
@@ -106,7 +162,7 @@ if __name__ == '__main__':
 
     fonts = resources.Fonts(path=os.path.join("resources", "fonts"))
 
-    hud = _Hud(name="Health", value=100, maximum=100)
+    hud = Bar(name="Health", value=100, maximum=100)
     clock = pygame.time.Clock()
     # run the game loop
     running = True

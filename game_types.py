@@ -35,6 +35,12 @@ class Position:
         elif isinstance(n, (int, float)):
             return Position(int(self.x + n), int(self.y + n))
 
+    def __sub__(self, n):
+        if isinstance(n, tuple):
+            return Position(int(self.x - n[0]), int(self.y - n[1]))
+        elif isinstance(n, (int, float)):
+            return Position(int(self.x - n), int(self.y - n))
+
     def __eq__(self, n):
         if isinstance(n, tuple):
             return (self.x, self.y) == n

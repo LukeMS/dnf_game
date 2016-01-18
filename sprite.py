@@ -9,12 +9,21 @@ from constants import TILE_W, TILE_H, GameColor
 from game_types import Position
 
 
+class Group(pygame.sprite.Group):
+    def contain_pos(self, pos):
+        for sprite in self.__iter__():
+            xy = (sprite.rect.x, sprite.rect.y)
+            if pos == xy:
+                return True
+        return False
+
+
 class Death:
 
     @staticmethod
     def player(player):
         # the game ended!
-        print('You died!')
+        player.map.game.gfx.msg_log.add('You died!')
         player.map.game_state = 'dead'
 
         # for added effect, transform the player into a corpse!
@@ -25,7 +34,9 @@ class Death:
     def monster(monster):
         # transform it into a nasty corpse! it doesn't block, can't be
         # attacked and doesn't move
-        print(monster.name.capitalize() + ' is dead!')
+        monster.map.game.gfx.msg_log.add(
+            monster.name.capitalize() + ' is dead!')
+
         monster.id = ord('%')
         monster.color = GameColor.dark_red
         monster.blocks = False
@@ -59,21 +70,27 @@ class Fighter:
             function = self.death_func
             if function is not None:
                 function(self.owner)
+        self.owner.took_damage()
 
     def attack(self, target):
         # a simple formula for attack damage
         damage = self.power - target.fighter.defense
 
+        if self.owner.ai:
+            color = GameColor.red  # I'm a monster!
+        else:
+            color = None  # I'm the player
+
         if damage > 0:
             # make the target take some damage
-            print(
+            self.owner.map.game.gfx.msg_log.add(
                 self.owner.name.capitalize() + ' attacks ' + target.name +
-                ' for ' + str(damage) + ' hit points.')
+                ' for ' + str(damage) + ' hit points.', color)
             target.fighter.take_damage(damage)
         else:
-            print(
+            self.owner.map.game.gfx.msg_log.add(
                 self.owner.name.capitalize() + ' attacks ' + target.name +
-                ' but it has no effect!')
+                ' but it has no effect!', color)
 
 
 class BasicMonsterAI:
@@ -87,12 +104,11 @@ class BasicMonsterAI:
         target = monster.map.player
         # move towards player if far away
         if monster.distance_to(monster.map.player) > 1:
-            print("{} moves".format(monster.name))
+            # print("{} moves".format(monster.name))
             monster.move_towards(target=target)
 
         # close enough, attack! (if the player is still alive.)
         elif target.fighter.hp > 0:
-            print("{} attacks".format(monster.name))
             monster.fighter.attack(target)
 
         # monster.active = False
@@ -122,9 +138,6 @@ class GameObject(pygame.sprite.Sprite):
 
         self.active = True
 
-        self.group = group
-        group.add(self)
-
         self.fighter = fighter
         if self.fighter:  # let the fighter component know who owns it
             self.fighter.owner = self
@@ -133,7 +146,16 @@ class GameObject(pygame.sprite.Sprite):
         if self.ai:  # let the AI component know who owns it
             self.ai.owner = self
 
+        if self.name != 'cursor':
+            self.group = group
+            group.add(self)
+
         self.set_next_to_vis()
+
+    def is_clicked(self):
+        return (
+            pygame.mouse.get_pressed()[0]
+            and self.rect.collidepoint(pygame.mouse.get_pos()))
 
     # next to a visible tile
     def set_next_to_vis(self):
@@ -151,7 +173,10 @@ class GameObject(pygame.sprite.Sprite):
 
     @pos.setter
     def pos(self, value):
-        self.rect.x, self.rect.y = value.x, value.y
+        if isinstance(value, tuple):
+            self.rect.x, self.rect.y = value
+        else:
+            self.rect.x, self.rect.y = value.x, value.y
 
     @property
     def x(self):
@@ -233,6 +258,9 @@ class GameObject(pygame.sprite.Sprite):
             ),
             color=self.color)
 
+    def took_damage(self):
+        pass
+
 
 class Player(GameObject):
 
@@ -244,6 +272,11 @@ class Player(GameObject):
 
         super().__init__(
             id=id, color=color, fighter=fighter_component, **kwargs)
+        self.game.gfx.hp_bar.set_value(self.fighter.hp, self.fighter.max_hp)
+
+    def took_damage(self):
+        # max_hp
+        self.game.gfx.hp_bar.set_value(self.fighter.hp, self.fighter.max_hp)
 
     def move(self, dxy):
         super().move(self.pos + dxy)
@@ -310,3 +343,36 @@ class Troll(Npc):
             fighter=fighter_component,
             ai=ai_component,
             **kwargs)
+
+
+class Cursor(GameObject):
+    def __init__(self, game, map):
+        super().__init__(
+            game=game, map=map, x=1, y=1, id=None, color=None,
+            name='cursor', group=None)
+
+    def move(self, pos, rel_pos):
+        # self.pos = pos
+        # self.rel_pos = rel_pos
+        self.pos = rel_pos
+        # print(pygame.sprite.spritecollide(self, self.map.objects, False))
+        self.cursor_collision()
+
+    def cursor_collision(self):
+        collision = None
+        for object in self.map.objects:
+            if object.pos == self.pos and object.next_to_vis:
+                collision = object
+                break
+        if collision is None:
+            for object in self.map.remains:
+                if object.pos == self.pos and object.next_to_vis:
+                    collision = object
+                    break
+        if collision is None:
+            if self.pos in self.map.tiles:
+                object = self.map.tiles[self.pos]
+                if object.visible or object.explored:
+                    collision = object
+        self.map.game.gfx.msg_log.add(
+            "Clicked on {}".format(collision))

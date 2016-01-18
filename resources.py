@@ -5,6 +5,37 @@ import pygame
 import weakref
 
 
+from constants import TILESET
+
+
+class Tileset(object):
+    cache = {}
+
+    @classmethod
+    def get(cls, color):
+        if not hasattr(cls, 'tileset'):
+            cls.tileset = pygame.image.load(
+                os.path.join("resources", TILESET)).convert_alpha()
+        if color is None:
+            return cls.tileset
+        else:
+            try:
+                tileset = cls.cache[color]
+            except KeyError:
+                tileset = cls.color_surface(cls.tileset, color)
+                cls.cache[color] = tileset
+            return tileset
+
+    @classmethod
+    def color_surface(cls, surface, color):
+        new_surface = surface.copy()
+        arr = pygame.surfarray.pixels3d(new_surface)
+        arr[:, :, 0] = color[0]
+        arr[:, :, 1] = color[1]
+        arr[:, :, 2] = color[2]
+        return new_surface
+
+
 class Resources(object):
 
     _names = {}

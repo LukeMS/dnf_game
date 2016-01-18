@@ -1,91 +1,8 @@
 import os
 
 import pygame
-from pygame import Rect
 
-from constants import *
-
-
-class Tileset(object):
-    cache = {}
-
-    @classmethod
-    def get(cls, color):
-        if not hasattr(cls, 'tileset'):
-            cls.tileset = pygame.image.load(
-                os.path.join("resources", TILESET)).convert_alpha()
-        if color is None:
-            return cls.tileset
-        else:
-            try:
-                tileset = cls.cache[color]
-            except KeyError:
-                tileset = cls.color_surface(cls.tileset, color)
-                cls.cache[color] = tileset
-            return tileset
-
-    @classmethod
-    def color_surface(cls, surface, color):
-        new_surface = surface.copy()
-        arr = pygame.surfarray.pixels3d(new_surface)
-        arr[:, :, 0] = color[0]
-        arr[:, :, 1] = color[1]
-        arr[:, :, 2] = color[2]
-        return new_surface
-
-
-class Hud:
-    def __init__(self, screen):
-        self.screen = screen
-        self.text = " "
-        self.font = pygame.font.SysFont('mono', 14, bold=True)
-        self.x, self.y = self.screen.get_size()
-        self.x = 8
-        self.y -= 32
-
-    def draw(self):
-        self.display = self.font.render(
-            self.text, True, (0, 255, 0))
-        self.screen.blit(self.display, (self.x, self.y))
-
-
-class PygameGFX:
-    def __init__(self, game):
-        self.game = game
-        self.screen = game.screen
-        self.load_tileset()
-
-        self.hud = Hud(self.screen)
-
-    def load_tileset(self):
-        _tileset = Tileset.get(None)
-        self.tileset_width, self.tileset_height = _tileset.get_size()
-
-    def get_tile(self, char):
-        if isinstance(char, str):
-            id = ord(char)
-        else:
-            id = char
-        # (self.tileset_width, self.tileset_height)
-        y = id // (self.tileset_width // TILE_W)
-        x = id % (self.tileset_width // TILE_W)
-        return x * TILE_W, y * TILE_H, TILE_W, TILE_H
-
-    def get_image(self, id, color=None):
-        src = self.get_tile(id)
-        surface = Tileset.get(color)
-
-        return surface, src
-
-    def draw(self, id, xy, color=None):
-        x, y = xy
-
-        dest = Rect(x * TILE_W, y * TILE_H, TILE_W, TILE_H)
-
-        surface, src = self.get_image(id, color)
-
-        self.screen.blit(
-            source=surface, dest=dest, area=src)
+import gfx
 
 
 class BaseScene:
@@ -153,16 +70,14 @@ class Game:
         self.framerate = framerate
         self.playtime = 0
 
-        pygame.font.init()
-        self.fps_font = pygame.font.SysFont('mono', 14, bold=True)
-        self.show_fps = show_fps
-        self.show_play_time = show_play_time
-
         pygame.init()
         os.environ['SDL_VIDEO_CENTERED'] = '1'
         self.screen = pygame.display.set_mode((width, height), pygame.NOFRAME)
         # pygame.display.set_caption("libtcod tutorial")
-        self.gfx = PygameGFX(game=self)
+        self.gfx = gfx.PygameGFX(game=self)
+
+        self.show_fps = show_fps
+        self.show_play_time = show_play_time
 
         self.set_scene(scene=scene, *args, **kwargs)
 
@@ -179,8 +94,8 @@ class Game:
 
             self.on_update()
 
-    def draw_fps(self, milliseconds):
-        self.playtime += milliseconds / 1000.0
+    def draw_fps(self, ms):
+        self.playtime += ms / 1000.0
         if self.show_fps and self.show_play_time:
             text = "FPS: {:.3}, PLAYTIME: {:.3} SECONDS".format(
                 self.clock.get_fps(), self.playtime)
@@ -188,8 +103,8 @@ class Game:
             text = "FPS: {:.3}".format(self.clock.get_fps())
         else:
             text = "PLAYTIME: {:.3} SECONDS".format(self.playtime)
-        fps_display = self.fps_font.render(text, True, (0, 255, 0))
-        self.screen.blit(fps_display, (8, 8))
+        self.gfx.fps_time_label.text = text
+        self.gfx.fps_time_label.draw()
 
     def on_event(self):
         # Exit events
@@ -207,9 +122,9 @@ class Game:
         self.screen.fill((0, 0, 0))
         self.current_scene.on_update()
 
-        milliseconds = self.clock.tick(self.framerate)
+        ms = self.clock.tick(self.framerate)
         if self.show_fps or self.show_play_time:
-                self.draw_fps(milliseconds)
+                self.draw_fps(ms)
 
         # Draw the screen
         pygame.display.flip()

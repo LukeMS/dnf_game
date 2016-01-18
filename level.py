@@ -7,10 +7,11 @@ import traceback
 import pygame
 from pygame.locals import *
 
-from game import Game, BaseScene
+from game import BaseScene
 
 from constants import SCREEN_ROWS, MAP_ROWS, SCREEN_COLS, MAP_COLS, GameColor
 from constants import MAX_ROOM_MONSTERS, EXPLORE_RADIUS, FOV_RADIUS, DEBUG
+from constants import TILE_W, TILE_H
 import sprite
 # import rnd_gen
 import gamemap
@@ -30,8 +31,8 @@ class LevelScene(BaseScene):
         self.turn = 0
         self.player_acted = False
 
-        self.objects = pygame.sprite.Group()
-        self.remains = pygame.sprite.Group()
+        self.objects = sprite.Group()
+        self.remains = sprite.Group()
 
         self.max_y = max(SCREEN_ROWS, MAP_ROWS)
         self.max_x = max(SCREEN_COLS, MAP_COLS)
@@ -53,6 +54,15 @@ class LevelScene(BaseScene):
         self.thread_handle_turn.start()
 
         self.pathing = []
+
+        self.cursor = sprite.Cursor(game=self.game, map=self)
+
+        self.game.gfx.msg_log.add(
+            (
+                'Welcome stranger! '
+                'Prepare to perish in the Tombs of the Ancient Kings.'),
+            GameColor.red
+        )
 
     def place_objects(self):
         x, y = self.map.rooms[0].random_point(map=self.tiles)
@@ -113,12 +123,12 @@ class LevelScene(BaseScene):
             x = max(0, x)
             x = min(self.max_x - SCREEN_COLS, x)
 
-            x = max(0, y)
-            x = min(self.max_y - SCREEN_ROWS, y)
+            y = max(0, y)
+            y = min(self.max_y - SCREEN_ROWS, y)
             return Position((x, y))
 
     def set_offset(self, object):
-        self.offset = object // 2
+        self.offset = object.pos // 2
 
     def scroll(self, rel):
         """scroll map using relative coordinates"""
@@ -165,10 +175,10 @@ class LevelScene(BaseScene):
 
     def new_turn(self):
         self.turn += 1
-        print("Turn {}".format(self.turn))
+        self.game.gfx.msg_log.add("Turn {}".format(self.turn))
         self.player.active = True
         for object in self.objects:
-                object.active = True
+            object.active = True
 
     def handle_turn(self):
         # thread_handle_turn
@@ -204,7 +214,7 @@ class LevelScene(BaseScene):
                     print(traceback.format_exc())
                     sys.exit(-1)
                 if tile.visible:
-                    if pos not in self.remains:
+                    if not self.remains.contain_pos(pos):
                         if pos in self.pathing:
                             self.game.gfx.draw(tile.id, (x, y),
                                                color=GameColor.red)
@@ -216,9 +226,7 @@ class LevelScene(BaseScene):
 
         self.remains.update()
         self.objects.update()
-        # self.handle_turn()
-        self.game.gfx.hud.text = "HP: {}".format(self.player.fighter.hp)
-        self.game.gfx.hud.draw()
+        self.game.gfx.draw_hud()
 
     def on_key_press(self, event):
         if self.game_state == 'playing' and self.player.active:
@@ -250,14 +258,22 @@ class LevelScene(BaseScene):
             else:
                 self.scroll((0, 1))
 
+    def on_mouse_press(self, event):
+        pos = pygame.mouse.get_pos()
+        rel_pos = (
+            (pos[0] // TILE_W) + self.offset[0],
+            (pos[1] // TILE_H) + self.offset[1])
+
+        self.cursor.move(pos, rel_pos)
+
     def quit(self):
         # threading.Thread.
         # self.thread_handle_turn
         pass
 
 if __name__ == '__main__':
+    from game import Game
     from constants import LIMIT_FPS, SCREEN_WIDTH, SCREEN_HEIGHT
     game = Game(
         scene=LevelScene, framerate=LIMIT_FPS,
-        width=SCREEN_WIDTH, height=SCREEN_HEIGHT,
-        show_fps=False)
+        width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
