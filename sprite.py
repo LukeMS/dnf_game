@@ -7,9 +7,11 @@ import pygame
 from constants import TILE_W, TILE_H, GameColor
 
 from game_types import Position
+import effects
 
 
 class Group(pygame.sprite.Group):
+
     def contain_pos(self, pos):
         for sprite in self.__iter__():
             xy = (sprite.rect.x, sprite.rect.y)
@@ -47,50 +49,6 @@ class Death:
         monster.group = monster.map.remains
         monster.map.objects.remove(monster)
         monster.map.remains.add(monster)
-
-
-class Fighter:
-    # combat-related properties and methods (monster, player, NPC).
-
-    def __init__(self, hp, defense, power, death_func=None):
-        self.max_hp = hp
-        self.hp = hp
-        self.defense = defense
-        self.power = power
-
-        self.death_func = death_func
-
-    def take_damage(self, damage):
-        # apply damage if possible
-        if damage > 0:
-            self.hp -= damage
-
-        # check for death. if there's a death function, call it
-        if self.hp <= 0:
-            function = self.death_func
-            if function is not None:
-                function(self.owner)
-        self.owner.took_damage()
-
-    def attack(self, target):
-        # a simple formula for attack damage
-        damage = self.power - target.fighter.defense
-
-        if self.owner.ai:
-            color = GameColor.red  # I'm a monster!
-        else:
-            color = None  # I'm the player
-
-        if damage > 0:
-            # make the target take some damage
-            self.owner.map.game.gfx.msg_log.add(
-                self.owner.name.capitalize() + ' attacks ' + target.name +
-                ' for ' + str(damage) + ' hit points.', color)
-            target.fighter.take_damage(damage)
-        else:
-            self.owner.map.game.gfx.msg_log.add(
-                self.owner.name.capitalize() + ' attacks ' + target.name +
-                ' but it has no effect!', color)
 
 
 class BasicMonsterAI:
@@ -145,6 +103,8 @@ class GameObject(pygame.sprite.Sprite):
         self.ai = ai
         if self.ai:  # let the AI component know who owns it
             self.ai.owner = self
+
+        self.item = False
 
         if self.name != 'cursor':
             self.group = group
@@ -213,21 +173,16 @@ class GameObject(pygame.sprite.Sprite):
         start_pos = self.pos
         end_pos = target.pos
 
-        path = self.map.map.new_path(start_pos, end_pos)
-
-        if len(path) >= 2:
-
-            try:
-                self.map.pathing = []
-                for p in path[2:-1]:
-                    self.map.pathing.append(p)
-            except:
-                pass
+        try:
+            path = self.map.map.new_path(start_pos, end_pos)
+            self.map.pathing = path[2:-1]
             next_step = Position(*path[1])
-        else:
+        except KeyError:
             # the path must be blocked
             next_step = random.choice(self.map.map.get_neighbors(start_pos))
-            # print(self.name, "moves erratically")
+            print(self.name, "moves erratically")
+        # except:
+            # self.move(self.pos)
 
         self.move(next_step)
 
@@ -267,12 +222,12 @@ class Player(GameObject):
     def __init__(
             self, id=ord('@'), color=GameColor.yellow, **kwargs):
 
-        fighter_component = Fighter(
-            hp=30, defense=2, power=5, death_func=Death.player)
+        fighter = Fighter(template="player")
 
         super().__init__(
-            id=id, color=color, fighter=fighter_component, **kwargs)
+            id=id, color=color, fighter=fighter, **kwargs)
         self.game.gfx.hp_bar.set_value(self.fighter.hp, self.fighter.max_hp)
+        self.inventory = []
 
     def took_damage(self):
         # max_hp
@@ -282,70 +237,181 @@ class Player(GameObject):
         super().move(self.pos + dxy)
         self.map.set_fov()
 
-    def action(self, dx=0, dy=0):
-        if not (dx == 0 == dy):
-            # the coordinates the player is moving to/attacking
-            pos = self.pos + (dx, dy)
+    def action(self, dx=0, dy=0, action='std'):
+        if action is 'std':
+            if not (dx == 0 == dy):
+                # the coordinates the player is moving to/attacking
+                pos = self.pos + (dx, dy)
 
-            # try to find an attackable object there
-            target = None
+                # try to find an attackable object there
+                target = None
+                for object in self.group:
+                    if object.fighter and object.pos == pos:
+                        target = object
+                        break
+
+                if target is not None:
+                    self.fighter.attack(target)
+                else:
+                    self.move((dx, dy))
+        elif action is 'get':
             for object in self.group:
-                if object.fighter and object.pos == pos:
-                    target = object
+                if object.item and object.pos == self.pos:
+                    object.pick_up(getter=self)
                     break
-
-            if target is not None:
-                self.fighter.attack(target)
-            else:
-                self.move((dx, dy))
 
         self.active = False
 
 
-class Npc(GameObject):
+class Fighter:
+    # combat-related properties and methods (monster, player, NPC).
+    templates = {
+        "player": {
+            "max_hp": 30,
+            "defense": 2,
+            "power": 5,
+            "death_func": Death.player
+        },
+        "orc": {
+            "max_hp": 10,
+            "defense": 0,
+            "power": 3,
+            "death_func": Death.monster
+        },
+        "troll": {
+            "max_hp": 16,
+            "defense": 1,
+            "power": 4,
+            "death_func": Death.monster
+        }
+    }
+
+    def __init__(self, template):
+        # hp, defense, power, death_func=None):
+        for key, value in self.templates[template].items():
+            setattr(self, key, value)
+        self.hp = self.templates[template]['max_hp']
+
+    def take_damage(self, damage):
+        # apply damage if possible
+        if damage > 0:
+            self.hp -= damage
+
+        # check for death. if there's a death function, call it
+        if self.hp <= 0:
+            function = self.death_func
+            if function is not None:
+                function(self.owner)
+        self.owner.took_damage()
+
+    def heal(self, amount):
+        # heal by the given amount, without going over the maximum
+        self.hp += amount
+        self.hp = min(self.hp, self.max_hp)
+
+    def attack(self, target):
+        # a simple formula for attack damage
+        damage = self.power - target.fighter.defense
+
+        if self.owner.ai:
+            color = GameColor.red  # I'm a monster!
+        else:
+            color = None  # I'm the player
+
+        if damage > 0:
+            # make the target take some damage
+            self.owner.map.game.gfx.msg_log.add(
+                self.owner.name.capitalize() + ' attacks ' + target.name +
+                ' for ' + str(damage) + ' hit points.', color)
+            target.fighter.take_damage(damage)
+        else:
+            self.owner.map.game.gfx.msg_log.add(
+                self.owner.name.capitalize() + ' attacks ' + target.name +
+                ' but it has no effect!', color)
+
+
+class Item(GameObject):
+    templates = {
+        'healing potion': {
+            'id': "!",
+            'color': GameColor.violet,
+            'use_function': effects.cast_heal
+        }
+    }
+
+    def __init__(self, template, **kwargs):
+        new_obj = dict(self.templates[template])
+        self.use_function = new_obj.pop('use_function')
+        new_obj.update(kwargs)
+        new_obj.update({'name': str(template).capitalize()})
+        super().__init__(**new_obj, blocks=False)
+        self.item = True
+
+    def pick_up(self, getter):
+        # add to the player's inventory and remove from the map
+        if len(getter.inventory) >= 26:
+            if getter == self.map.player:
+                self.map.game.gfx.msg_log.add(
+                    'Your inventory is full, cannot pick up ' +
+                    self.name + '.', GameColor.yellow)
+        else:
+            getter.inventory.append(self)
+            self.group.remove(self)
+            self.map.game.gfx.msg_log.add(
+                'You picked up a ' + self.name + '!',
+                GameColor.blue)
+
+    def use(self, user):
+        # just call the "use_function" if it is defined
+        if self.use_function is None:
+            self.map.game.gfx.msg_log.add(
+                'The ' + self.name + ' cannot be used.')
+        else:
+            if self.use_function(who=user) != 'cancelled':
+                user.inventory.remove(self)
+                # destroy after use, unless it was cancelled for some reason
 
     def update(self):
         if self.map.tiles[self.pos].visible:
             super().update()
 
 
-class Orc(Npc):
+class NPC(GameObject):
 
-    def __init__(
-        self,
-        id=ord('o'), color=GameColor.desaturated_green,
-        **kwargs
-    ):
-        fighter_component = Fighter(
-            hp=10, defense=0, power=3, death_func=Death.monster
-        )
-        ai_component = BasicMonsterAI()
-        super().__init__(
-            id=id, color=color,
-            fighter=fighter_component,
-            ai=ai_component,
-            **kwargs)
+    templates = {
+        'orc': {
+            "id": ord('o'),
+            "color": GameColor.desaturated_green,
+            "ai": BasicMonsterAI
+        },
+        'troll': {
+            "id": ord('T'),
+            "color": GameColor.darker_green,
+            "ai": BasicMonsterAI
+        }
+    }
 
+    def __init__(self, template, **kwargs):
+        new_obj = dict(self.templates[template])
+        new_obj.update(kwargs)
+        new_obj.update({'name': str(template).capitalize()})
+        if template in Fighter.templates:
+            new_obj['fighter'] = Fighter(template)
+        else:
+            new_obj['fighter'] = None
+        if new_obj['ai'] is not None:
+            new_obj['ai'] = new_obj['ai']()
+        super().__init__(**new_obj)
 
-class Troll(Npc):
+        self.inventory = []
 
-    def __init__(
-        self,
-        id=ord('T'), color=GameColor.darker_green,
-        **kwargs
-    ):
-        fighter_component = Fighter(
-            hp=16, defense=1, power=4, death_func=Death.monster
-        )
-        ai_component = BasicMonsterAI()
-        super().__init__(
-            id=id, color=color,
-            fighter=fighter_component,
-            ai=ai_component,
-            **kwargs)
+    def update(self):
+        if self.map.tiles[self.pos].visible:
+            super().update()
 
 
 class Cursor(GameObject):
+
     def __init__(self, game, map):
         super().__init__(
             game=game, map=map, x=1, y=1, id=None, color=None,

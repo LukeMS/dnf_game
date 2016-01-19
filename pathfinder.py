@@ -28,16 +28,7 @@ class AStarSearch:
         try:
             path = cls.reconstruct_path(came_from, start, goal)
         except KeyError:
-            # import traceback
-            # print(traceback.format_exc())
-            path = [tuple(start_pos), random.choice(cls.neighbors(
-                start_pos, end_pos))]
-            # print("start_pos", start_pos)
-            # print("end_pos", end_pos)
-            # print("path", path)
-            # print("Error handled at AStarSearch.new_search")
-            # print("Remove forced quitting if everything is ok")
-            # exit()
+            raise KeyError
         return path
 
     @staticmethod

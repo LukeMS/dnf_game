@@ -47,7 +47,7 @@ class Map:
                 if x == 0 and y == 0:
                     continue
                 n = pos + (x, y)
-                if self.valid_tile(n) or n == self.end_pos:
+                if self.valid_tile(n):
                     lst.append(n)
         return lst
 

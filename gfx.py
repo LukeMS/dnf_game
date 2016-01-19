@@ -19,6 +19,7 @@ class PygameGFX:
         self.hp_bar = gui.Bar(name="Health", value=100, maximum=100, gfx=self)
         self.msg_log = gui.MsgLog(gfx=self)
         self.fps_time_label = gui.Hud(gfx=self)
+        self.inventory = gui.Inventory(gfx=self)
 
     def draw_hud(self):
         self.hp_bar.draw()

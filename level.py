@@ -12,6 +12,7 @@ from game import BaseScene
 from constants import SCREEN_ROWS, MAP_ROWS, SCREEN_COLS, MAP_COLS, GameColor
 from constants import MAX_ROOM_MONSTERS, EXPLORE_RADIUS, FOV_RADIUS, DEBUG
 from constants import TILE_W, TILE_H
+from rnd_utils import RoomItems
 import sprite
 # import rnd_gen
 import gamemap
@@ -64,41 +65,64 @@ class LevelScene(BaseScene):
             GameColor.red
         )
 
+    def new_xy(self, room, objects=None):
+        attempts = 0
+        while True:
+            if attempts > 10:
+                return None
+            xy = room.random_point(map=self.tiles)
+            if xy not in objects:
+                return xy
+            attempts += 1
+
     def place_objects(self):
-        x, y = self.map.rooms[0].random_point(map=self.tiles)
+        for room_n, room in enumerate(self.map.rooms):
 
-        self.player = sprite.Player(
-            name=None,
-            game=self.game, map=self, x=x, y=y,
-            group=self.objects)
+            if room_n > 1:
+                num_items = RoomItems.random()
+                items_placed = []
+                for i in range(num_items):
+                    xy = self.new_xy(room, items_placed)
+                    if xy is not None:
+                        items_placed.append(xy)
+                        x, y = xy
+                        template = "healing potion"
+                        sprite.Item(
+                            template=template,
+                            game=self.game, map=self, x=x, y=y,
+                            group=self.objects)
+                        """
+                        tmp = sprite.Item(
+                            template=template,
+                            game=self.game, map=self, x=x, y=y,
+                            group=self.objects)
+                        tmp.pos = self.player.pos
+                        tmp.group.remove(tmp)
+                        self.player.inventory.append(tmp)
+                        """
 
-        for room in self.map.rooms[2:]:
-            # choose random number of monsters
-            num_monsters = random.randint(0, MAX_ROOM_MONSTERS)
-
-            for i in range(num_monsters):
-                # choose random spot for this monster
+                num_monsters = random.randint(0, MAX_ROOM_MONSTERS)
+                monsters_placed = []
+                for i in range(num_monsters):
+                    xy = self.new_xy(room, monsters_placed)
+                    if xy is not None:
+                        monsters_placed.append(xy)
+                        x, y = xy
+                        if random.randint(0, 100) < 80:
+                            template = "orc"
+                        else:
+                            template = "troll"
+                        sprite.NPC(
+                            template=template,
+                            game=self.game, map=self, x=x, y=y,
+                            group=self.objects)
+            elif room_n == 0:
                 x, y = room.random_point(map=self.tiles)
-                attempts = 1
-                while self.is_blocked((x, y)):
-                    x, y = room.random_point(map=self.tiles)
-                    attempts += 1
-                    if attempts > 3:
-                        break
 
-                # 80% chance of getting an orc
-                if random.randint(0, 100) < 80:
-                    # create an orc
-                    sprite.Orc(
-                        name=None,
-                        game=self.game, map=self, x=x, y=y,
-                        group=self.objects)
-                else:
-                    # create a troll
-                    sprite.Troll(
-                        name=None,
-                        game=self.game, map=self, x=x, y=y,
-                        group=self.objects)
+                self.player = sprite.Player(
+                    name=None,
+                    game=self.game, map=self, x=x, y=y,
+                    group=self.objects)
 
     def is_blocked(self, pos, sprite=None):
         # first test the map tile
@@ -183,8 +207,8 @@ class LevelScene(BaseScene):
     def handle_turn(self):
         # thread_handle_turn
         while True:
+            self.pathing = []
             if self.game_state == 'playing':
-                self.pathing = []
                 for object in self.objects:
                     if (
                         object.ai and object.active and
@@ -227,6 +251,8 @@ class LevelScene(BaseScene):
         self.remains.update()
         self.objects.update()
         self.game.gfx.draw_hud()
+        if self.game_state == 'inventory':
+            self.game.gfx.inventory.draw()
 
     def on_key_press(self, event):
         if self.game_state == 'playing' and self.player.active:
@@ -240,6 +266,16 @@ class LevelScene(BaseScene):
                 self.player.action(1, 0)
             elif event.key == pygame.K_SPACE:
                 self.player.action()
+            elif event.key == pygame.K_g:
+                self.player.action(action='get')
+        if event.key == pygame.K_i:
+            if self.game_state == 'playing':
+                self.game.gfx.inventory.set_inventory(self.player)
+                self.game_state = 'inventory'
+
+            else:
+                self.game_state = 'playing'
+                self.game.gfx.inventory.clean_inventory()
 
     def on_mouse_scroll(self, event):
         keys = pygame.key.get_pressed()
@@ -260,11 +296,14 @@ class LevelScene(BaseScene):
 
     def on_mouse_press(self, event):
         pos = pygame.mouse.get_pos()
-        rel_pos = (
-            (pos[0] // TILE_W) + self.offset[0],
-            (pos[1] // TILE_H) + self.offset[1])
+        if self.game_state == 'playing' and self.player.active:
+            rel_pos = (
+                (pos[0] // TILE_W) + self.offset[0],
+                (pos[1] // TILE_H) + self.offset[1])
 
-        self.cursor.move(pos, rel_pos)
+            self.cursor.move(pos, rel_pos)
+        elif self.game_state == 'inventory':
+            self.game.gfx.inventory.click_on(pos)
 
     def quit(self):
         # threading.Thread.
