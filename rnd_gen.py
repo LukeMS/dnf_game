@@ -37,7 +37,7 @@ class Map:
         self.map = {}
         for y in range(height):
             for x in range(width):
-                self.map[x, y] = tile.Wall()
+                self.map[x, y] = tile.Wall(pos=(x, y))
 
         num_rooms = 0
         for r in range(MAX_ROOMS):
@@ -90,7 +90,7 @@ class Map:
         # go through the tiles in the rectangle and make them passable
         for x in range(room.x1 + 1, room.x2):
             for y in range(room.y1 + 1, room.y2):
-                self.map[x, y] = tile.Floor()
+                self.map[x, y] = tile.Floor(pos=(x, y))
         self.rooms.append(room)
 
     def create_h_tunnel(self, x1, x2, y):
@@ -98,7 +98,7 @@ class Map:
         min_x = min(x1, x2)
         max_x = max(x1, x2)
         for x in range(min_x, max_x + 1):
-            self.map[x, y] = tile.Floor()
+            self.map[x, y] = tile.Floor(pos=(x, y))
         self.halls.append(RoomRect(min_x, y, max_x - min_x, 0))
 
     def create_v_tunnel(self, y1, y2, x):
@@ -106,7 +106,7 @@ class Map:
         min_y = min(y1, y2)
         max_y = max(y1, y2) + 1
         for y in range(min_y, max_y + 1):
-            self.map[x, y] = tile.Floor()
+            self.map[x, y] = tile.Floor(pos=(x, y))
         self.halls.append(RoomRect(x, min_y, 0, max_y - min_y))
 
     def rnd_open_tile(self):

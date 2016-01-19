@@ -53,6 +53,9 @@ class BaseScene:
     def on_key_held(self):
         pass
 
+    def quit(self):
+        self.game.alive = False
+
 
 class Game:
     """Represents the main object of the game.
@@ -110,8 +113,6 @@ class Game:
         # Exit events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.quit()
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 self.quit()
             else:
                 # Handles events to the current scene

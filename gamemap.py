@@ -1,4 +1,5 @@
 import sys
+import math
 
 from random import randint
 
@@ -50,6 +51,34 @@ class Map:
                 if self.valid_tile(n):
                     lst.append(n)
         return lst
+
+    def distance(self, pos1, pos2):
+        dx = pos1[0] - pos2[0]
+        dy = pos2[1] - pos1[1]
+        return math.sqrt(dx ** 2 + dy ** 2)
+
+    def get_area(self, pos, radius, circle=True, only_visible=True):
+        area = []
+        # print("pos {}, radius {}".format(pos, radius))
+        for x in range(
+            max(pos.x - radius, 0),
+            min(pos.x + radius + 1, self.width)
+        ):
+            for y in range(
+                max(pos.y - radius, 0),
+                min(pos.y + radius + 1, self.height)
+            ):
+                # print((x, y))
+                if circle and self.distance(pos, (x, y)) > radius:
+                    # print((x, y), " distance:", self.distance(pos, (x, y)))
+                    continue
+                if only_visible and not self.grid[(x, y)].visible:
+                    # print((x, y), "not visible")
+                    continue
+                else:
+                    area.append((x, y))
+        # print(area)
+        return area
 
     def new_path(self, start_pos, end_pos):
         return AStarSearch.new_search(self, self.grid, start_pos, end_pos)

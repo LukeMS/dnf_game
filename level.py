@@ -12,7 +12,7 @@ from game import BaseScene
 from constants import SCREEN_ROWS, MAP_ROWS, SCREEN_COLS, MAP_COLS, GameColor
 from constants import MAX_ROOM_MONSTERS, EXPLORE_RADIUS, FOV_RADIUS, DEBUG
 from constants import TILE_W, TILE_H
-from rnd_utils import RoomItems
+from rnd_utils import RoomItems, ItemTypes
 import sprite
 # import rnd_gen
 import gamemap
@@ -55,6 +55,8 @@ class LevelScene(BaseScene):
         self.thread_handle_turn.start()
 
         self.pathing = []
+        self.tile_fx_coord = []
+        self.tile_fx_color = []
 
         self.cursor = sprite.Cursor(game=self.game, map=self)
 
@@ -86,20 +88,16 @@ class LevelScene(BaseScene):
                     if xy is not None:
                         items_placed.append(xy)
                         x, y = xy
-                        template = "healing potion"
+                        template = ItemTypes.random()
                         sprite.Item(
                             template=template,
                             game=self.game, map=self, x=x, y=y,
-                            group=self.objects)
-                        """
+                            group=self.remains)
                         tmp = sprite.Item(
                             template=template,
                             game=self.game, map=self, x=x, y=y,
-                            group=self.objects)
-                        tmp.pos = self.player.pos
-                        tmp.group.remove(tmp)
-                        self.player.inventory.append(tmp)
-                        """
+                            group=self.remains)
+                        tmp.item.pick_up(getter=self.player)
 
                 num_monsters = random.randint(0, MAX_ROOM_MONSTERS)
                 monsters_placed = []
@@ -203,6 +201,8 @@ class LevelScene(BaseScene):
         self.player.active = True
         for object in self.objects:
             object.active = True
+        self.tile_fx_coord = []
+        self.tile_fx_color = []
 
     def handle_turn(self):
         # thread_handle_turn
@@ -242,6 +242,11 @@ class LevelScene(BaseScene):
                         if pos in self.pathing:
                             self.game.gfx.draw(tile.id, (x, y),
                                                color=GameColor.red)
+                        elif pos in self.tile_fx_coord:
+                            index = self.tile_fx_coord.index(pos)
+                            color = self.tile_fx_color[index]
+                            self.game.gfx.draw(tile.id, (x, y),
+                                               color=color)
                         else:
                             self.game.gfx.draw(tile.id, (x, y))
                 elif tile.explored:
@@ -256,6 +261,8 @@ class LevelScene(BaseScene):
 
     def on_key_press(self, event):
         if self.game_state == 'playing' and self.player.active:
+            if event.key == pygame.K_ESCAPE:
+                self.quit()
             if event.key == pygame.K_UP:
                 self.player.action(0, -1)
             elif event.key == pygame.K_DOWN:
@@ -268,12 +275,15 @@ class LevelScene(BaseScene):
                 self.player.action()
             elif event.key == pygame.K_g:
                 self.player.action(action='get')
-        if event.key == pygame.K_i:
-            if self.game_state == 'playing':
+            elif event.key == pygame.K_i:
                 self.game.gfx.inventory.set_inventory(self.player)
                 self.game_state = 'inventory'
-
-            else:
+            elif event.key == pygame.K_d:
+                self.game.gfx.inventory.set_inventory(
+                    self.player, mode="drop")
+                self.game_state = 'inventory'
+        elif self.game_state == 'inventory':
+            if event.key in [pygame.K_i, pygame.K_ESCAPE]:
                 self.game_state = 'playing'
                 self.game.gfx.inventory.clean_inventory()
 
@@ -301,14 +311,26 @@ class LevelScene(BaseScene):
                 (pos[0] // TILE_W) + self.offset[0],
                 (pos[1] // TILE_H) + self.offset[1])
 
-            self.cursor.move(pos, rel_pos)
+            if event.button == 1:  # left button
+                target = self.cursor.move(pos, rel_pos)
+                self.game.gfx.msg_log.add(
+                    "Clicked on {}".format(target))
+            elif event.button == 3:  # right button
+                target = self.cursor.move(pos, rel_pos)
+                self.game.gfx.inventory.set_inventory(
+                    holder=self.player,
+                    target=target)
+                self.game_state = 'inventory'
+
         elif self.game_state == 'inventory':
-            self.game.gfx.inventory.click_on(pos)
+            if self.game.gfx.inventory.click_on(pos) in [
+                'used', "dropped"
+            ]:
+                self.game_state = 'playing'
+                self.game.gfx.inventory.clean_inventory()
 
     def quit(self):
-        # threading.Thread.
-        # self.thread_handle_turn
-        pass
+        super().quit()
 
 if __name__ == '__main__':
     from game import Game

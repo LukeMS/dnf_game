@@ -1,6 +1,15 @@
 import random
 
 
+def rnd_dic_rng(dic):
+    min_v = min([key.start for key in dic.keys()])
+    max_v = max([key.stop for key in dic.keys()])
+    rnd = random.randint(min_v, max_v - 1)
+    result = dic.__getitem__(rnd)
+    # print(rnd, result)
+    return result
+
+
 class RangedDictionary(dict):
     def __getitem__(self, key):
         for rng in self.keys():
@@ -11,15 +20,14 @@ class RangedDictionary(dict):
         return super().__getitem__(key)
 
 
-def rnd_dic_rng(dic):
-    min_v = min([key.start for key in dic.keys()])
-    max_v = max([key.stop for key in dic.keys()])
-    rnd = random.randint(min_v, max_v - 1)
-    result = dic.__getitem__(rnd)
-    return result
+class RandomDictionary:
+
+    @classmethod
+    def random(cls):
+        return rnd_dic_rng(cls.dic)
 
 
-class RoomItems:
+class RoomItems(RandomDictionary):
     """
     Use RoomItems.random() to get a random item quantity roll.
     """
@@ -29,9 +37,20 @@ class RoomItems:
         range(90, 100): 2  # min <= x < max: 2 items
     })
 
-    @classmethod
-    def random(cls):
-        return rnd_dic_rng(cls.dic)
+
+class ItemTypes(RandomDictionary):
+    """
+    Use RoomItems.random() to get a random item quantity roll.
+    """
+    dic = RangedDictionary()
+    from sprite import Item
+    max_v = 0
+    for name, template in Item.templates.items():
+        rng = (100 - template['_rarity'])
+        dic[range(max_v, max_v + rng)] = name
+        max_v += rng
+
 
 if __name__ == '__main__':
-    print(RoomItems.random())
+    print(ItemTypes.dic)
+    ItemTypes.random()

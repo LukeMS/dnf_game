@@ -1,8 +1,6 @@
-import os
 import pygame
 
 from constants import GameColor
-import resources
 
 from pygame.compat import xrange_
 
@@ -101,9 +99,12 @@ class Inventory:
         del self.inv_render
         self.inv_render = []
         self.holder = None
+        self.target = None
 
-    def set_inventory(self, holder):
+    def set_inventory(self, holder, target=None, mode="use"):
         self.holder = holder
+        self.target = target
+        self.mode = mode
         offset = self.offset
         self.inventory = self.holder.inventory
         self.inv_render = []
@@ -153,8 +154,12 @@ class Inventory:
                     txt_obj.collidepoint(pos) or
                     txt_shd_obj.collidepoint(pos)
                 ):
-                    item.use(user=self.holder)
-                    return
+                    if self.mode == 'use':
+                        return item.item.use(
+                            user=self.holder, target=self.target)
+                    elif self.mode == 'drop':
+                        return item.item.drop(
+                            dropper=self.holder)
             ar = pygame.PixelArray(self.main_surface)
             ar[:] = ar[:, ::-1]
             del ar

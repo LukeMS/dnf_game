@@ -7,7 +7,8 @@ import pygame
 from constants import TILE_W, TILE_H, GameColor
 
 from game_types import Position
-import effects
+from item_comp import ItemComponent
+import ai_comp
 
 
 class Group(pygame.sprite.Group):
@@ -20,95 +21,50 @@ class Group(pygame.sprite.Group):
         return False
 
 
-class Death:
-
-    @staticmethod
-    def player(player):
-        # the game ended!
-        player.map.game.gfx.msg_log.add('You died!')
-        player.map.game_state = 'dead'
-
-        # for added effect, transform the player into a corpse!
-        player.id = ord('%')
-        player.color = GameColor.dark_red
-
-    @staticmethod
-    def monster(monster):
-        # transform it into a nasty corpse! it doesn't block, can't be
-        # attacked and doesn't move
-        monster.map.game.gfx.msg_log.add(
-            monster.name.capitalize() + ' is dead!')
-
-        monster.id = ord('%')
-        monster.color = GameColor.dark_red
-        monster.blocks = False
-        monster.fighter = None
-        monster.ai = None
-        monster.name = 'remains of ' + monster.name
-
-        monster.group = monster.map.remains
-        monster.map.objects.remove(monster)
-        monster.map.remains.add(monster)
-
-
-class BasicMonsterAI:
-    # AI for a basic monster.
-
-    def take_turn(self):
-        # a basic monster takes its turn. If you can see it, it can see you
-        monster = self.owner
-
-        # if monster.map.tiles[monster.pos].visible:
-        target = monster.map.player
-        # move towards player if far away
-        if monster.distance_to(monster.map.player) > 1:
-            # print("{} moves".format(monster.name))
-            monster.move_towards(target=target)
-
-        # close enough, attack! (if the player is still alive.)
-        elif target.fighter.hp > 0:
-            monster.fighter.attack(target)
-
-        # monster.active = False
-
-
 class GameObject(pygame.sprite.Sprite):
     # this is a generic object: the player, a monster, an item, the stairs...
     # it's always represented by a character on screen.
 
     def __init__(
-        self, game, map, x, y, id, color, name, group,
-        blocks=True, fighter=None, ai=None
+        self, game, map, x, y, id, color, group,
+        name=None, blocks=True, fighter=None, ai=None, item=None, active=True,
+        **kwargs
     ):
         super().__init__()
-        self.game = game
-        self.map = map
+
+        # some preliminar preparation
         self.rect = pygame.Rect(x, y, TILE_W, TILE_H)
-        self.id = id
-        self.color = color
-        if name is None:
-            self.name = str(type(self))
-            for trash in ["<class '", "'>", "Sprite.", "sprite."]:
+        #
+
+        # unpack the arguments and store them in the instance
+        for arg in [
+            "game", "map", "x", "y", "id", "color", "group", "name", "blocks",
+            "fighter", "ai", "item", "active"
+        ]:
+            setattr(self, arg, eval(arg))
+        #
+
+        # some extra required preparation
+        if self.name is None:
+            self.name = str(type(self)).lower()
+            for trash in ["<class '", "'>", "sprite."]:
                 self.name = self.name.replace(trash, "")
-        else:
-            self.name = name
-        self.blocks = blocks
+            self.name = self.name.capitalize()
 
-        self.active = True
-
-        self.fighter = fighter
         if self.fighter:  # let the fighter component know who owns it
             self.fighter.owner = self
 
-        self.ai = ai
         if self.ai:  # let the AI component know who owns it
             self.ai.owner = self
 
-        self.item = False
+        if self.item:  # let the AI component know who owns it
+            self.item.owner = self
 
         if self.name != 'cursor':
-            self.group = group
-            group.add(self)
+            self.group.add(self)
+
+        self.default_ai = self.ai
+        self.default_color = self.color
 
         self.set_next_to_vis()
 
@@ -169,6 +125,12 @@ class GameObject(pygame.sprite.Sprite):
             self.pos = pos
             self.set_next_to_vis()
 
+    def move_rnd(self):
+        start_pos = self.pos
+        next_step = random.choice(self.map.map.get_neighbors(start_pos))
+        print(self.name, "moves erratically")
+        self.move(next_step)
+
     def move_towards(self, target):
         start_pos = self.pos
         end_pos = target.pos
@@ -177,20 +139,17 @@ class GameObject(pygame.sprite.Sprite):
             path = self.map.map.new_path(start_pos, end_pos)
             self.map.pathing = path[2:-1]
             next_step = Position(*path[1])
+            self.move(next_step)
         except KeyError:
             # the path must be blocked
-            next_step = random.choice(self.map.map.get_neighbors(start_pos))
-            print(self.name, "moves erratically")
-        # except:
-            # self.move(self.pos)
-
-        self.move(next_step)
+            self.move_rnd()
 
     def distance_to(self, other, another=None):
         if isinstance(other, tuple):
             x1, y1 = other
         else:
             x1, y1 = other.x, other.y
+
         if another is None:
             # return the distance to another object
             x2, y2 = self.x, self.y
@@ -217,6 +176,39 @@ class GameObject(pygame.sprite.Sprite):
         pass
 
 
+class Death:
+
+    @staticmethod
+    def player(player):
+        # the game ended!
+        player.game.gfx.msg_log.add('You died!')
+        player.game_state = 'dead'
+
+        # for added effect, transform the player into a corpse!
+        player.id = ord('%')
+        player.color = GameColor.dark_red
+
+    @staticmethod
+    def monster(monster):
+        # transform it into a nasty corpse! it doesn't block, can't be
+        # attacked and doesn't move
+        monster.game.gfx.msg_log.add(
+            monster.name.capitalize() + ' is dead!')
+
+        monster.id = ord('%')
+        monster.color = GameColor.dark_red
+        monster.blocks = False
+        monster.fighter = None
+        monster.ai = None
+        monster.item = ItemComponent('remains')
+        monster.item.owner = monster
+        monster.name = 'remains of ' + monster.name
+
+        monster.group = monster.map.remains
+        monster.map.objects.remove(monster)
+        monster.map.remains.add(monster)
+
+
 class Player(GameObject):
 
     def __init__(
@@ -229,7 +221,7 @@ class Player(GameObject):
         self.game.gfx.hp_bar.set_value(self.fighter.hp, self.fighter.max_hp)
         self.inventory = []
 
-    def took_damage(self):
+    def update_hp(self):
         # max_hp
         self.game.gfx.hp_bar.set_value(self.fighter.hp, self.fighter.max_hp)
 
@@ -255,9 +247,9 @@ class Player(GameObject):
                 else:
                     self.move((dx, dy))
         elif action is 'get':
-            for object in self.group:
+            for object in self.map.remains:
                 if object.item and object.pos == self.pos:
-                    object.pick_up(getter=self)
+                    object.item.pick_up(getter=self)
                     break
 
         self.active = False
@@ -302,12 +294,13 @@ class Fighter:
             function = self.death_func
             if function is not None:
                 function(self.owner)
-        self.owner.took_damage()
+        self.owner.update_hp()
 
     def heal(self, amount):
         # heal by the given amount, without going over the maximum
         self.hp += amount
         self.hp = min(self.hp, self.max_hp)
+        self.owner.update_hp()
 
     def attack(self, target):
         # a simple formula for attack damage
@@ -320,14 +313,29 @@ class Fighter:
 
         if damage > 0:
             # make the target take some damage
-            self.owner.map.game.gfx.msg_log.add(
+            self.owner.game.gfx.msg_log.add(
                 self.owner.name.capitalize() + ' attacks ' + target.name +
                 ' for ' + str(damage) + ' hit points.', color)
             target.fighter.take_damage(damage)
         else:
-            self.owner.map.game.gfx.msg_log.add(
+            self.owner.game.gfx.msg_log.add(
                 self.owner.name.capitalize() + ' attacks ' + target.name +
                 ' but it has no effect!', color)
+
+    def closest_monster(self, who, max_range):
+        # find closest enemy, up to a maximum range, and in the player's FOV
+        closest_enemy = None
+        # start with (slightly more than) maximum range
+        closest_dist = max_range + 1
+
+        for object in self.owner.group:
+            if object.fighter and not object == who and object.next_to_vis:
+                # calculate distance between this object and the player
+                dist = who.distance_to(object)
+                if dist < closest_dist:  # it's closer, so remember it
+                    closest_enemy = object
+                    closest_dist = dist
+        return closest_enemy
 
 
 class Item(GameObject):
@@ -335,41 +343,33 @@ class Item(GameObject):
         'healing potion': {
             'id': "!",
             'color': GameColor.violet,
-            'use_function': effects.cast_heal
+            '_rarity': 30
+        },
+        'scroll of lightning bolt': {
+            'id': "#",
+            'color': GameColor.yellow,
+            '_rarity': 90
+        },
+        'scroll of confusion': {
+            'id': "#",
+            'color': GameColor.yellow,
+            '_rarity': 1
+        },
+        'scroll of fireball': {
+            'id': "#",
+            'color': GameColor.yellow,
+            '_rarity': 90
         }
     }
 
     def __init__(self, template, **kwargs):
         new_obj = dict(self.templates[template])
-        self.use_function = new_obj.pop('use_function')
         new_obj.update(kwargs)
-        new_obj.update({'name': str(template).capitalize()})
-        super().__init__(**new_obj, blocks=False)
-        self.item = True
-
-    def pick_up(self, getter):
-        # add to the player's inventory and remove from the map
-        if len(getter.inventory) >= 26:
-            if getter == self.map.player:
-                self.map.game.gfx.msg_log.add(
-                    'Your inventory is full, cannot pick up ' +
-                    self.name + '.', GameColor.yellow)
-        else:
-            getter.inventory.append(self)
-            self.group.remove(self)
-            self.map.game.gfx.msg_log.add(
-                'You picked up a ' + self.name + '!',
-                GameColor.blue)
-
-    def use(self, user):
-        # just call the "use_function" if it is defined
-        if self.use_function is None:
-            self.map.game.gfx.msg_log.add(
-                'The ' + self.name + ' cannot be used.')
-        else:
-            if self.use_function(who=user) != 'cancelled':
-                user.inventory.remove(self)
-                # destroy after use, unless it was cancelled for some reason
+        if template in ItemComponent.templates:
+            new_obj['item'] = ItemComponent(template)
+        super().__init__(
+            **new_obj,
+            blocks=False, name=str(template).capitalize())
 
     def update(self):
         if self.map.tiles[self.pos].visible:
@@ -382,12 +382,12 @@ class NPC(GameObject):
         'orc': {
             "id": ord('o'),
             "color": GameColor.desaturated_green,
-            "ai": BasicMonsterAI
+            "ai": ai_comp.Basic
         },
         'troll': {
             "id": ord('T'),
             "color": GameColor.darker_green,
-            "ai": BasicMonsterAI
+            "ai": ai_comp.Basic
         }
     }
 
@@ -409,6 +409,9 @@ class NPC(GameObject):
         if self.map.tiles[self.pos].visible:
             super().update()
 
+    def update_hp(self):
+        pass
+
 
 class Cursor(GameObject):
 
@@ -422,7 +425,7 @@ class Cursor(GameObject):
         # self.rel_pos = rel_pos
         self.pos = rel_pos
         # print(pygame.sprite.spritecollide(self, self.map.objects, False))
-        self.cursor_collision()
+        return self.cursor_collision()
 
     def cursor_collision(self):
         collision = None
@@ -440,5 +443,4 @@ class Cursor(GameObject):
                 object = self.map.tiles[self.pos]
                 if object.visible or object.explored:
                     collision = object
-        self.map.game.gfx.msg_log.add(
-            "Clicked on {}".format(collision))
+        return collision
