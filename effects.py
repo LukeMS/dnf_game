@@ -9,6 +9,11 @@ import ai_comp
 def cast_heal(who, target=None):
     if target is None:
         target = who
+    elif not hasattr(target, 'fighter'):
+        who.game.gfx.msg_log.add(
+            "You can't heal the " + target.name + " .", GameColor.yellow)
+        return 'cancelled'
+
     # heal the target
     if target.fighter.hp == target.fighter.max_hp:
         who.game.gfx.msg_log.add(
@@ -62,7 +67,13 @@ def cast_fireball(who, target):
 
 
 def cast_confuse(who, target=None):
-    if target is None or not target.fighter:
+    status = 'ok'
+    if target is None or not hasattr(target, 'fighter'):
+        status = 'cancelled'
+    elif target.fighter is None:
+        status = 'cancelled'
+
+    if status == 'cancelled':
         who.game.gfx.msg_log.add("Thats not a valid target.", GameColor.yellow)
         return 'cancelled'
     else:
@@ -76,6 +87,16 @@ def cast_confuse(who, target=None):
             'The eyes of the ' + target.name +
             ' look vacant, as he starts to stumble around!',
             GameColor.pink)
+
+
+def change_dng_level(who, direction):
+    if direction == "down":
+        who.game.gfx.msg_log.add(
+            'There are stairs going {} here.'.format(direction) +
+            "You descend deeper into the heart of the dungeon...",
+            GameColor.orange)
+        who.map.new_level(who.map.map.level + 1)
+    return 1
 
 
 def rnd_cast_confuse(who, target=None):

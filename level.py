@@ -12,60 +12,180 @@ from game import BaseScene
 from constants import SCREEN_ROWS, MAP_ROWS, SCREEN_COLS, MAP_COLS, GameColor
 from constants import MAX_ROOM_MONSTERS, EXPLORE_RADIUS, FOV_RADIUS, DEBUG
 from constants import TILE_W, TILE_H
-from rnd_utils import RoomItems, ItemTypes
+from rnd_utils import RoomItems, ItemTypes, MonsterTypes
 import sprite
 # import rnd_gen
 import gamemap
 import fov
 from game_types import Position
+import main_menu
 
 
 class LevelScene(BaseScene):
     """stores map info, and draws tiles.
     Map is stored as an array of int's which correspond to the tile id."""
 
-    def __init__(self, game):
+    def __init__(self, game, new=True):
+        self.alive = False
         self.game = game
         self.screen = game.screen
         self.scrolling = True
-        self.game_state = 'playing'
-        self.turn = 0
-        self.player_acted = False
+        self.game_state = 'loading'
 
-        self.objects = sprite.Group()
-        self.remains = sprite.Group()
+        if new:
+            self.new_game()
+        else:
+            self.load_game()
 
-        self.max_y = max(SCREEN_ROWS, MAP_ROWS)
-        self.max_x = max(SCREEN_COLS, MAP_COLS)
-        self.map = gamemap.Map(
-            width=MAP_COLS, height=MAP_ROWS,
-            objects=self.objects)
-        self.rooms, self.halls = self.map.rooms, self.map.halls
-        self.tiles = self.map.grid
-
-        self.place_objects()
-
-        self.set_offset(self.player)
-        # print(self.player.pos, self.offset)
-
-        self.set_fov()
+        self.alive = True
 
         self.thread_handle_turn = threading.Thread(
             target=self.handle_turn, daemon=True)
-        self.thread_handle_turn.start()
+        # self.thread_handle_turn.start()
 
-        self.pathing = []
-        self.tile_fx_coord = []
-        self.tile_fx_color = []
+        if new:
+            self.game.gfx.msg_log.add(
+                (
+                    'Welcome stranger! '
+                    'Prepare to perish in the Tombs of the Ancient Kings.'),
+                GameColor.purple
+            )
+        else:
+            self.game.gfx.msg_log.add(
+                ('Welcome back stranger! '
+                 'This time you WILL perish in the Tombs of the Ancient'
+                 ' Kings!'),
+                GameColor.purple
+            )
+        self.game.gfx.msg_log.add(
+            ('You are at level {} of the dungeon.'.format(
+                self.map.level)),
+            GameColor.orange
+        )
+
+    def new_level(self, level=0):
+        self.game_state = 'loading'
+        if hasattr(self, 'map'):
+            # coming from a previous level
+            current_level = self.map.level
+
+            self.objects.remove(self.player)
+            self.levels[current_level] = {
+                'map': self.map,
+                'objects': self.objects,
+                'remains': self.remains,
+                'player': self.player.pos
+            }
+
+        if level in self.levels:
+            # going back to a level
+            self.map = self.levels[level]['map']
+            self.objects = self.levels[level]['objects']
+            self.remains = self.levels[level]['remains']
+            self.player.pos = self.levels[level]['player']
+            self.objects.add(self.player)
+            self.player.group = self.objects
+        else:
+            # going to a new level - or the first one
+            self.objects = sprite.Group()
+            self.remains = sprite.Group()
+            self.map = gamemap.Map(
+                width=MAP_COLS, height=MAP_ROWS,
+                objects=self.objects, level=level)
+
+            self.rooms, self.halls = self.map.rooms, self.map.halls
+            self.tiles = self.map.grid
+
+            self.place_objects()
+
+            self.set_fov()
+
+            self.pathing = []
+            self.tile_fx_coord = []
+            self.tile_fx_color = []
+
+        self.game_state = 'playing'
+
+    def new_game(self):
+        self.turn = 0
+
+        self.levels = {}
+
+        self.max_y = max(SCREEN_ROWS, MAP_ROWS)
+        self.max_x = max(SCREEN_COLS, MAP_COLS)
+
+        self.new_level()
 
         self.cursor = sprite.Cursor(game=self.game, map=self)
 
-        self.game.gfx.msg_log.add(
-            (
-                'Welcome stranger! '
-                'Prepare to perish in the Tombs of the Ancient Kings.'),
-            GameColor.red
-        )
+    def load_game(self):
+        import zshelve
+        import os
+        with zshelve.open(os.path.join('save', 'savegame'), 'r') as shelf_file:
+            self.player = shelf_file['player']
+
+            self.objects = shelf_file['objects']
+            self.objects.add(self.player)
+
+            self.remains = shelf_file['remains']
+
+            for att, value in shelf_file['scene'].items():
+                setattr(self, att, value)
+
+            self.levels = shelf_file['levels']
+
+            self.map = shelf_file['map']
+            self.rooms, self.halls = self.map.rooms, self.map.halls
+            self.tiles = self.map.grid
+
+            for group in [self.objects, self.remains]:
+                for obj in group:
+                    obj.game = self.game
+                    obj.map = self
+                    obj.group = group
+
+            self.set_fov()
+
+            self.pathing = []
+            self.tile_fx_coord = []
+            self.tile_fx_color = []
+
+            self.cursor = shelf_file['cursor']
+            self.cursor.game = self.game
+            self.cursor.map = self
+
+            self.game_state = 'playing'
+
+    def save_game(self):
+        self.game_state = 'saving'
+        import zshelve
+        import os
+
+        with zshelve.open(os.path.join('save', 'savegame'), 'n') as shelf_file:
+            shelf_file['player'] = self.player
+
+            self.objects.remove(self.player)
+            shelf_file['objects'] = self.objects
+
+            shelf_file['remains'] = self.remains
+
+            scene = {}
+            for att in ['turn', "max_y", "max_x", "offset"]:
+                scene[att] = getattr(self, att)
+            shelf_file['scene'] = scene
+
+            shelf_file['map'] = self.map
+
+            shelf_file['levels'] = self.levels
+
+            self.tile_fx_coord = []
+            self.tile_fx_color = []
+
+            shelf_file['cursor'] = self.cursor
+
+            if False:
+                for key, value in shelf_file.items():
+                    print("key: {}, value: {}".format(key, value))
 
     def new_xy(self, room, objects=None):
         attempts = 0
@@ -93,11 +213,13 @@ class LevelScene(BaseScene):
                             template=template,
                             game=self.game, map=self, x=x, y=y,
                             group=self.remains)
+                        """
                         tmp = sprite.Item(
                             template=template,
                             game=self.game, map=self, x=x, y=y,
                             group=self.remains)
                         tmp.item.pick_up(getter=self.player)
+                        """
 
                 num_monsters = random.randint(0, MAX_ROOM_MONSTERS)
                 monsters_placed = []
@@ -106,21 +228,32 @@ class LevelScene(BaseScene):
                     if xy is not None:
                         monsters_placed.append(xy)
                         x, y = xy
-                        if random.randint(0, 100) < 80:
-                            template = "orc"
-                        else:
-                            template = "troll"
+                        template = MonsterTypes.random()
                         sprite.NPC(
                             template=template,
                             game=self.game, map=self, x=x, y=y,
                             group=self.objects)
+                if room_n == len(self.map.rooms) - 1:
+                    pass
+
             elif room_n == 0:
                 x, y = room.random_point(map=self.tiles)
+                if hasattr(self, 'player'):
+                    self.player.pos = (x, y)
+                    self.objects.add(self.player)
+                    self.player.group = self.objects
+                else:
+                    self.player = sprite.Player(
+                        name=None,
+                        game=self.game, map=self, x=x, y=y,
+                        group=self.objects)
 
-                self.player = sprite.Player(
-                    name=None,
+                x, y = self.new_xy(room, [self.player.pos])
+                template = "stair_down"
+                sprite.DngFeature(
+                    template=template,
                     game=self.game, map=self, x=x, y=y,
-                    group=self.objects)
+                    group=self.remains)
 
     def is_blocked(self, pos, sprite=None):
         # first test the map tile
@@ -151,6 +284,7 @@ class LevelScene(BaseScene):
 
     def set_offset(self, object):
         self.offset = object.pos // 2
+        self.game.gfx.msg_log.add(str(self.offset))
 
     def scroll(self, rel):
         """scroll map using relative coordinates"""
@@ -206,7 +340,7 @@ class LevelScene(BaseScene):
 
     def handle_turn(self):
         # thread_handle_turn
-        while True:
+        if self.alive:
             self.pathing = []
             if self.game_state == 'playing':
                 for object in self.objects:
@@ -214,67 +348,82 @@ class LevelScene(BaseScene):
                         object.ai and object.active and
                         (object.next_to_vis or self.tiles[object.pos].visible)
                     ):
+                        # time.sleep(0.1)
                         object.ai.take_turn()
-                        time.sleep(0.1)
                     if object is not self.player:
                         object.active = False
 
                 if not self.player.active:
                     self.new_turn()
-            time.sleep(0.2)
+            # time.sleep(0.1)
 
     def on_update(self):
-        # loop all tiles, and draw
-        for y in range(SCREEN_ROWS):
-            for x in range(SCREEN_COLS):
-                # draw tile at (x,y)
-                try:
-                    pos = self.offset + (x, y)
-                    tile = self.tiles[pos]
-                except KeyError:
-                    print("(x, y)", (x, y))
-                    print("self.offset", self.offset)
-                    print("pos", pos)
-                    print(traceback.format_exc())
-                    sys.exit(-1)
-                if tile.visible:
-                    if not self.remains.contain_pos(pos):
-                        if pos in self.pathing:
-                            self.game.gfx.draw(tile.id, (x, y),
-                                               color=GameColor.red)
-                        elif pos in self.tile_fx_coord:
-                            index = self.tile_fx_coord.index(pos)
-                            color = self.tile_fx_color[index]
-                            self.game.gfx.draw(tile.id, (x, y),
-                                               color=color)
-                        else:
-                            self.game.gfx.draw(tile.id, (x, y))
-                elif tile.explored:
-                    self.game.gfx.draw(tile.id, (x, y),
-                                       color=GameColor.darkest_grey)
+        if self.alive:
+            # loop all tiles, and draw
+            for y in range(SCREEN_ROWS):
+                for x in range(SCREEN_COLS):
+                    # draw tile at (x,y)
+                    try:
+                        pos = self.offset + (x, y)
+                        tile = self.tiles[pos]
+                    except KeyError:
+                        print("(x, y)", (x, y))
+                        print("self.offset", self.offset)
+                        print("pos", pos)
+                        print(traceback.format_exc())
+                        sys.exit(-1)
+                    if tile.visible:
+                        if not self.remains.contain_pos(pos):
+                            if pos in self.pathing:
+                                self.game.gfx.draw(tile.id, (x, y),
+                                                   color=GameColor.red)
+                            elif pos in self.tile_fx_coord:
+                                index = self.tile_fx_coord.index(pos)
+                                color = self.tile_fx_color[index]
+                                self.game.gfx.draw(tile.id, (x, y),
+                                                   color=color)
+                            else:
+                                self.game.gfx.draw(tile.id, (x, y))
+                    elif tile.explored:
+                        self.game.gfx.draw(tile.id, (x, y),
+                                           color=GameColor.darkest_grey)
 
-        self.remains.update()
-        self.objects.update()
-        self.game.gfx.draw_hud()
-        if self.game_state == 'inventory':
-            self.game.gfx.inventory.draw()
+            self.remains.update()
+            self.objects.update()
+            self.game.gfx.draw_hud()
+            if self.game_state == 'inventory':
+                self.game.gfx.inventory.draw()
+            elif self.game_state == 'choice':
+                self.game.gfx.choice.draw()
+        elif self.game_state == 'saving':
+            self.game.gfx.msg.draw("Saving your game (Don't panic!)")
 
     def on_key_press(self, event):
         if self.game_state == 'playing' and self.player.active:
             if event.key == pygame.K_ESCAPE:
                 self.quit()
-            if event.key == pygame.K_UP:
+            elif event.key in [pygame.K_KP7]:
+                self.player.action(-1, -1)
+            elif event.key in [pygame.K_UP, pygame.K_KP8]:
                 self.player.action(0, -1)
-            elif event.key == pygame.K_DOWN:
-                self.player.action(0, 1)
-            elif event.key == pygame.K_LEFT:
-                self.player.action(-1, 0)
-            elif event.key == pygame.K_RIGHT:
+            elif event.key in [pygame.K_KP9]:
+                self.player.action(1, -1)
+            elif event.key in [pygame.K_RIGHT, pygame.K_KP6]:
                 self.player.action(1, 0)
-            elif event.key == pygame.K_SPACE:
+            elif event.key in [pygame.K_KP3]:
+                self.player.action(1, 1)
+            elif event.key in [pygame.K_DOWN, pygame.K_KP2]:
+                self.player.action(0, 1)
+            elif event.key in [pygame.K_KP1]:
+                self.player.action(-1, 1)
+            elif event.key in [pygame.K_LEFT, pygame.K_KP4]:
+                self.player.action(-1, 0)
+            elif event.key in [pygame.K_SPACE, pygame.K_KP5]:
                 self.player.action()
             elif event.key == pygame.K_g:
                 self.player.action(action='get')
+            elif event.key == pygame.K_u:
+                self.player.action(action='use')
             elif event.key == pygame.K_i:
                 self.game.gfx.inventory.set_inventory(self.player)
                 self.game_state = 'inventory'
@@ -286,23 +435,42 @@ class LevelScene(BaseScene):
             if event.key in [pygame.K_i, pygame.K_ESCAPE]:
                 self.game_state = 'playing'
                 self.game.gfx.inventory.clean_inventory()
+        elif self.game_state == 'choice':
+            if event.key == pygame.K_ESCAPE:
+                pass
+                # self.game_state = 'playing'
+                # self.game.gfx.choice.clear()
+            elif event.key == pygame.K_UP:
+                self.game.gfx.choice.change_selection(-1)
+            elif event.key == pygame.K_DOWN:
+                self.game.gfx.choice.change_selection(+1)
+            elif event.key == pygame.K_RETURN:
+                self.game.gfx.choice.confirm()
+                self.game_state = 'playing'
+                self.game.gfx.choice.clear()
+        self.handle_turn()
+
+    def choice(self, title, items, callback):
+        self.game.gfx.choice.set_list(title, items, callback)
+        self.game_state = 'choice'
 
     def on_mouse_scroll(self, event):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LCTRL]:
-            ctrl = True
-        else:
-            ctrl = False
-        if event.button == 4:
-            if ctrl:
-                self.scroll((-1, 0))
+        if self.game_state == 'playing':
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_LCTRL]:
+                ctrl = True
             else:
-                self.scroll((0, -1))
-        elif event.button == 5:
-            if ctrl:
-                self.scroll((1, 0))
-            else:
-                self.scroll((0, 1))
+                ctrl = False
+            if event.button == 4:
+                if ctrl:
+                    self.scroll((-1, 0))
+                else:
+                    self.scroll((0, -1))
+            elif event.button == 5:
+                if ctrl:
+                    self.scroll((1, 0))
+                else:
+                    self.scroll((0, 1))
 
     def on_mouse_press(self, event):
         pos = pygame.mouse.get_pos()
@@ -328,9 +496,15 @@ class LevelScene(BaseScene):
             ]:
                 self.game_state = 'playing'
                 self.game.gfx.inventory.clean_inventory()
+                self.player.action()
 
     def quit(self):
-        super().quit()
+        threading.Thread(target=self._quit).start()
+
+    def _quit(self):
+        self.alive = False
+        self.save_game()
+        self.game.set_scene(scene=main_menu.MainMenu)
 
 if __name__ == '__main__':
     from game import Game

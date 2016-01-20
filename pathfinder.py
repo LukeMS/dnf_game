@@ -1,5 +1,4 @@
 import heapq
-import random
 
 
 class PriorityQueue:

@@ -1,15 +1,6 @@
 import random
 
 
-def rnd_dic_rng(dic):
-    min_v = min([key.start for key in dic.keys()])
-    max_v = max([key.stop for key in dic.keys()])
-    rnd = random.randint(min_v, max_v - 1)
-    result = dic.__getitem__(rnd)
-    # print(rnd, result)
-    return result
-
-
 class RangedDictionary(dict):
     def __getitem__(self, key):
         for rng in self.keys():
@@ -18,6 +9,15 @@ class RangedDictionary(dict):
             if key in rng:
                 return super().__getitem__(rng)
         return super().__getitem__(key)
+
+
+def rnd_dic_rng(dic):
+    min_v = min([key.start for key in dic.keys()])
+    max_v = max([key.stop for key in dic.keys()])
+    rnd = random.randint(min_v, max_v - 1)
+    result = dic.__getitem__(rnd)
+    # print(rnd, result)
+    return result
 
 
 class RandomDictionary:
@@ -51,6 +51,19 @@ class ItemTypes(RandomDictionary):
         max_v += rng
 
 
+class MonsterTypes(RandomDictionary):
+    """
+    Use RoomItems.random() to get a random item quantity roll.
+    """
+    dic = RangedDictionary()
+    from sprite import NPC
+    max_v = 0
+    for name, template in NPC.templates.items():
+        rng = (100 - template['_rarity'])
+        dic[range(max_v, max_v + rng)] = name
+        max_v += rng
+
+
 if __name__ == '__main__':
-    print(ItemTypes.dic)
-    ItemTypes.random()
+    print(MonsterTypes.dic)
+    MonsterTypes.random()

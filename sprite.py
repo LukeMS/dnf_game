@@ -4,10 +4,10 @@ import random
 # import sys
 
 import pygame
-from constants import TILE_W, TILE_H, GameColor
+from constants import TILE_W, TILE_H, GameColor, LEVEL_UP_BASE, LEVEL_UP_FACTOR
 
 from game_types import Position
-from item_comp import ItemComponent
+from item_comp import ItemComponent, DngFeatComponent
 import ai_comp
 
 
@@ -28,6 +28,7 @@ class GameObject(pygame.sprite.Sprite):
     def __init__(
         self, game, map, x, y, id, color, group,
         name=None, blocks=True, fighter=None, ai=None, item=None, active=True,
+        dng_feat=None,
         **kwargs
     ):
         super().__init__()
@@ -39,7 +40,7 @@ class GameObject(pygame.sprite.Sprite):
         # unpack the arguments and store them in the instance
         for arg in [
             "game", "map", "x", "y", "id", "color", "group", "name", "blocks",
-            "fighter", "ai", "item", "active"
+            "fighter", "ai", "item", "dng_feat", "active"
         ]:
             setattr(self, arg, eval(arg))
         #
@@ -60,6 +61,9 @@ class GameObject(pygame.sprite.Sprite):
         if self.item:  # let the AI component know who owns it
             self.item.owner = self
 
+        if self.dng_feat:
+            self.dng_feat.owner = self
+
         if self.name != 'cursor':
             self.group.add(self)
 
@@ -67,6 +71,13 @@ class GameObject(pygame.sprite.Sprite):
         self.default_color = self.color
 
         self.set_next_to_vis()
+
+    def __getstate__(self):
+        d = dict(self.__dict__)
+        for key in ['game', 'map', 'group']:
+            if key in d:
+                del d[key]
+        return d
 
     def is_clicked(self):
         return (
@@ -128,7 +139,7 @@ class GameObject(pygame.sprite.Sprite):
     def move_rnd(self):
         start_pos = self.pos
         next_step = random.choice(self.map.map.get_neighbors(start_pos))
-        print(self.name, "moves erratically")
+        # print(self.name, "moves erratically")
         self.move(next_step)
 
     def move_towards(self, target):
@@ -172,8 +183,52 @@ class GameObject(pygame.sprite.Sprite):
             ),
             color=self.color)
 
-    def took_damage(self):
-        pass
+    def gain_xp(self, value):
+        self.fighter.xp += value
+
+        # see if the creature's experience is enough to level-up
+        level_up_xp = LEVEL_UP_BASE + self.fighter.level * LEVEL_UP_FACTOR
+        if self.fighter.xp >= level_up_xp:
+            # it is! level up
+            self.fighter.level += 1
+            self.fighter.xp -= level_up_xp
+            self.game.gfx.msg_log.add(
+                'Your battle skills grow stronger! You reached level ' +
+                str(self.fighter.level) + '!', GameColor.cyan)
+            self.map.choice(
+                title='Level up! Choose a stat to raise:',
+                items=[
+                    'Constitution, +20 HP (current: {})'.format(
+                        self.fighter.max_hp),
+                    'Strength, +1 attack (current: {})'.format(
+                        self.fighter.power),
+                    'Agility, +1 defense (current: {})'.format(
+                        self.fighter.defense)
+                ],
+                callback=self.increase_stat
+            )
+
+    def increase_stat(self, choice):
+        id, desc = choice
+
+        if id == 0:
+            # old_v = self.fighter.max_hp
+            self.fighter.max_hp += 20
+            self.fighter.hp += 20
+            # new_v = self.fighter.max_hp
+        elif id == 1:
+            # old_v = self.fighter.power
+            self.fighter.power += 1
+            # new_v = self.fighter.power
+        elif id == 2:
+            # old_v = self.fighter.defense
+            self.fighter.defense += 1
+            # new_v = self.fighter.defense
+        else:
+            raise AttributeError
+        self.game.gfx.msg_log.add(
+            desc.replace("current", "previous"),
+            GameColor.cyan)
 
 
 class Death:
@@ -192,8 +247,8 @@ class Death:
     def monster(monster):
         # transform it into a nasty corpse! it doesn't block, can't be
         # attacked and doesn't move
-        monster.game.gfx.msg_log.add(
-            monster.name.capitalize() + ' is dead!')
+        monster.game.gfx.msg_log.add('{} is dead! You gain {} xp'.format(
+            monster.name.capitalize(), monster.fighter.xp_value))
 
         monster.id = ord('%')
         monster.color = GameColor.dark_red
@@ -229,7 +284,7 @@ class Player(GameObject):
         super().move(self.pos + dxy)
         self.map.set_fov()
 
-    def action(self, dx=0, dy=0, action='std'):
+    def action(self, dx=0, dy=0, action='std', key=None):
         if action is 'std':
             if not (dx == 0 == dy):
                 # the coordinates the player is moving to/attacking
@@ -251,6 +306,11 @@ class Player(GameObject):
                 if object.item and object.pos == self.pos:
                     object.item.pick_up(getter=self)
                     break
+        elif action is 'use':
+            for object in self.map.remains:
+                if object.dng_feat and object.pos == self.pos:
+                    if not object.dng_feat.use(who=self):
+                        return
 
         self.active = False
 
@@ -262,18 +322,21 @@ class Fighter:
             "max_hp": 30,
             "defense": 2,
             "power": 5,
+            "xp_value": None,
             "death_func": Death.player
         },
         "orc": {
             "max_hp": 10,
             "defense": 0,
             "power": 3,
+            'xp_value': 35,
             "death_func": Death.monster
         },
         "troll": {
             "max_hp": 16,
             "defense": 1,
             "power": 4,
+            'xp_value': 100,
             "death_func": Death.monster
         }
     }
@@ -283,17 +346,20 @@ class Fighter:
         for key, value in self.templates[template].items():
             setattr(self, key, value)
         self.hp = self.templates[template]['max_hp']
+        self.xp = 5000
+        self.level = 1
 
-    def take_damage(self, damage):
+    def take_damage(self, damage, atkr=None):
         # apply damage if possible
         if damage > 0:
             self.hp -= damage
 
         # check for death. if there's a death function, call it
         if self.hp <= 0:
-            function = self.death_func
-            if function is not None:
-                function(self.owner)
+            if self.death_func is not None:
+                self.death_func(self.owner)
+            atkr.gain_xp(self.xp_value)
+
         self.owner.update_hp()
 
     def heal(self, amount):
@@ -316,7 +382,7 @@ class Fighter:
             self.owner.game.gfx.msg_log.add(
                 self.owner.name.capitalize() + ' attacks ' + target.name +
                 ' for ' + str(damage) + ' hit points.', color)
-            target.fighter.take_damage(damage)
+            target.fighter.take_damage(damage=damage, atkr=self.owner)
         else:
             self.owner.game.gfx.msg_log.add(
                 self.owner.name.capitalize() + ' attacks ' + target.name +
@@ -336,6 +402,29 @@ class Fighter:
                     closest_enemy = object
                     closest_dist = dist
         return closest_enemy
+
+
+class DngFeature(GameObject):
+    templates = {
+        'stair_up': {
+            'id': "<",
+            'color': GameColor.gray,
+            'blocks': False
+        },
+        'stair_down': {
+            'id': "<",
+            'color': GameColor.gray,
+            'blocks': False
+        }
+    }
+
+    def __init__(self, template, **kwargs):
+        new_obj = dict(self.templates[template])
+        new_obj.update(kwargs)
+        if template in DngFeatComponent.templates:
+            new_obj['dng_feat'] = DngFeatComponent(template)
+        super().__init__(
+            **new_obj, name=str(template).capitalize())
 
 
 class Item(GameObject):
@@ -382,12 +471,14 @@ class NPC(GameObject):
         'orc': {
             "id": ord('o'),
             "color": GameColor.desaturated_green,
-            "ai": ai_comp.Basic
+            "ai": ai_comp.Basic,
+            "_rarity": 20
         },
         'troll': {
             "id": ord('T'),
             "color": GameColor.darker_green,
-            "ai": ai_comp.Basic
+            "ai": ai_comp.Basic,
+            "_rarity": 80
         }
     }
 

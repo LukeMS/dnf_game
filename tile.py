@@ -49,6 +49,7 @@ class Floor(Tile):
             block_mov=block_mov,
             block_sight=block_sight,
             id=id)
+        self.name = 'floor'
 
 
 class Wall(Tile):
@@ -60,3 +61,4 @@ class Wall(Tile):
             block_mov=block_mov,
             block_sight=block_sight,
             id=id)
+        self.name = 'wall'

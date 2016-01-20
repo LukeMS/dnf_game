@@ -5,6 +5,281 @@ from constants import GameColor
 from pygame.compat import xrange_
 
 
+class Choice:
+    def __init__(self, gfx):
+        self.gfx = gfx
+        self.screen = self.gfx.screen
+        self.fonts = self.gfx.fonts
+        self.title_color = (223, 0, 0)
+
+        self.unselected_color = (192, 192, 192)
+        self.set_selected_color()
+
+    def change_selection(self, value):
+        value += self.selection
+        value = value % len(self._items)
+        self.select(value)
+
+    def confirm(self):
+        self.callback(
+            (self.selection, self._items[self.selection])
+        )
+
+    def set_list(self, title, items, callback):
+        self._title = title
+        self._items = items
+        self.callback = callback
+
+        self.selection = 0
+
+        self.create_head()
+        self.create_items()
+
+        self.select(self.selection)
+
+    def clear(self):
+        del self.head_title_sfc, self.head_title_shadow_sfc
+        del self.item_render
+
+    def set_selected_color(self):
+        selected_color = list(self.unselected_color)
+        for i in [0, 1]:
+            selected_color[i] = (
+                (255 - selected_color[i]) // 2 +
+                selected_color[i]
+            )
+        selected_color[2] = selected_color[2] // 3
+        self.selected_color = tuple(selected_color)
+
+    def select(self, index=0):
+        old_selection = self.item_render[self.selection][0][0]
+        self.color_surface(old_selection, self.unselected_color)
+
+        self.selection = index
+
+        new_selection = self.item_render[self.selection][0][0]
+        self.color_surface(new_selection, self.selected_color)
+
+    def color_surface(self, surface, color):
+        arr = pygame.surfarray.pixels3d(surface)
+        arr[:, :, 0] = color[0]
+        arr[:, :, 1] = color[1]
+        arr[:, :, 2] = color[2]
+        del arr
+
+    def create_head(self):
+        self.screen_size = screen_size = self.screen.get_size()
+        self.head_font_size = head_font_size = screen_size[1] // 17
+        self.head_font = self.fonts.load(
+            'caladea-regular.ttf', head_font_size)
+
+        x, y = (screen_size[0] // 2, screen_size[1] // 5)
+
+        self.head_title_sfc = self.head_font.render(
+            self._title, True, self.title_color)
+        self.head_title_obj = self.head_title_sfc.get_rect()
+        self.head_title_obj.center = (x, y)
+
+        self.head_title_shadow_sfc = self.head_font.render(
+            self._title, True, GameColor.darker_gray)
+        self.head_title_shadow_obj = self.head_title_sfc.get_rect()
+        self.head_title_shadow_obj.center = (x + 2, y + 2)
+
+    def create_items(self):
+        items = self._items
+        item_render = []
+
+        main_font_size = int(self.head_font_size // 1.1)
+        self.main_font = self.fonts.load(
+            'caladea-regular.ttf', main_font_size)
+        main_font_size = self.main_font.size("A")
+
+        for i, item in enumerate(items):
+
+            txt_sfc = self.main_font.render(
+                item, True, self.unselected_color)
+            txt_obj = txt_sfc.get_rect()
+            x, y = (
+                self.screen_size[0] // 2,
+                self.head_title_obj.bottom + self.head_title_obj.height * 2 +
+                main_font_size[1] * i
+            )
+
+            txt_obj.midtop = x, y
+
+            txt_shd_sfc = self.main_font.render(
+                item, True, GameColor.black)
+            txt_shd_obj = txt_shd_sfc.get_rect()
+            txt_shd_obj.midtop = x + 2, y + 2
+
+            item_render.append(
+                ((txt_sfc, txt_obj), (txt_shd_sfc, txt_shd_obj)))
+
+            self.item_render = item_render
+
+    def draw(self):
+        self.screen.blit(self.head_title_shadow_sfc,
+                         self.head_title_shadow_obj)
+        self.screen.blit(self.head_title_sfc, self.head_title_obj)
+
+        for (
+            (txt_sfc, txt_obj), (txt_shd_sfc, txt_shd_obj)
+        ) in self.item_render:
+            self.screen.blit(txt_shd_sfc, txt_shd_obj)
+            self.screen.blit(txt_sfc, txt_obj)
+
+    def __getstate__(self):
+        return None
+
+
+class Msg:
+    def __init__(self, gfx):
+        self.gfx = gfx
+        self.screen = self.gfx.screen
+        self.fonts = self.gfx.fonts
+        self.color = (223, 0, 0)
+        self.screen_size = self.screen.get_size()
+        self.head_font_size = self.screen_size[1] // 18
+        self.head_font = self.fonts.load(
+            'caladea-regular.ttf', self.head_font_size)
+
+    def draw(self, text):
+        w, h = self.screen_size
+
+        x, y = w // 2, h // 2
+
+        # prepare
+        self.head_title_sfc = self.head_font.render(
+            text, True, self.color)
+        self.head_title_obj = self.head_title_sfc.get_rect()
+        self.head_title_obj.center = (x, y)
+
+        self.head_title_shadow_sfc = self.head_font.render(
+            text, True, GameColor.gray)
+        self.head_title_shadow_obj = self.head_title_sfc.get_rect()
+        self.head_title_shadow_obj.center = (x, y)
+
+        # render
+        self.screen.blit(self.head_title_shadow_sfc,
+                         self.head_title_shadow_obj)
+        self.screen.blit(self.head_title_sfc, self.head_title_obj)
+
+    def __getstate__(self):
+        return None
+
+
+class Menu:
+    def __init__(self, gfx, title, items=None):
+        self.gfx = gfx
+        self.screen = self.gfx.screen
+        self.fonts = self.gfx.fonts
+        self._title = title
+        self._items = items
+        self.color = (223, 0, 0)
+
+        self.unselected_color = GameColor.white
+        self.set_selected_color()
+
+        self.selection = 0
+
+        self.create_head()
+        self.create_items()
+
+        self.select()
+
+    def clear(self):
+        del self.item_render
+
+    def set_selected_color(self):
+        selected_color = list(self.unselected_color)
+        for i in [0, 1]:
+            selected_color[i] = (
+                (255 - selected_color[i]) // 2 +
+                selected_color[i]
+            )
+        selected_color[2] = selected_color[2] // 3
+        self.selected_color = tuple(selected_color)
+
+    def create_head(self):
+        self.screen_size = screen_size = self.screen.get_size()
+        self.head_font_size = head_font_size = screen_size[1] // 17
+        self.head_font = self.fonts.load(
+            'caladea-regular.ttf', head_font_size)
+
+        x, y = screen_size[0] // 2, screen_size[1] // 5
+
+        self.head_title_sfc = self.head_font.render(
+            self._title, True, self.color)
+        self.head_title_obj = self.head_title_sfc.get_rect()
+        self.head_title_obj.center = x, y
+
+        self.head_title_shadow_sfc = self.head_font.render(
+            self._title, True, GameColor.darker_gray)
+        self.head_title_shadow_obj = self.head_title_sfc.get_rect()
+        self.head_title_shadow_obj.center = x + 2, y + 2
+
+    def color_surface(self, surface, color):
+        arr = pygame.surfarray.pixels3d(surface)
+        arr[:, :, 0] = color[0]
+        arr[:, :, 1] = color[1]
+        arr[:, :, 2] = color[2]
+        del arr
+
+    def select(self, index=0):
+        old_selection = self.item_render[self.selection][0][0]
+        self.color_surface(old_selection, self.unselected_color)
+
+        self.selection = index
+
+        new_selection = self.item_render[self.selection][0][0]
+        self.color_surface(new_selection, self.selected_color)
+
+    def create_items(self):
+        items = self._items
+        item_render = []
+
+        main_font_size = int(self.head_font_size // 1.1)
+        self.main_font = self.fonts.load(
+            'caladea-regular.ttf', main_font_size)
+        main_font_size = self.main_font.size("A")
+
+        for i, item in enumerate(items):
+
+            txt_sfc = self.main_font.render(
+                item, True, self.unselected_color)
+            txt_obj = txt_sfc.get_rect()
+            x, y = (
+                self.screen_size[0] // 2,
+                self.head_title_obj.bottom + self.head_title_obj.height * 2 +
+                main_font_size[1] * i
+            )
+            txt_obj.midtop = x, y
+
+            txt_shd_sfc = self.main_font.render(
+                item, True, GameColor.darker_gray)
+            txt_shd_obj = txt_shd_sfc.get_rect()
+            txt_shd_obj.midtop = x + 2, y + 2
+
+            item_render.append(
+                ((txt_sfc, txt_obj), (txt_shd_sfc, txt_shd_obj)))
+
+            self.item_render = item_render
+
+    def draw(self):
+        self.screen.blit(self.head_title_shadow_sfc,
+                         self.head_title_shadow_obj)
+        self.screen.blit(self.head_title_sfc, self.head_title_obj)
+
+        for (
+            (txt_sfc, txt_obj), (txt_shd_sfc, txt_shd_obj)
+        ) in self.item_render:
+            self.screen.blit(txt_shd_sfc, txt_shd_obj)
+            self.screen.blit(txt_sfc, txt_obj)
+
+    def __getstate__(self):
+        return None
+
+
 class Inventory:
     def __init__(self, gfx):
         self.gfx = gfx
@@ -164,6 +439,9 @@ class Inventory:
             ar[:] = ar[:, ::-1]
             del ar
 
+    def __getstate__(self):
+        return None
+
 
 class Bar:
     """Semi-Abstract object for subclassing"""
@@ -260,6 +538,9 @@ class Bar:
     def text(self):
         return str(self.name + " {}/{}".format(self.value, self.maximum))
 
+    def __getstate__(self):
+        return None
+
 
 class MsgLog:
 
@@ -293,6 +574,9 @@ class MsgLog:
             # win.fill(0, (r.right, r.top, 620, r.height))
             ypos -= self.line_height
 
+    def __getstate__(self):
+        return None
+
 
 class Hud:
 
@@ -312,3 +596,6 @@ class Hud:
             self.text, False, GameColor.desaturated_green)
         w, h = self.font.size(self.text)
         self.screen.blit(self.display, (self.x - w, self.y + h))
+
+    def __getstate__(self):
+        return None

@@ -2,6 +2,33 @@ from constants import GameColor
 import effects
 
 
+class DngFeatComponent:
+    templates = {
+        'stair_up': {
+            'use_function': effects.change_dng_level,
+            'direction': "up"
+        },
+        'stair_down': {
+            'use_function': effects.change_dng_level,
+            'direction': "down"
+        }
+    }
+
+    def __init__(self, template):
+        # hp, defense, power, death_func=None):
+        for key, value in self.templates[template].items():
+            setattr(self, key, value)
+
+    def use(self, who):
+        if self.use_function is None:
+            self.owner.map.game.gfx.msg_log.add(
+                'This ' + self.owner.name + ' cannot be used.')
+        else:
+            if self.direction:
+                return self.use_function(who=who, direction=self.direction)
+            else:
+                return self.use_function(who=who)
+
 class ItemComponent:
     templates = {
         'healing potion': {
@@ -59,3 +86,6 @@ class ItemComponent:
             if self.use_function(who=user, target=target) != 'cancelled':
                 user.inventory.remove(self.owner)
                 # destroy after use, unless it was cancelled for some reason
+                return 'used'
+            else:
+                return 'cancelled'

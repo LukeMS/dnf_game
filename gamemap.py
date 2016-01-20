@@ -10,12 +10,13 @@ from pathfinder import AStarSearch
 
 
 class Map:
-    def __init__(self, width, height, objects=None):
+    def __init__(self, width, height, objects=None, level=0):
         self.grid, self.rooms, self.halls = rnd_gen.Map().make_map(
             width, height)
         self.width = width
         self.height = height
         self._objects = objects
+        self.level = level
 
     def get_cell_at_pos(self, pos):
         return self.grid[pos]

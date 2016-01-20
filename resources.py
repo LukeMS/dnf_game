@@ -35,6 +35,9 @@ class Tileset(object):
         arr[:, :, 2] = color[2]
         return new_surface
 
+    def __getstate__(self):
+        return None
+
 
 class Resources(object):
 
@@ -83,6 +86,9 @@ class Resources(object):
                         filename = os.path.join(root, f_base)
                         cls._names.update({f_base: filename})
 
+    def __getstate__(self):
+        return None
+
 
 class Images(Resources):
     @classmethod
@@ -91,6 +97,9 @@ class Images(Resources):
             loader=pygame.image.load,
             path=path,
             types=types)
+
+    def __getstate__(self):
+        return None
 
 
 class Fonts(Resources):
@@ -114,3 +123,6 @@ class Fonts(Resources):
     @classmethod
     def load(cls, name, size):
         return cls.__getattr__(name, size)
+
+    def __getstate__(self):
+        return None

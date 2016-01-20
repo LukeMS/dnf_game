@@ -20,6 +20,8 @@ class PygameGFX:
         self.msg_log = gui.MsgLog(gfx=self)
         self.fps_time_label = gui.Hud(gfx=self)
         self.inventory = gui.Inventory(gfx=self)
+        self.choice = gui.Choice(gfx=self)
+        self.msg = gui.Msg(gfx=self)
 
     def draw_hud(self):
         self.hp_bar.draw()
@@ -54,3 +56,6 @@ class PygameGFX:
 
         self.screen.blit(
             source=surface, dest=dest, area=src)
+
+    def __getstate__(self):
+        return None

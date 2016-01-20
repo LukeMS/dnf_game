@@ -1,4 +1,6 @@
 import os
+import threading
+import time
 
 import pygame
 
@@ -56,6 +58,9 @@ class BaseScene:
     def quit(self):
         self.game.alive = False
 
+    def __getstate__(self):
+        return None
+
 
 class Game:
     """Represents the main object of the game.
@@ -66,7 +71,7 @@ class Game:
     This object must be used with Scene objects that are defined later."""
 
     def __init__(
-        self, scene=BaseScene, framerate=60, width=1024, height=768,
+        self, scene=BaseScene, framerate=30, width=1024, height=768,
         show_fps=True, show_play_time=False,
         *args, **kwargs
     ):
@@ -87,15 +92,47 @@ class Game:
         self.alive = True
         self.clock = pygame.time.Clock()
 
+        self.LOCK = threading.Lock()
+
         self.execute()
 
     def execute(self):
+        rate = 1 / self.framerate
+        t1 = time.time()
         "Main game loop."
         while self.alive:
+            t2 = time.time()
 
-            self.on_event()
+            if t2 - t1 > rate:
+                threading.Thread(target=self.on_update, daemon=True).start()
+                self.on_event()
+                # print((t2 - t1) * 60 * 10)
+                t1 = t2
 
-            self.on_update()
+    def on_event(self):
+        # Exit events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.quit()
+            else:
+                # Handles events to the current scene
+                self.current_scene.on_event(event)
+
+    def on_update(self):
+        # self.LOCK.acquire()
+        # Update scene
+        self.screen.fill((0, 0, 0))
+        self.current_scene.on_update()
+
+        ms = self.clock.tick(self.framerate)
+        if self.show_fps or self.show_play_time:
+                self.draw_fps(ms)
+
+        # Draw the screen
+        pygame.display.flip()
+
+        self.current_scene.post_update()
+        # self.LOCK.release()
 
     def draw_fps(self, ms):
         self.playtime += ms / 1000.0
@@ -109,29 +146,6 @@ class Game:
         self.gfx.fps_time_label.text = text
         self.gfx.fps_time_label.draw()
 
-    def on_event(self):
-        # Exit events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.quit()
-            else:
-                # Handles events to the current scene
-                self.current_scene.on_event(event)
-
-    def on_update(self):
-        # Update scene
-        self.screen.fill((0, 0, 0))
-        self.current_scene.on_update()
-
-        ms = self.clock.tick(self.framerate)
-        if self.show_fps or self.show_play_time:
-                self.draw_fps(ms)
-
-        # Draw the screen
-        pygame.display.flip()
-
-        self.current_scene.post_update()
-
     def set_scene(self, scene=None, *args, **kwargs):
         if scene is None:
             self.quit()
@@ -142,6 +156,7 @@ class Game:
                 self.clear_scene()
             else:
                 self.current_scene = scene(game=self, *args, **kwargs)
+
             self.start_scene()
 
     def clear_scene(self):
@@ -152,5 +167,57 @@ class Game:
         self.current_scene.start()
 
     def quit(self):
-        self.current_scene.quit()
         self.alive = False
+        self.current_scene.quit()
+
+    def __getstate__(self):
+        return None
+
+
+if __name__ == '__main__':
+    class Test(BaseScene):
+        def __init__(self, game):
+            self.game = game
+            self.screen = pygame.display.get_surface()
+            (self.width, self.height) = self.screen.get_size()
+
+            self.create_surface()
+
+        def create_surface(self):
+
+            self.surface = pygame.Surface((self.width, self.height))
+
+            ar = pygame.PixelArray(self.surface)
+            r, g, b = 0, 0, 0
+
+            t1 = time.time()
+            # Do some easy gradient effect.
+            for y in range(self.height):
+                scale = int(y / self.height * 255)
+                r, g, b = scale // 2, scale // 2, scale
+                ar[:, y] = (r, g, b)
+            del ar
+
+            t2 = time.time()
+            print(t2 - t1)
+
+        def flip_surface(self):
+            ar = pygame.PixelArray(self.surface)
+            ar[:] = ar[:, ::-1]
+            del ar
+
+        def on_update(self):
+            screen = self.screen
+            surface = self.surface
+
+            screen.fill((255, 255, 255))
+            screen.blit(surface, (0, 0))
+
+        def on_mouse_press(self, event):
+            self.flip_surface()
+
+        def on_key_press(self, event):
+            if event.key == pygame.K_ESCAPE:
+                self.quit()
+
+    Game(scene=Test)

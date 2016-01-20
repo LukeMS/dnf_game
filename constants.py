@@ -35,6 +35,10 @@ FIREBALL_DAMAGE = 12
 CONFUSE_NUM_TURNS = 10
 CONFUSE_RANGE = 8
 
+# experience and level-ups
+LEVEL_UP_BASE = 200
+LEVEL_UP_FACTOR = 150
+
 
 class GameColor:
     """
