@@ -99,17 +99,14 @@ class Game:
         self.execute()
 
     def execute(self):
-        rate = 1 / self.framerate
-        t1 = time.time()
         "Main game loop."
+        self.ms = 0
         while self.alive:
-            t2 = time.time()
 
-            if t2 - t1 > rate:
-                threading.Thread(target=self.on_update, daemon=True).start()
-                self.on_event()
-                # print((t2 - t1) * 60 * 10)
-                t1 = t2
+            threading.Thread(target=self.on_update, daemon=True).start()
+            self.on_event()
+
+            self.ms = self.clock.tick(self.framerate)
 
     def on_event(self):
         # Exit events
@@ -126,9 +123,8 @@ class Game:
         self.screen.fill((0, 0, 0))
         self.current_scene.on_update()
 
-        ms = self.clock.tick(self.framerate)
         if self.show_fps or self.show_play_time:
-                self.draw_fps(ms)
+            self.draw_fps(self.ms)
 
         # Draw the screen
         pygame.display.flip()

@@ -1,16 +1,20 @@
+import os
+
 import pygame
 
-from game import BaseScene
+import game
 import gui
 import level
 
 
-class MainMenu(BaseScene):
+class MainMenu(game.BaseScene):
     def __init__(self, game):
         self.game = game
         self.screen = game.screen
         self.selection = 0
+
         self.create_items()
+
         self.gui = gui.Menu(
             gfx=self.game.gfx, title="Caves & Lizards Roguelike",
             items=[item["text"] for item in self._menu])
@@ -44,6 +48,9 @@ class MainMenu(BaseScene):
                 "kwargs": {}
             }
         ]
+        if not os.path.isdir('save'):
+            # os.makedirs('save')
+            self._menu.pop(1)
 
     def change_selection(self, value):
         self.selection += value
@@ -72,8 +79,7 @@ class MainMenu(BaseScene):
 
 
 if __name__ == '__main__':
-    from game import Game
     from constants import LIMIT_FPS, SCREEN_WIDTH, SCREEN_HEIGHT
-    game = Game(
+    game.Game(
         scene=MainMenu, framerate=LIMIT_FPS,
         width=SCREEN_WIDTH, height=SCREEN_HEIGHT)

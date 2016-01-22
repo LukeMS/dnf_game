@@ -1,32 +1,63 @@
-import sys
 import math
+import random
 
-from random import randint
 
-import rnd_gen
-import tile
-
+import fov
+import sprite
 from pathfinder import AStarSearch, GreedySearch
+from rnd_utils import RoomItems, ItemTypes, MonsterTypes
+
+from constants import MAP_COLS, MAP_ROWS, MAX_ROOM_MONSTERS
+from constants import EXPLORE_RADIUS, FOV_RADIUS, SCREEN_ROWS, SCREEN_COLS
 
 
 class Map:
-    def __init__(self, width, height, objects=None, level=0):
-        self.grid, self.rooms, self.halls = rnd_gen.Map().make_map(
-            width, height)
-        self.width = width
-        self.height = height
-        self._objects = objects
-        self.level = level
+    """Handles data operations with maps."""
+    def __init__(self, scene):
+        self._scene = scene
 
-    def get_cell_at_pos(self, pos):
-        return self.grid[pos]
+    @property
+    def grid(self):
+        return self._scene.grid
+
+    @property
+    def rooms(self):
+        return self._scene.rooms
+
+    @property
+    def halls(self):
+        return self._scene.halls
 
     @property
     def objects(self):
-        if self._objects is None:
-            return []
-        else:
-            return self._objects
+        return self._scene.objects
+
+    @property
+    def remains(self):
+        return self._scene.remains
+
+    @property
+    def level(self):
+        return self._scene.current_level
+
+    @property
+    def player(self):
+        return self._scene.player
+
+    @player.setter
+    def player(self, value):
+        self._scene.player = value
+
+    @property
+    def width(self):
+        return MAP_COLS
+
+    @property
+    def height(self):
+        return MAP_ROWS
+
+    def get_cell_at_pos(self, pos):
+        return self.grid[pos]
 
     def valid_tile(self, pos, goal=None):
         if goal is not None:
@@ -35,16 +66,26 @@ class Map:
 
         if not (
             pos is not None and
-            not self.grid[pos].block_mov and
             0 <= pos[0] < self.width
             and 0 <= pos[1] < self.height
         ):
             return False
         else:
-            for obj in self.objects:
-                if obj.pos == pos and obj.blocks:
-                    return False
-            return True
+            return not self.is_blocked(pos)[0]
+
+    def is_blocked(self, pos, sprite=None):
+        # first test the map tile
+        if self.grid[pos].block_mov:
+            return True, self.grid[pos]
+
+        # now check for any blocking objects
+        for object in self.objects:
+            if object == sprite:
+                continue
+            elif object.blocks and object.pos == pos:
+                return True, object
+
+        return False, None
 
     def get_neighbors(self, pos):
         lst = []
@@ -79,137 +120,97 @@ class Map:
 
         return math.sqrt(2) * (diagonal_steps + straight_steps)
 
-    def get_area(self, pos, radius, circle=True, only_visible=True):
-        area = []
-        # print("pos {}, radius {}".format(pos, radius))
-        for x in range(
-            max(pos.x - radius, 0),
-            min(pos.x + radius + 1, self.width)
-        ):
-            for y in range(
-                max(pos.y - radius, 0),
-                min(pos.y + radius + 1, self.height)
-            ):
-                # print((x, y))
-                if circle and self.distance(pos, (x, y)) > radius:
-                    # print((x, y), " distance:", self.distance(pos, (x, y)))
-                    continue
-                if only_visible and not self.grid[(x, y)].visible:
-                    # print((x, y), "not visible")
-                    continue
-                else:
-                    area.append((x, y))
-        # print(area)
-        return area
-
     def a_path(self, start_pos, end_pos):
         return AStarSearch.new_search(self, self.grid, start_pos, end_pos)
 
     def greedy_path(self, start_pos, end_pos):
         return GreedySearch.new_search(self, self.grid, start_pos, end_pos)
 
-    def test(self):
-        t1 = time.clock()
-
-        started, finished = None, None
-        start_pos, end_pos = None, None
-
-        while 1:
-            pos = (
-                randint(0, self.width - 1), randint(0, self.height - 1))
-            if started is None:
-                if isinstance(
-                    self.get_cell_at_pos(pos),
-                    tile.Floor
-                ):
-                    start_pos = pos
-                    started = 1
-            elif finished is None:
-                if isinstance(
-                    self.get_cell_at_pos(pos),
-                    tile.Floor
-                ):
-                    end_pos = pos
-                    finished = 1
-            else:
-                break
-
-        path = self.new_path(start_pos, end_pos)
-        if True:
-            print('\n', end=' ')
-
-            for x in range(self.width):
-                for y in range(self.height):
-                    if (x, y) == start_pos:
-                        sys.stdout.write('0')
-                    elif (x, y) == end_pos:
-                        sys.stdout.write('1')
-                    elif (x, y) in path:
-                        sys.stdout.write('~')
-                    else:
-                        if isinstance(
-                            self.get_cell_at_pos((x, y)),
-                            tile.Floor
-                        ):
-                            sys.stdout.write('.')
-                        elif isinstance(
-                            self.get_cell_at_pos((x, y)),
-                            tile.Wall
-                        ):
-                            sys.stdout.write('#')
-                print('\n', end=' ')
-        t2 = time.clock()
-        return t2 - t1
-
-
-def test1():
-    import time
-    tests = []
-    for i in range(1):
-        mymap = Map(width=79, height=60)
-        tests.append(mymap.test())
-    print(sum(tests))
-    """
-    no-printing
-    tests = [
-        1.5119604586616466, 1.4198273802955415, 1.1000123619063307
-    ]
-    """
-
-
-def test2():
-    import time
-
-    def new_point():
-        lists = rnd_start + rnd_end
-
+    def new_xy(self, room, objects=None):
+        attempts = 0
         while True:
-            pos = (randint(0, w - 1), randint(0, h - 1))
-            if pos not in lists and mymap.valid_tile(pos):
-                break
-        return pos
+            if attempts > 10:
+                return None
+            xy = room.random_point(map=self.grid)
+            if xy not in objects:
+                return xy
+            attempts += 1
 
-    w = 80
-    h = 48
+    def place_objects(self):
+        for room_n, room in enumerate(self.rooms):
 
-    rounds = 100
+            if room_n > 2:
+                num_items = RoomItems.random()
+                items_placed = []
+                for i in range(num_items):
+                    xy = self.new_xy(room, items_placed)
+                    if xy is not None:
+                        items_placed.append(xy)
+                        x, y = xy
+                        template = ItemTypes.random()
+                        sprite.Item(template=template, scene=self._scene,
+                                    x=x, y=y, group=self.remains)
 
-    mymap = Map(width=w, height=h)
+                        """
+                        tmp = sprite.Item(template=template, scene=self,
+                                    x=x, y=y, group=self.remains)
+                        tmp.item.pick_up(getter=self.player)
+                        """
 
-    rnd_start = []
-    rnd_end = []
+                num_monsters = random.randint(0, MAX_ROOM_MONSTERS)
+                monsters_placed = []
+                for i in range(num_monsters):
+                    xy = self.new_xy(room, monsters_placed)
+                    if xy is not None:
+                        monsters_placed.append(xy)
+                        x, y = xy
+                        template = MonsterTypes.random()
+                        sprite.NPC(template=template, scene=self._scene,
+                                   x=x, y=y, group=self.objects)
+                if room_n == len(self.rooms) - 1:
+                    pass
 
-    for i in range(rounds):
-        rnd_start.append(new_point())
-        rnd_end.append(new_point())
+            elif room_n == 0:
+                x, y = room.random_point(map=self.grid)
+                player = getattr(self, 'player', None)
+                if player:
+                    self.player.pos = (x, y)
+                    self.objects.add(self.player)
+                    self.player.group = self.objects
+                else:
+                    self.player = sprite.Player(
+                        scene=self._scene, x=x, y=y, group=self.objects)
 
-    t1 = time.clock()
-    for i in range(rounds):
-        mymap.new_path(rnd_start[i], rnd_end[i])
-    t2 = time.clock()
-    print("Total time spent doing pathfinding {} time(s): {}".format(
-        rounds, t2-t1
-    ))
+                x, y = self.new_xy(room, [self.player.pos])
+                template = "stair_down"
+                sprite.DngFeature(template=template, scene=self._scene,
+                                  x=x, y=y, group=self.remains)
 
-if __name__ == '__main__':
-    test2()
+                x, y = self.new_xy(room, [self.player.pos, (x, y)])
+
+                for item in [
+                    random.choice(['dagger', 'shield']),
+                    'scroll of fireball'
+                ]:
+                    sprite.Item(template=item, scene=self._scene,
+                                x=x, y=y, group=self.remains)
+
+    def set_fov(self):
+        self._scene.set_offset(self.player)
+        for y in range(SCREEN_ROWS):
+            for x in range(SCREEN_COLS):
+                # draw tile at (x,y)
+                tile = self.grid[self._scene.offset + (x, y)]
+                tile.visible = False
+
+        fov.fieldOfView(self.player.x, self.player.y,
+                        MAP_COLS, MAP_ROWS, FOV_RADIUS,
+                        self.func_visible, self.blocks_sight)
+
+    def func_visible(self, x, y):
+        self.grid[x, y].visible = True
+        if self.distance(self.player.pos, (x, 1)) <= EXPLORE_RADIUS:
+            self.grid[x, y].explored = True
+
+    def blocks_sight(self, x, y):
+        return self.grid[x, y].block_sight

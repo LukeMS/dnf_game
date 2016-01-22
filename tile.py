@@ -23,7 +23,7 @@ class Tile:
 
     @property
     def pos(self):
-        return Position(self.rect.x, self.rect.y)
+        return Position((self.rect.x, self.rect.y))
 
     @property
     def x(self):

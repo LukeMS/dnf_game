@@ -61,7 +61,7 @@ class Equipment(Component):
             old_equipment.unequip()
 
         self.is_equipped = True
-        self.owner.map.game.gfx.msg_log.add(
+        self.owner.scene.gfx.msg_log.add(
             'Equipped ' + self.owner.name + ' on ' +
             self.slot + '.', GameColor.light_green)
 
@@ -70,7 +70,7 @@ class Equipment(Component):
         if not self.is_equipped:
             return
         self.is_equipped = False
-        self.owner.map.game.gfx.msg_log.add(
+        self.owner.scene.gfx.msg_log.add(
             'Unequipped ' + self.owner.name + ' from ' +
             self.slot + '.', GameColor.light_yellow)
 
@@ -125,15 +125,15 @@ class Item(Component):
     def pick_up(self, getter):
         # add to the player's inventory and remove from the map
         if len(getter.inventory) >= 26:
-            if getter == self.owner.map.player:
-                self.owner.map.game.gfx.msg_log.add(
+            if getter == self.owner.scene.player:
+                self.owner.scene.gfx.msg_log.add(
                     'Your inventory is full, cannot pick up ' +
                     self.owner.name + '.', GameColor.yellow)
         else:
             getter.inventory.append(self.owner)
             self.possessor = getter
             self.owner.group.remove(self.owner)
-            self.owner.map.game.gfx.msg_log.add(
+            self.owner.scene.gfx.msg_log.add(
                 'You picked up a ' + self.owner.name + '!',
                 GameColor.blue)
 
@@ -156,7 +156,7 @@ class Item(Component):
         dropper.inventory.remove(self.owner)
         self.possessor = None
         self.owner.pos = dropper.pos
-        self.owner.map.game.gfx.msg_log.add(
+        self.owner.scene.gfx.msg_log.add(
             'You dropped a ' + self.owner.name + '.', GameColor.yellow)
         return 'dropped'
 
@@ -169,7 +169,7 @@ class Item(Component):
 
         # just call the "use_function" if it is defined
         if self.use_function is None:
-            self.owner.map.game.gfx.msg_log.add(
+            self.owner.scene.gfx.msg_log.add(
                 'The ' + self.owner.name + ' cannot be used.')
         else:
             if self.use_function(who=user, target=target) != 'cancelled':
@@ -195,7 +195,7 @@ class DngFeat(Component):
 
     def use(self, who):
         if self.use_function is None:
-            self.owner.map.game.gfx.msg_log.add(
+            self.owner.scene.gfx.msg_log.add(
                 'This ' + self.owner.name + ' cannot be used.')
         else:
             if self.direction:
@@ -294,12 +294,12 @@ class Fighter(Component):
 
         if damage > 0:
             # make the target take some damage
-            self.owner.game.gfx.msg_log.add(
+            self.owner.scene.gfx.msg_log.add(
                 self.owner.name.capitalize() + ' attacks ' + target.name +
                 ' for ' + str(damage) + ' hit points.', color)
             target.fighter.take_damage(damage=damage, atkr=self.owner)
         else:
-            self.owner.game.gfx.msg_log.add(
+            self.owner.scene.gfx.msg_log.add(
                 self.owner.name.capitalize() + ' attacks ' + target.name +
                 ' but it has no effect!', color)
 

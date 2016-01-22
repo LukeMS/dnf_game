@@ -29,8 +29,8 @@ class Confused(Ai):
         if self.num_turns > 0:  # still confused...
             # move in a random direction, and decrease the number of turns
             # confused
-            if monster.map.tiles[monster.pos].visible:
-                monster.game.gfx.msg_log.add(
+            if monster.scene.grid[monster.pos].visible:
+                monster.scene.gfx.msg_log.add(
                     (monster.name + " looks confused"), GameColor.pink)
             if random.randint(1, 100) > 33:
                 monster.move_rnd()
@@ -44,7 +44,7 @@ class Confused(Ai):
             self.effect = False
             monster.ai = monster.default_ai
             monster.color = monster.default_color
-            monster.game.gfx.msg_log.add(
+            monster.scene.gfx.msg_log.add(
                 'The ' + monster.name + ' is no longer confused!',
                 GameColor.yellow)
 
@@ -65,19 +65,23 @@ class Basic(Ai):
         #
 
         monster = self.owner
-        target = monster.map.player
-        distance = monster.distance_to(monster.map.player)
+        target = monster.scene.player
+        distance = monster.distance_to(monster.scene.player)
 
         # move towards player if far away
         if distance >= 2:  # implement reach here
             if monster.path:
                 # continue following the path
                 try:
+                    old_path = list[monster.path]
                     moved = monster.move(monster.path.pop(1))
                 except:
                     moved = False
                 else:
-                    monster.map.pathing = []
+                    monster.scene.tile_fx.add(
+                        coord=old_path[2:-1],
+                        color=GameColor.green,
+                        duration=1)
             else:
                 moved = False
 
@@ -85,9 +89,12 @@ class Basic(Ai):
                 # find a new path
                 monster.path = monster.move_towards(target=target)
                 try:
-                    monster.map.pathing = monster.path[2:-1]
+                    monster.scene.tile_fx.add(
+                        coord=monster.path[2:-1],
+                        color=GameColor.green,
+                        duration=1)
                 except:
-                    monster.map.pathing = []
+                    monster.scene.pathing = []
 
         # close enough, attack! (if the player is still alive.)
         elif target.fighter.hp > 0:
