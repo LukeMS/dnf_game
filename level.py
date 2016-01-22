@@ -1,11 +1,9 @@
 import sys
 import random
-import threading
-import time
 import traceback
+import threading
 
 import pygame
-from pygame.locals import *
 
 from game import BaseScene
 
@@ -14,7 +12,6 @@ from constants import MAX_ROOM_MONSTERS, EXPLORE_RADIUS, FOV_RADIUS, DEBUG
 from constants import TILE_W, TILE_H
 from rnd_utils import RoomItems, ItemTypes, MonsterTypes
 import sprite
-# import rnd_gen
 import gamemap
 import fov
 from game_types import Position
@@ -31,6 +28,7 @@ class LevelScene(BaseScene):
         self.screen = game.screen
         self.scrolling = True
         self.game_state = 'loading'
+        self.game.gfx.msg_log.clear()
 
         if new:
             self.new_game()
@@ -38,10 +36,6 @@ class LevelScene(BaseScene):
             self.load_game()
 
         self.alive = True
-
-        self.thread_handle_turn = threading.Thread(
-            target=self.handle_turn, daemon=True)
-        # self.thread_handle_turn.start()
 
         if new:
             self.game.gfx.msg_log.add(
@@ -213,13 +207,12 @@ class LevelScene(BaseScene):
                             template=template,
                             game=self.game, map=self, x=x, y=y,
                             group=self.remains)
-                        """
+
                         tmp = sprite.Item(
                             template=template,
                             game=self.game, map=self, x=x, y=y,
                             group=self.remains)
                         tmp.item.pick_up(getter=self.player)
-                        """
 
                 num_monsters = random.randint(0, MAX_ROOM_MONSTERS)
                 monsters_placed = []
@@ -255,6 +248,13 @@ class LevelScene(BaseScene):
                     game=self.game, map=self, x=x, y=y,
                     group=self.remains)
 
+                x, y = self.new_xy(room, [self.player.pos, (x, y)])
+
+                sprite.Item(
+                    template=random.choice(['dagger', 'shield']),
+                    game=self.game, map=self, x=x, y=y,
+                    group=self.remains)
+
     def is_blocked(self, pos, sprite=None):
         # first test the map tile
         try:
@@ -283,8 +283,17 @@ class LevelScene(BaseScene):
             return Position((x, y))
 
     def set_offset(self, object):
-        self.offset = object.pos // 2
-        self.game.gfx.msg_log.add(str(self.offset))
+        x, y = object.pos // 2
+        if x > SCREEN_COLS // 4 * 3:
+            x += 2
+        elif x < SCREEN_COLS // 4:
+            x -= 2
+        if y > SCREEN_ROWS // 4 * 3:
+            y += 2
+        elif y < SCREEN_ROWS // 4:
+            y -= 2
+
+        self.offset = self.validate_pos((x, y))
 
     def scroll(self, rel):
         """scroll map using relative coordinates"""
@@ -293,16 +302,7 @@ class LevelScene(BaseScene):
 
         x, y = [self.offset[0] + rel[0], self.offset[1] + rel[1]]
 
-        x = max(0, x)
-        x = min(self.max_x - SCREEN_COLS, x)
-
-        y = max(0, y)
-        y = min(self.max_y - SCREEN_ROWS, y)
-
-        self.offset = Position(x, y)
-
-        if DEBUG:
-            print((self.offset))
+        self.offset = self.validate_pos((x, y))
 
     def set_fov(self):
         self.set_offset(self.player)
@@ -339,17 +339,39 @@ class LevelScene(BaseScene):
         self.tile_fx_color = []
 
     def handle_turn(self):
+        """
+        if self.alive:
+            if self.game_state == 'playing':
+                self.pathing = []
+                for object in self.objects:
+                    if object.ai and object.active:
+                        if hasattr(object.ai, "num_turns"):
+                            # keep counting, under some effect (confused, etc.)
+                            self.activate_monster
+                        elif (object.next_to_vis or
+                              self.tiles[object.pos].visible):
+                            self.activate_monster
+
+                    # make inactive for this turn, acting or not
+                    if object is not self.player:
+                        object.active = False
+
+                if not self.player.active:
+                    self.new_turn()
+        """
         # thread_handle_turn
         if self.alive:
             self.pathing = []
             if self.game_state == 'playing':
                 for object in self.objects:
-                    if (
-                        object.ai and object.active and
-                        (object.next_to_vis or self.tiles[object.pos].visible)
+
+                    if object.ai and object.active and (
+                        object.next_to_vis or
+                        self.tiles[object.pos].visible or
+                        object.ai.effect
                     ):
-                        # time.sleep(0.1)
-                        object.ai.take_turn()
+                        threading.Thread(
+                            target=object.ai.take_turn).start()
                     if object is not self.player:
                         object.active = False
 
@@ -375,8 +397,15 @@ class LevelScene(BaseScene):
                     if tile.visible:
                         if not self.remains.contain_pos(pos):
                             if pos in self.pathing:
+                                path_len = len(self.pathing)
+                                if path_len < 2:
+                                    path_color = GameColor.red
+                                elif path_len < 4:
+                                    path_color = GameColor.orange
+                                else:
+                                    path_color = GameColor.yellow
                                 self.game.gfx.draw(tile.id, (x, y),
-                                                   color=GameColor.red)
+                                                   color=path_color)
                             elif pos in self.tile_fx_coord:
                                 index = self.tile_fx_coord.index(pos)
                                 color = self.tile_fx_color[index]
@@ -395,6 +424,8 @@ class LevelScene(BaseScene):
                 self.game.gfx.inventory.draw()
             elif self.game_state == 'choice':
                 self.game.gfx.choice.draw()
+            elif self.game_state == 'dead':
+                self.game.gfx.msg.draw("The End?")
         elif self.game_state == 'saving':
             self.game.gfx.msg.draw("Saving your game (Don't panic!)")
 
@@ -402,6 +433,7 @@ class LevelScene(BaseScene):
         if self.game_state == 'playing' and self.player.active:
             if event.key == pygame.K_ESCAPE:
                 self.quit()
+
             elif event.key in [pygame.K_KP7]:
                 self.player.action(-1, -1)
             elif event.key in [pygame.K_UP, pygame.K_KP8]:
@@ -418,12 +450,15 @@ class LevelScene(BaseScene):
                 self.player.action(-1, 1)
             elif event.key in [pygame.K_LEFT, pygame.K_KP4]:
                 self.player.action(-1, 0)
+
             elif event.key in [pygame.K_SPACE, pygame.K_KP5]:
                 self.player.action()
+
             elif event.key == pygame.K_g:
                 self.player.action(action='get')
             elif event.key == pygame.K_u:
-                self.player.action(action='use')
+                if self.player.action(action='use'):
+                    return
             elif event.key == pygame.K_i:
                 self.game.gfx.inventory.set_inventory(self.player)
                 self.game_state = 'inventory'
@@ -431,10 +466,21 @@ class LevelScene(BaseScene):
                 self.game.gfx.inventory.set_inventory(
                     self.player, mode="drop")
                 self.game_state = 'inventory'
+
+            elif event.key == pygame.K_k:
+                self.player.fighter.take_damage(999999, "user")
+
+            elif event.key == pygame.K_s:
+                self.game.gfx.msg_log.add(
+                    "Power {}, Defense {}".format(
+                        self.player.fighter.power, self.player.fighter.defense
+                    ), GameColor.azure)
+
         elif self.game_state == 'inventory':
             if event.key in [pygame.K_i, pygame.K_ESCAPE]:
                 self.game_state = 'playing'
                 self.game.gfx.inventory.clean_inventory()
+                return
         elif self.game_state == 'choice':
             if event.key == pygame.K_ESCAPE:
                 pass
@@ -448,6 +494,10 @@ class LevelScene(BaseScene):
                 self.game.gfx.choice.confirm()
                 self.game_state = 'playing'
                 self.game.gfx.choice.clear()
+
+        elif self.game_state == 'dead':
+            self.quit(save=False)
+
         self.handle_turn()
 
     def choice(self, title, items, callback):
@@ -491,19 +541,21 @@ class LevelScene(BaseScene):
                 self.game_state = 'inventory'
 
         elif self.game_state == 'inventory':
-            if self.game.gfx.inventory.click_on(pos) in [
-                'used', "dropped"
-            ]:
+            result = self.game.gfx.inventory.click_on(pos)
+            if result in ['used', "dropped"]:
                 self.game_state = 'playing'
                 self.game.gfx.inventory.clean_inventory()
                 self.player.action()
 
-    def quit(self):
-        threading.Thread(target=self._quit).start()
+        self.handle_turn()
 
-    def _quit(self):
+    def quit(self, save=True):
+        threading.Thread(target=self._quit, args=([save])).start()
+
+    def _quit(self, save):
         self.alive = False
-        self.save_game()
+        if save:
+            self.save_game()
         self.game.set_scene(scene=main_menu.MainMenu)
 
 if __name__ == '__main__':

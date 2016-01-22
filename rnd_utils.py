@@ -38,32 +38,39 @@ class RoomItems(RandomDictionary):
     })
 
 
+def set_rnd_dic(_class):
+    dic = RangedDictionary()
+
+    max_v = 0
+    for name, template in _class.templates.items():
+        rng = (100 - template['_rarity'])
+        dic[range(max_v, max_v + rng)] = name
+        max_v += rng
+
+    return dic
+
+
 class ItemTypes(RandomDictionary):
     """
     Use RoomItems.random() to get a random item quantity roll.
     """
-    dic = RangedDictionary()
     from sprite import Item
-    max_v = 0
-    for name, template in Item.templates.items():
-        rng = (100 - template['_rarity'])
-        dic[range(max_v, max_v + rng)] = name
-        max_v += rng
+    dic = set_rnd_dic(Item)
 
 
 class MonsterTypes(RandomDictionary):
     """
     Use RoomItems.random() to get a random item quantity roll.
     """
-    dic = RangedDictionary()
     from sprite import NPC
-    max_v = 0
-    for name, template in NPC.templates.items():
-        rng = (100 - template['_rarity'])
-        dic[range(max_v, max_v + rng)] = name
-        max_v += rng
+    dic = set_rnd_dic(NPC)
 
 
 if __name__ == '__main__':
     print(MonsterTypes.dic)
-    MonsterTypes.random()
+    print(MonsterTypes.random())
+
+    print()
+
+    print(ItemTypes.dic)
+    print(ItemTypes.random())

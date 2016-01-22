@@ -80,7 +80,9 @@ class Game:
 
         pygame.init()
         os.environ['SDL_VIDEO_CENTERED'] = '1'
-        self.screen = pygame.display.set_mode((width, height), pygame.NOFRAME)
+        self.screen = pygame.display.set_mode(
+            (width, height),
+            pygame.NOFRAME|pygame.HWSURFACE|pygame.DOUBLEBUF)
         # pygame.display.set_caption("libtcod tutorial")
         self.gfx = gfx.PygameGFX(game=self)
 

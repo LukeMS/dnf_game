@@ -389,15 +389,23 @@ class Inventory:
             row = i % self.rows
             col = i // self.rows
 
-            txt_sfc = self.main_font.render(
-                (item.name + str(i)), True, GameColor.chartreuse)
+            if item.equipment:
+                if item.equipment.is_equipped:
+                    text = "*{} ({})".format(item.name, item.equipment.slot)
+                else:
+                    text = "{} ({})".format(item.name, item.equipment.slot)
+                color = item.color
+            else:
+                text = item.name + str(i)
+                color = GameColor.chartreuse
+
+            txt_sfc = self.main_font.render(text, True, color)
             txt_obj = txt_sfc.get_rect()
             txt_obj.left = (
                 self.main_rect.left + self.tab_x + self.main_item_w * col)
             txt_obj.top = self.main_rect.top + (self.main_item_h * row) + 12
 
-            txt_shd_sfc = self.main_font.render(
-                (item.name + str(i)), True, GameColor.black)
+            txt_shd_sfc = self.main_font.render(text, True, GameColor.black)
             txt_shd_obj = txt_shd_sfc.get_rect()
             txt_shd_obj.x, txt_shd_obj.y = (
                 txt_obj.x + 2, txt_obj.y + 2)
@@ -408,17 +416,21 @@ class Inventory:
                 item))
 
     def draw(self):
-        self.screen.blit(self.head_surface, self.head_rect)
+        self.screen.blit(self.head_surface,
+                         self.head_rect)
         self.screen.blit(self.head_title_shadow_sfc,
                          self.head_title_shadow_obj)
-        self.screen.blit(self.head_title_sfc, self.head_title_obj)
+        self.screen.blit(self.head_title_sfc,
+                         self.head_title_obj)
 
         self.screen.blit(self.main_surface, self.main_rect)
         for (
             (txt_sfc, txt_obj), (txt_shd_sfc, txt_shd_obj), item
         ) in self.inv_render:
-            self.screen.blit(txt_shd_sfc, txt_shd_obj)
-            self.screen.blit(txt_sfc, txt_obj)
+            self.screen.blit(txt_shd_sfc,
+                             txt_shd_obj)
+            self.screen.blit(txt_sfc,
+                             txt_obj)
 
     def click_on(self, pos):
         if self.main_rect.collidepoint(pos):
@@ -430,8 +442,12 @@ class Inventory:
                     txt_shd_obj.collidepoint(pos)
                 ):
                     if self.mode == 'use':
-                        return item.item.use(
+                        result = item.item.use(
                             user=self.holder, target=self.target)
+                        if result != 'used':
+                            self.set_inventory(
+                                self.holder, self.target, self.mode)
+                        return result
                     elif self.mode == 'drop':
                         return item.item.drop(
                             dropper=self.holder)
@@ -444,7 +460,6 @@ class Inventory:
 
 
 class Bar:
-    """Semi-Abstract object for subclassing"""
     x = 16
     y = 16
     height = 26
@@ -453,7 +468,7 @@ class Bar:
     alpha = 90
     bar_color = GameColor.light_red
     text_color_table = [
-        (range(0, 25), GameColor.dark_orange),
+        (range(-999, 25), (223, 0, 0)),
         (range(25, 50), GameColor.yellow),
         (range(50, 75), GameColor.lime),
         (range(75, 101), GameColor.green)
@@ -513,7 +528,7 @@ class Bar:
         self.text_color = self.get_color()
 
     def get_color(self):
-        percent = self.percent
+        percent = max(self.percent, 0)
         table = self.text_color_table
 
         for i in range(len(table)):
@@ -523,11 +538,12 @@ class Bar:
                 return color
 
     def draw(self):
-        self.bg_surface.fill(self.bar_color)
-        self.screen.blit(self.bg_surface, self.bg_rect)
+        if self.percent > 0:
+            self.bg_surface.fill(self.bar_color)
+            self.screen.blit(self.bg_surface, self.bg_rect)
 
         self.screen.blit(
-            self.font.render(self.text, 0, self.text_color),
+            self.font.render(self.text, False, self.text_color),
             (self.bg_rect.left + 8, self.bg_rect.top))
 
     @property
@@ -553,6 +569,9 @@ class MsgLog:
         self.line_height = self.font.get_height()
 
         self.ypos = int(self.screen.get_height() - self.line_height * 1.2)
+        self.clear()
+
+    def clear(self):
         self._history = []
 
     def add(self, string, color=None):

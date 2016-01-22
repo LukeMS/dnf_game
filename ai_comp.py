@@ -1,47 +1,96 @@
+import random
 from constants import GameColor
 from constants import CONFUSE_NUM_TURNS
 
 
-class Confused:
-    # AI for a temporarily confused monster (reverts to previous AI after a
-    # while).
+class Ai:
+    owner = None
+    locked = False
+    effect = None
+
+
+class Confused(Ai):
+    """AI for a temporarily confused monster (reverts to previous AI after a
+    while)."""
 
     def __init__(self, num_turns=CONFUSE_NUM_TURNS):
         self.num_turns = num_turns
+        self.effect = True
 
     def take_turn(self):
+        if self.locked:
+            return
+        self.locked = True
+
+        monster = self.owner
+
+        monster.path = None
+
         if self.num_turns > 0:  # still confused...
             # move in a random direction, and decrease the number of turns
             # confused
-            self.owner.move_rnd()
+            if monster.map.tiles[monster.pos].visible:
+                monster.game.gfx.msg_log.add(
+                    (monster.name + " looks confused"), GameColor.pink)
+            if random.randint(1, 100) > 33:
+                monster.move_rnd()
+            else:
+                monster.move()
             self.num_turns -= 1
 
         # restore the previous AI (this one will be deleted because it's not
         # referenced anymore)
         else:
-            self.owner.ai = self.owner.default_ai
-            self.owner.color = self.owner.default_color
-            self.owner.game.gfx.msg_log.add(
-                'The ' + self.owner.name + ' is no longer confused!',
+            self.effect = False
+            monster.ai = monster.default_ai
+            monster.color = monster.default_color
+            monster.game.gfx.msg_log.add(
+                'The ' + monster.name + ' is no longer confused!',
                 GameColor.yellow)
 
+        self.locked = False
 
-class Basic:
-    # AI for a basic monster.
+
+class Basic(Ai):
+    """AI for a basic monster."""
 
     def take_turn(self):
-        # a basic monster takes its turn. If you can see it, it can see you
-        monster = self.owner
+        """A basic monster takes its turn."""
 
-        # if monster.map.tiles[monster.pos].visible:
+        # some kind of lock to prevent double calling ANd queueing of
+        # same objects on a single turn.
+        if self.locked:
+            return
+        self.locked = True
+        #
+
+        monster = self.owner
         target = monster.map.player
+        distance = monster.distance_to(monster.map.player)
+
         # move towards player if far away
-        if monster.distance_to(monster.map.player) > 1:
-            # print("{} moves".format(monster.name))
-            monster.move_towards(target=target)
+        if distance >= 2:  # implement reach here
+            if monster.path:
+                # continue following the path
+                try:
+                    moved = monster.move(monster.path.pop(1))
+                except:
+                    moved = False
+                else:
+                    monster.map.pathing = []
+            else:
+                moved = False
+
+            if not moved:
+                # find a new path
+                monster.path = monster.move_towards(target=target)
+                try:
+                    monster.map.pathing = monster.path[2:-1]
+                except:
+                    monster.map.pathing = []
 
         # close enough, attack! (if the player is still alive.)
         elif target.fighter.hp > 0:
             monster.fighter.attack(target)
 
-        # monster.active = False
+        self.locked = False

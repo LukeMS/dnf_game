@@ -6,7 +6,7 @@ from random import randint
 import rnd_gen
 import tile
 
-from pathfinder import AStarSearch
+from pathfinder import AStarSearch, GreedySearch
 
 
 class Map:
@@ -28,7 +28,11 @@ class Map:
         else:
             return self._objects
 
-    def valid_tile(self, pos):
+    def valid_tile(self, pos, goal=None):
+        if goal is not None:
+            if self.distance(pos, goal) > 10:
+                return False
+
         if not (
             pos is not None and
             not self.grid[pos].block_mov and
@@ -54,9 +58,26 @@ class Map:
         return lst
 
     def distance(self, pos1, pos2):
-        dx = pos1[0] - pos2[0]
-        dy = pos2[1] - pos1[1]
-        return math.sqrt(dx ** 2 + dy ** 2)
+        if isinstance(pos1, tuple):
+            x1, y1 = pos1
+        else:
+            x1, y1 = pos1.x, pos1.y
+
+        if isinstance(pos2, tuple):
+            x2, y2 = pos2
+        else:
+            x2, y2 = pos2.x, pos2.y
+
+        dx = abs(x2 - x1)
+        dy = abs(y2 - y1)
+
+        min_d = min(dx, dy)
+        max_d = max(dx, dy)
+
+        diagonal_steps = min_d
+        straight_steps = max_d - min_d
+
+        return math.sqrt(2) * (diagonal_steps + straight_steps)
 
     def get_area(self, pos, radius, circle=True, only_visible=True):
         area = []
@@ -81,8 +102,11 @@ class Map:
         # print(area)
         return area
 
-    def new_path(self, start_pos, end_pos):
+    def a_path(self, start_pos, end_pos):
         return AStarSearch.new_search(self, self.grid, start_pos, end_pos)
+
+    def greedy_path(self, start_pos, end_pos):
+        return GreedySearch.new_search(self, self.grid, start_pos, end_pos)
 
     def test(self):
         t1 = time.clock()

@@ -7,7 +7,7 @@ import pygame
 from constants import TILE_W, TILE_H, GameColor, LEVEL_UP_BASE, LEVEL_UP_FACTOR
 
 from game_types import Position
-from item_comp import ItemComponent, DngFeatComponent
+import obj_components
 import ai_comp
 
 
@@ -28,7 +28,7 @@ class GameObject(pygame.sprite.Sprite):
     def __init__(
         self, game, map, x, y, id, color, group,
         name=None, blocks=True, fighter=None, ai=None, item=None, active=True,
-        dng_feat=None,
+        dng_feat=None, equipment=None,
         **kwargs
     ):
         super().__init__()
@@ -40,9 +40,16 @@ class GameObject(pygame.sprite.Sprite):
         # unpack the arguments and store them in the instance
         for arg in [
             "game", "map", "x", "y", "id", "color", "group", "name", "blocks",
-            "fighter", "ai", "item", "dng_feat", "active"
+            "fighter", "ai", "item", "equipment", "dng_feat", "active"
         ]:
-            setattr(self, arg, eval(arg))
+            value = eval(arg)
+
+            # component initialization
+            if hasattr(value, 'owner'):  # if it is a component
+                # print(self.name, "<-", value, )
+                value.owner = self  # set its owner
+
+            setattr(self, arg, value)
         #
 
         # some extra required preparation
@@ -51,18 +58,6 @@ class GameObject(pygame.sprite.Sprite):
             for trash in ["<class '", "'>", "sprite."]:
                 self.name = self.name.replace(trash, "")
             self.name = self.name.capitalize()
-
-        if self.fighter:  # let the fighter component know who owns it
-            self.fighter.owner = self
-
-        if self.ai:  # let the AI component know who owns it
-            self.ai.owner = self
-
-        if self.item:  # let the AI component know who owns it
-            self.item.owner = self
-
-        if self.dng_feat:
-            self.dng_feat.owner = self
 
         if self.name != 'cursor':
             self.group.add(self)
@@ -127,7 +122,9 @@ class GameObject(pygame.sprite.Sprite):
         elif isinstance(n, (int, float)):
             return Position(int(self.x // n), int(self.y // n))
 
-    def move(self, pos):
+    def move(self, pos=None):
+        if pos is None:
+            return None
         blocked, obj = self.map.is_blocked(pos, self)
 
         if not blocked:
@@ -135,44 +132,38 @@ class GameObject(pygame.sprite.Sprite):
             # print(self.name, "moving")
             self.pos = pos
             self.set_next_to_vis()
+            return True
+        return None
 
     def move_rnd(self):
         start_pos = self.pos
         next_step = random.choice(self.map.map.get_neighbors(start_pos))
         # print(self.name, "moves erratically")
-        self.move(next_step)
+        return self.move(next_step)
 
     def move_towards(self, target):
         start_pos = self.pos
         end_pos = target.pos
 
         try:
-            path = self.map.map.new_path(start_pos, end_pos)
-            self.map.pathing = path[2:-1]
-            next_step = Position(*path[1])
-            self.move(next_step)
+            path = self.map.map.a_path(start_pos, end_pos)
+            # path = self.map.map.greedy_path(start_pos, end_pos)
+            if len(path) < 10:
+                next_step = Position(*path[1])
+                if self.move(next_step):
+                    return path
+                else:
+                    return None
+            else:
+                return self.move_rnd()
         except KeyError:
             # the path must be blocked
-            self.move_rnd()
+            return self.move_rnd()
 
-    def distance_to(self, other, another=None):
-        if isinstance(other, tuple):
-            x1, y1 = other
-        else:
-            x1, y1 = other.x, other.y
-
-        if another is None:
-            # return the distance to another object
-            x2, y2 = self.x, self.y
-        else:
-            if isinstance(another, tuple):
-                x2, y2 = another
-            else:
-                x2, y2 = another.x, another.y
-
-        dx = x1 - x2
-        dy = y2 - y1
-        return math.sqrt(dx ** 2 + dy ** 2)
+    def distance_to(self, pos1, pos2=None):
+        if pos2 is None:
+            pos2 = self.pos
+        return self.map.map.distance(pos1.pos, pos2)
 
     def update(self):
         self.game.gfx.draw(
@@ -198,12 +189,12 @@ class GameObject(pygame.sprite.Sprite):
             self.map.choice(
                 title='Level up! Choose a stat to raise:',
                 items=[
-                    'Constitution, +20 HP (current: {})'.format(
+                    'Constitution, +10 HP (current: {})'.format(
                         self.fighter.max_hp),
                     'Strength, +1 attack (current: {})'.format(
-                        self.fighter.power),
+                        self.fighter.base_power),
                     'Agility, +1 defense (current: {})'.format(
-                        self.fighter.defense)
+                        self.fighter.base_defense)
                 ],
                 callback=self.increase_stat
             )
@@ -212,18 +203,15 @@ class GameObject(pygame.sprite.Sprite):
         id, desc = choice
 
         if id == 0:
-            # old_v = self.fighter.max_hp
-            self.fighter.max_hp += 20
-            self.fighter.hp += 20
-            # new_v = self.fighter.max_hp
+            self.fighter.base_max_hp += 10
+            self.update_hp()
+
         elif id == 1:
-            # old_v = self.fighter.power
-            self.fighter.power += 1
-            # new_v = self.fighter.power
+            self.fighter.base_power += 1
+
         elif id == 2:
-            # old_v = self.fighter.defense
-            self.fighter.defense += 1
-            # new_v = self.fighter.defense
+            self.fighter.base_defense += 1
+
         else:
             raise AttributeError
         self.game.gfx.msg_log.add(
@@ -231,50 +219,17 @@ class GameObject(pygame.sprite.Sprite):
             GameColor.cyan)
 
 
-class Death:
-
-    @staticmethod
-    def player(player):
-        # the game ended!
-        player.game.gfx.msg_log.add('You died!')
-        player.game_state = 'dead'
-
-        # for added effect, transform the player into a corpse!
-        player.id = ord('%')
-        player.color = GameColor.dark_red
-
-    @staticmethod
-    def monster(monster):
-        # transform it into a nasty corpse! it doesn't block, can't be
-        # attacked and doesn't move
-        monster.game.gfx.msg_log.add('{} is dead! You gain {} xp'.format(
-            monster.name.capitalize(), monster.fighter.xp_value))
-
-        monster.id = ord('%')
-        monster.color = GameColor.dark_red
-        monster.blocks = False
-        monster.fighter = None
-        monster.ai = None
-        monster.item = ItemComponent('remains')
-        monster.item.owner = monster
-        monster.name = 'remains of ' + monster.name
-
-        monster.group = monster.map.remains
-        monster.map.objects.remove(monster)
-        monster.map.remains.add(monster)
-
-
 class Player(GameObject):
 
     def __init__(
             self, id=ord('@'), color=GameColor.yellow, **kwargs):
 
-        fighter = Fighter(template="player")
+        fighter = obj_components.Fighter(template="player")
 
         super().__init__(
             id=id, color=color, fighter=fighter, **kwargs)
-        self.game.gfx.hp_bar.set_value(self.fighter.hp, self.fighter.max_hp)
         self.inventory = []
+        self.game.gfx.hp_bar.set_value(self.fighter.hp, self.fighter.max_hp)
 
     def update_hp(self):
         # max_hp
@@ -309,99 +264,12 @@ class Player(GameObject):
         elif action is 'use':
             for object in self.map.remains:
                 if object.dng_feat and object.pos == self.pos:
-                    if not object.dng_feat.use(who=self):
-                        return
+                    if object.dng_feat.use(who=self):
+                        self.active = False
+                        return 1
+            return False
 
         self.active = False
-
-
-class Fighter:
-    # combat-related properties and methods (monster, player, NPC).
-    templates = {
-        "player": {
-            "max_hp": 30,
-            "defense": 2,
-            "power": 5,
-            "xp_value": None,
-            "death_func": Death.player
-        },
-        "orc": {
-            "max_hp": 10,
-            "defense": 0,
-            "power": 3,
-            'xp_value': 35,
-            "death_func": Death.monster
-        },
-        "troll": {
-            "max_hp": 16,
-            "defense": 1,
-            "power": 4,
-            'xp_value': 100,
-            "death_func": Death.monster
-        }
-    }
-
-    def __init__(self, template):
-        # hp, defense, power, death_func=None):
-        for key, value in self.templates[template].items():
-            setattr(self, key, value)
-        self.hp = self.templates[template]['max_hp']
-        self.xp = 5000
-        self.level = 1
-
-    def take_damage(self, damage, atkr=None):
-        # apply damage if possible
-        if damage > 0:
-            self.hp -= damage
-
-        # check for death. if there's a death function, call it
-        if self.hp <= 0:
-            if self.death_func is not None:
-                self.death_func(self.owner)
-            atkr.gain_xp(self.xp_value)
-
-        self.owner.update_hp()
-
-    def heal(self, amount):
-        # heal by the given amount, without going over the maximum
-        self.hp += amount
-        self.hp = min(self.hp, self.max_hp)
-        self.owner.update_hp()
-
-    def attack(self, target):
-        # a simple formula for attack damage
-        damage = self.power - target.fighter.defense
-
-        if self.owner.ai:
-            color = GameColor.red  # I'm a monster!
-        else:
-            color = None  # I'm the player
-
-        if damage > 0:
-            # make the target take some damage
-            self.owner.game.gfx.msg_log.add(
-                self.owner.name.capitalize() + ' attacks ' + target.name +
-                ' for ' + str(damage) + ' hit points.', color)
-            target.fighter.take_damage(damage=damage, atkr=self.owner)
-        else:
-            self.owner.game.gfx.msg_log.add(
-                self.owner.name.capitalize() + ' attacks ' + target.name +
-                ' but it has no effect!', color)
-
-    def closest_monster(self, who, max_range):
-        # find closest enemy, up to a maximum range, and in the player's FOV
-        closest_enemy = None
-        # start with (slightly more than) maximum range
-        closest_dist = max_range + 1
-
-        for object in self.owner.group:
-            if object.fighter and not object == who and object.next_to_vis:
-                # calculate distance between this object and the player
-                dist = who.distance_to(object)
-                if dist < closest_dist:  # it's closer, so remember it
-                    closest_enemy = object
-                    closest_dist = dist
-        return closest_enemy
 
 
 class DngFeature(GameObject):
@@ -421,13 +289,14 @@ class DngFeature(GameObject):
     def __init__(self, template, **kwargs):
         new_obj = dict(self.templates[template])
         new_obj.update(kwargs)
-        if template in DngFeatComponent.templates:
-            new_obj['dng_feat'] = DngFeatComponent(template)
+        if template in obj_components.DngFeat.templates:
+            new_obj['dng_feat'] = obj_components.DngFeat(template)
         super().__init__(
             **new_obj, name=str(template).capitalize())
 
 
 class Item(GameObject):
+
     templates = {
         'healing potion': {
             'id': "!",
@@ -448,14 +317,39 @@ class Item(GameObject):
             'id': "#",
             'color': GameColor.yellow,
             '_rarity': 90
+        },
+        'dagger': {
+            'id': '-',
+            'color': GameColor.sky,
+            '_rarity': 85
+        },
+        'short sword': {
+            'id': '´',
+            'color': GameColor.sky,
+            '_rarity': 90
+        },
+        'sword': {
+            'id': '/',
+            'color': GameColor.sky,
+            '_rarity': 95
+        },
+        'shield': {
+            'id': '[',
+            'color': GameColor.darker_orange,
+            '_rarity': 90
         }
     }
 
     def __init__(self, template, **kwargs):
         new_obj = dict(self.templates[template])
         new_obj.update(kwargs)
-        if template in ItemComponent.templates:
-            new_obj['item'] = ItemComponent(template)
+
+        if template in obj_components.Item.templates:
+            new_obj['item'] = obj_components.Item(template)
+
+        if template in obj_components.Equipment.templates:
+            new_obj['equipment'] = obj_components.Equipment(template)
+
         super().__init__(
             **new_obj,
             blocks=False, name=str(template).capitalize())
@@ -466,6 +360,8 @@ class Item(GameObject):
 
 
 class NPC(GameObject):
+
+    path = None
 
     templates = {
         'orc': {
@@ -486,8 +382,8 @@ class NPC(GameObject):
         new_obj = dict(self.templates[template])
         new_obj.update(kwargs)
         new_obj.update({'name': str(template).capitalize()})
-        if template in Fighter.templates:
-            new_obj['fighter'] = Fighter(template)
+        if template in obj_components.Fighter.templates:
+            new_obj['fighter'] = obj_components.Fighter(template)
         else:
             new_obj['fighter'] = None
         if new_obj['ai'] is not None:
@@ -519,19 +415,15 @@ class Cursor(GameObject):
         return self.cursor_collision()
 
     def cursor_collision(self):
-        collision = None
         for object in self.map.objects:
             if object.pos == self.pos and object.next_to_vis:
-                collision = object
-                break
-        if collision is None:
-            for object in self.map.remains:
-                if object.pos == self.pos and object.next_to_vis:
-                    collision = object
-                    break
-        if collision is None:
-            if self.pos in self.map.tiles:
-                object = self.map.tiles[self.pos]
-                if object.visible or object.explored:
-                    collision = object
-        return collision
+                return object
+
+        for object in self.map.remains:
+            if object.pos == self.pos and object.next_to_vis:
+                return object
+
+        if self.pos in self.map.tiles:
+            object = self.map.tiles[self.pos]
+            if object.visible or object.explored:
+                return object

@@ -1,4 +1,4 @@
-import time
+import random
 
 from constants import GameColor, HEAL_AMOUNT, LIGHTNING_DAMAGE, \
     LIGHTNING_RANGE, CONFUSE_RANGE, FIREBALL_RADIUS, FIREBALL_DAMAGE
@@ -116,3 +116,38 @@ def rnd_cast_confuse(who, target=None):
     who.game.gfx.msg_log.add(
         'The eyes of the ' + monster.name +
         ' look vacant, as he starts to stumble around!', GameColor.light_green)
+
+
+def player_death(player, atkr=None):
+    # the game ended!
+    player.game.gfx.msg_log.add('You died!')
+    player.map.game_state = 'dead'
+
+    # for added effect, transform the player into a corpse!
+    player.id = ord('%')
+    player.color = GameColor.dark_red
+
+
+def monster_death(monster, atkr=None):
+    import obj_components
+    # transform it into a nasty corpse! it doesn't block, can't be
+    # attacked and doesn't move
+    monster.game.gfx.msg_log.add('{} is dead! You gain {} xp'.format(
+        monster.name.capitalize(), monster.fighter.xp_value), GameColor.cyan)
+
+    if random.randint(1, 100) > 66:
+        monster.id = ord('%')
+        monster.color = GameColor.dark_red
+        monster.item = obj_components.Item('remains')
+        monster.item.owner = monster
+        monster.name = 'remains of ' + monster.name
+
+        monster.group = monster.map.remains
+        monster.map.remains.add(monster)
+    else:
+        monster.group = None
+
+    monster.map.objects.remove(monster)
+    monster.blocks = False
+    monster.fighter = None
+    monster.ai = None
