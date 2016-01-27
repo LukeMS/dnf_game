@@ -49,8 +49,7 @@ def cast_fireball(who, target):
         'The fireball explodes, burning everything within ' +
         str(FIREBALL_RADIUS) + ' tiles!', GameColor.yellow)
 
-    area = who.scene.area_fx.get_area(
-        grid=who.scene.grid,
+    area = who.scene.map_mgr.get_area(
         pos=target.pos,
         radius=FIREBALL_RADIUS)
 

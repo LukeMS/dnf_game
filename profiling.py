@@ -11,12 +11,13 @@ def main():
 
 
 if __name__ == '__main__':
+    """
     import cProfile
     cProfile.run('main()', "profile.tmp")
-
+    """
     import pstats
     stream = open('profile.txt', 'w')
     p = pstats.Stats('profile.tmp', stream=stream)
 
-    # `time`, `cumulative`
-    p.sort_stats('ncalls', 'cumulative', 'time').print_stats()
+    # `time`, `cumulative`, 'ncalls'
+    p.sort_stats('time').print_stats()

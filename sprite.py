@@ -246,7 +246,8 @@ class Player(GameObject):
                 if target is not None:
                     self.fighter.attack(target)
                 else:
-                    self.move(pos)
+                    if self.move(pos):
+                        self.scene.map_mgr.set_fov()
         elif action is 'get':
             for object in self.scene.remains:
                 if object.item and object.pos == self.pos:

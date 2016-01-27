@@ -1,46 +1,34 @@
-import fov
-from constants import MAP_COLS, MAP_ROWS
-
-
-class AreaFx:
-    def get_area(self, grid, pos, radius):
-        self.grid = grid
-
-        x, y = pos
-
-        self.area = []
-
-        fov.fieldOfView(
-            x, y, MAP_COLS, MAP_ROWS,
-            radius, self.func_visit, self.func_blocked
-        )
-
-        return self.area
-
-    def func_visit(self, x, y):
-        self.area.append((x, y))
-
-    def func_blocked(self, x, y):
-        return self.grid[x, y].block_mov
-
-
 class TileFx:
-    """Contains combinations of coordinates, color and duration of tile
-    effects. When updated, every list will be checked, its duration decreased
-    by one (removing entries with duration 0).
+    """Keeps combinations of coordinates, color and duration of tile
+    effects. When updated, every list will be checked, and its member's
+    duration decreased by one (removing it if < 1).
     When used to check if contains a coordinate, returns the color of the first
     effect found for that coordinate; if nothing is found, returns None.
+    When adding a new effect it is stored after the last added effect of same
+    duration (if it exists, if not, it goes to the last position).
     """
-    _main = []
+
+    def __init__(self, scene):
+        self._scene = scene
+
+    def data(self):
+        return self._scene.levels[self._scene.current_level]['tile_fx']
 
     def add(self, coord, color, duration):
-        index = len(self._main)
-        for i, fx in enumerate(self._main):
+        """ Use this to store an effect on the container.
+        coord: a list of tuple coordinates (x, y)
+        color: a tuple of three values (r, g, b)
+        duration: an integer, how many turns the effect should last.
+        """
+        data = self.data()
+
+        index = len(data)
+        for i, fx in enumerate(data):
             if fx['duration'] > index:
                 index = i
                 break
 
-        self._main.insert(
+        data.insert(
             index,
             {
                 "coord": coord,
@@ -48,23 +36,35 @@ class TileFx:
                 "duration": duration})
 
     def update(self):
-        for i in range(len(self._main) - 1, -1, -1):
-            fx = self._main[i]
+        """ Reduce the duration of the members duration by one, removing if it
+        is less then one.
+        """
+        data = self.data()
+
+        for i in range(len(data) - 1, -1, -1):
+            fx = data[i]
             if fx['duration'] < 1:
-                self._main.pop(i)
+                data.pop(i)
             else:
                 fx['duration'] -= 1
 
     def get(self, coord, throwback=None):
+        """ Returns the color of the effect for a given coordinate. It returns
+        none as default if the coordinate doesn't have an effect stored.
+        If you want it to return something else (such as an default value),
+        pass it as thowback.
+        """
+        data = self.data()
+
         pos = x, y = coord
         # print(pos)
-        for fx in self._main:
+        for fx in data:
             if pos in fx['coord']:
                 return fx['color']
         return throwback
 
 
-if __name__ == '__main__':
+if __name__ == '_data__':
     tile_fx = TileFx()
 
     tile_fx.add(

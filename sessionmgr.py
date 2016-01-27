@@ -1,4 +1,8 @@
 import os
+from pickle import Pickler, Unpickler
+from io import BytesIO
+import shelve
+import bz2
 
 from constants import SCREEN_ROWS, MAP_ROWS, SCREEN_COLS, MAP_COLS
 import sprite
@@ -19,6 +23,18 @@ def ensure_savedir():
     if not os.path.exists('save'):
         os.makedirs('save')
 
+"""
+    new_game
+    new_level
+    load_game
+    save_game
+
+Those are actual methods of the LevelScene class.
+They should be properly splitted apart from it soon, possibly using an event
+dispatcher.
+For now, they're only phisically stored apart to keep things "organized".
+"""
+
 
 def new_game(self):
     clear_savedir()
@@ -29,9 +45,8 @@ def new_game(self):
     self.max_y = max(SCREEN_ROWS, MAP_ROWS)
     self.max_x = max(SCREEN_COLS, MAP_COLS)
 
+    self.tile_fx = tile_fx.TileFx(scene=self)
     self.new_level()
-
-    self.area_fx = tile_fx.AreaFx()
 
     self.cursor = sprite.Cursor(scene=self)
 
@@ -39,13 +54,14 @@ def new_game(self):
 def new_level(self, level=0):
     self.game_state = 'loading'
 
-    if level in self.levels:
-        # going back to a level
-
-        # clean up
+    # not the first level
+    if len(self.levels) > 0:
+        # clean up and store the current level
         self.levels[self.current_level]['player_pos'] = self.player.pos
         self.objects.remove(self.player)
 
+    # going back to a level, it already exists
+    if level in self.levels:
         # set the level number, properties will follow it
         self.current_level = level
         #
@@ -57,18 +73,13 @@ def new_level(self, level=0):
 
     else:
         import rnd_gen
-        if len(self.levels) > 0:
-            self.levels[self.current_level]['player_pos'] = self.player.pos
-            self.objects.remove(self.player)
-
+        # going to a new level - or the first one
         # set the level number, properties will follow it
         self.current_level = level
         self.levels[level] = {}
-        #
-
-        # going to a new level - or the first one
         self.levels[level]['objects'] = sprite.Group()
         self.levels[level]['remains'] = sprite.Group()
+        self.levels[level]['tile_fx'] = []
 
         grid, rooms, halls = rnd_gen.Map().make_map(
             MAP_COLS, MAP_ROWS)
@@ -86,16 +97,12 @@ def new_level(self, level=0):
 
     self.map_mgr.set_fov()
 
-    self.tile_fx = tile_fx.TileFx()
-
     self.player.active = True
     self.game_state = 'playing'
 
 
 def load_game(self):
-    import zshelve
-    import os
-    with zshelve.open(os.path.join('save', 'savegame'), 'r') as shelf_file:
+    with zshelf_open(os.path.join('save', 'savegame'), 'r') as shelf_file:
         self.levels = shelf_file['levels']
 
         for att, value in shelf_file['scene'].items():
@@ -107,6 +114,8 @@ def load_game(self):
         self.objects.add(self.player)
 
         self.map_mgr = gamemap.Map(scene=self)
+        self.tile_fx = tile_fx.TileFx(scene=self)
+        self.cursor = sprite.Cursor(scene=self)
 
         for group in [self.objects, self.remains]:
             for obj in group:
@@ -116,22 +125,14 @@ def load_game(self):
 
         self.map_mgr.set_fov()
 
-        self.tile_fx = tile_fx.TileFx()
-
-        self.area_fx = tile_fx.AreaFx()
-
-        self.cursor = sprite.Cursor(scene=self)
-
         self.game_state = 'playing'
 
 
 def save_game(self):
     self.game_state = 'saving'
     ensure_savedir()
-    import zshelve
-    import os
 
-    with zshelve.open(os.path.join('save', 'savegame'), 'n') as shelf_file:
+    with zshelf_open(os.path.join('save', 'savegame'), 'n') as shelf_file:
         self.objects.remove(self.player)
         self.levels[self.current_level]['player_pos'] = self.player.pos
         shelf_file['player'] = self.player
@@ -142,3 +143,34 @@ def save_game(self):
         shelf_file['scene'] = scene
 
         shelf_file['levels'] = self.levels
+
+
+class ZShelf(shelve.Shelf):
+    """
+    A simple subclassing of shelve.Shelf to compress/uncompress the saved
+    pickles with bz2, generating smaller saved game files.
+    """
+    def __getitem__(self, key):
+        try:
+            value = self.cache[key]
+        except KeyError:
+            f = BytesIO(
+                bz2.decompress(self.dict[key.encode(self.keyencoding)]))
+            value = Unpickler(f).load()
+        return value
+
+    def __setitem__(self, key, value):
+        f = BytesIO()
+        p = Pickler(f, self._protocol)
+        p.dump(value)
+        self.dict[key.encode(self.keyencoding)] = bz2.compress(f.getvalue())
+
+
+class DbfilenameZShelf(ZShelf):
+    def __init__(self, filename, flag='c'):
+        import dbm
+        super().__init__(dbm.open(filename, flag))
+
+
+def zshelf_open(filename, flag='c'):
+    return DbfilenameZShelf(filename, flag)

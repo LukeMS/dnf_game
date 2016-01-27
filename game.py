@@ -217,5 +217,5 @@ if __name__ == '__main__':
         def on_key_press(self, event):
             if event.key == pygame.K_ESCAPE:
                 self.quit()
-
+if __name__ == '__main__':
     Game(scene=Test)

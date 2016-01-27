@@ -18,6 +18,8 @@ class Confused(Ai):
         self.effect = True
 
     def take_turn(self):
+        # some kind of lock to prevent double calling AND queueing of
+        # same objects on a single turn.
         if self.locked:
             return
         self.locked = True
@@ -57,7 +59,7 @@ class Basic(Ai):
     def take_turn(self):
         """A basic monster takes its turn."""
 
-        # some kind of lock to prevent double calling ANd queueing of
+        # some kind of lock to prevent double calling AND queueing of
         # same objects on a single turn.
         if self.locked:
             return

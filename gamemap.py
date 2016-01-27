@@ -59,6 +59,105 @@ class Map:
     def get_cell_at_pos(self, pos):
         return self.grid[pos]
 
+    def get_area(self, pos, radius):
+        return Area.get(self.grid, pos, radius)
+
+    @staticmethod
+    def get_octant(pos, distance, octant=0):
+        octant = octant % 8
+        if octant == 0:
+            op = lambda x, y, c, r: (x + c, y - r)
+        elif octant == 1:
+            op = lambda x, y, c, r: (x + r, y - c)
+        elif octant == 2:
+            op = lambda x, y, c, r: (x + r, y + c)
+        elif octant == 3:
+            op = lambda x, y, c, r: (x + c, y + r)
+        elif octant == 4:
+            op = lambda x, y, c, r: (x - c, y + r)
+        elif octant == 5:
+            op = lambda x, y, c, r: (x - r, y + c)
+        elif octant == 6:
+            op = lambda x, y, c, r: (x - r, y - c)
+        elif octant == 7:
+            op = lambda x, y, c, r: (x - c, y - r)
+        x0, y0 = pos
+        lst = []
+        for row in range(1, distance):
+            for col in range(0, row):
+                x1, y1 = op(x0, y0, col, row)
+                lst.append((x1, y1))
+
+        return lst
+        """
+        for (var row = 1; row < maxDistance; row++) {
+          for (var col = 0; col <= row; col++) {
+            var x = hero.x + col;
+            var y = hero.y - row;
+
+            paint(x, y);
+          }
+        }
+        """
+
+    @staticmethod
+    def get_line(start, end):
+        """Bresenham's Line Algorithm
+        Produces a list of tuples from start and end
+
+        >>> points1 = get_line((0, 0), (3, 4))
+        >>> points2 = get_line((3, 4), (0, 0))
+        >>> assert(set(points1) == set(points2))
+        >>> print points1
+        [(0, 0), (1, 1), (1, 2), (2, 3), (3, 4)]
+        >>> print points2
+        [(3, 4), (2, 3), (1, 2), (1, 1), (0, 0)]
+        """
+        # Setup initial conditions
+        x1, y1 = start
+        x2, y2 = end
+        dx = x2 - x1
+        dy = y2 - y1
+
+        # Determine how steep the line is
+        is_steep = abs(dy) > abs(dx)
+
+        # Rotate line
+        if is_steep:
+            x1, y1 = y1, x1
+            x2, y2 = y2, x2
+
+        # Swap start and end points if necessary and store swap state
+        swapped = False
+        if x1 > x2:
+            x1, x2 = x2, x1
+            y1, y2 = y2, y1
+            swapped = True
+
+        # Recalculate differentials
+        dx = x2 - x1
+        dy = y2 - y1
+
+        # Calculate error
+        error = int(dx / 2.0)
+        ystep = 1 if y1 < y2 else -1
+
+        # Iterate over bounding box generating points between start and end
+        y = y1
+        points = []
+        for x in range(x1, x2 + 1):
+            coord = (y, x) if is_steep else (x, y)
+            points.append(coord)
+            error -= abs(dy)
+            if error < 0:
+                y += ystep
+                error += dx
+
+        # Reverse the list if the coordinates were swapped
+        if swapped:
+            points.reverse()
+        return points
+
     def valid_tile(self, pos, goal=None):
         if goal is not None:
             if self.distance(pos, goal) > 10:
@@ -214,3 +313,28 @@ class Map:
 
     def blocks_sight(self, x, y):
         return self.grid[x, y].block_sight
+
+
+class Area:
+    @classmethod
+    def get(cls, grid, pos, radius):
+        cls.grid = grid
+
+        x, y = pos
+
+        cls.area = []
+
+        fov.fieldOfView(
+            x, y, MAP_COLS, MAP_ROWS,
+            radius, cls.func_visit, cls.func_blocked
+        )
+
+        return cls.area
+
+    @classmethod
+    def func_visit(cls, x, y):
+        cls.area.append((x, y))
+
+    @classmethod
+    def func_blocked(cls, x, y):
+        return cls.grid[x, y].block_mov

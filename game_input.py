@@ -2,6 +2,18 @@ import pygame
 import constants
 
 
+"""
+    on_key_press
+    on_mouse_press
+    on_mouse_scroll
+
+Those are actual methods of the LevelScene class.
+They should be properly splitted apart from it soon, possibly using an event
+dispatcher.
+For now, they're only phisically stored apart to keep things "organized".
+"""
+
+
 def on_key_press(self, event):
     if self.game_state == 'playing' and self.player.active:
         if event.key == pygame.K_ESCAPE:
@@ -70,7 +82,8 @@ def on_key_press(self, event):
             self.gfx.choice.clear()
 
     elif self.game_state == 'dead':
-        self.quit(save=False)
+        if event.key in [pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_SPACE]:
+            self.quit(save=False)
 
     self.handle_turn()
 
@@ -88,10 +101,18 @@ def on_mouse_press(self, event):
                 "Clicked on {}".format(target))
         elif event.button == 3:  # right button
             target = self.cursor.move(pos, rel_pos)
+            # area = self.map_mgr.get_line(target.pos, self.player.pos)
+            area = self.map_mgr.get_octant(
+                self.player.pos, 4,
+                self.turn)
+            self.tile_fx.add(area, constants.GameColor.blue, 1)
+            self.player.action()
+            """
             self.gfx.inventory.set_inventory(
                 holder=self.player,
                 target=target)
             self.game_state = 'inventory'
+            """
 
     elif self.game_state == 'inventory':
         result = self.gfx.inventory.click_on(pos)
