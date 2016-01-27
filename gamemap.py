@@ -150,12 +150,10 @@ class Map:
             points.reverse()
         return points
 
-    def valid_tile(self, pos, goal=None, check_obj=True, max_distance=10):
-        """
+    def valid_tile(self, pos, goal=None, check_obj=True, max_distance=None):
         if max_distance and goal is not None:
             if self.distance(pos, goal) > max_distance:
                 return False
-        """
         if not (
             pos is not None and
             0 <= pos[0] < self.width
@@ -165,11 +163,10 @@ class Map:
         else:
             return not self.is_blocked(pos, check_obj=check_obj)
 
-    def is_blocked(self, pos, check_obj=True):
+    def is_blocked(self, pos, sprite=None, check_obj=True):
         if self.grid[pos].block_mov:
             return True
 
-        """
         if check_obj:
 
             for obj in self._scene.get_all_at_pos(
@@ -177,7 +174,6 @@ class Map:
             ):
                 if obj.fighter:
                     return True
-        """
 
         return False
 
@@ -191,15 +187,6 @@ class Map:
                 if self.valid_tile(n):
                     lst.append(n)
         return lst
-
-    def a_path(self, start_pos, end_pos,
-               diagonals=True, check_obj=True, max_distance=10):
-        a_star = AStarSearch(map_mgr=self, grid=self.grid)
-        path = a_star.new_search(start_pos, end_pos,
-                                 diagonals=diagonals, check_obj=check_obj,
-                                 max_distance=max_distance)
-        print("path:", path)
-        return path
 
     def distance(self, pos1, pos2):
         if isinstance(pos1, tuple):
@@ -222,6 +209,12 @@ class Map:
         straight_steps = max_d - min_d
 
         return math.sqrt(2) * (diagonal_steps + straight_steps)
+
+    def a_path(self, start_pos, end_pos,
+               diagonals=True, check_obj=True, max_distance=10):
+        a_star = AStarSearch(map_mgr=self, grid=self.grid)
+        return a_star.new_search(start_pos, end_pos, diagonals,
+                                 check_obj, max_distance)
 
     def new_xy(self, room, objects=None):
         attempts = 0

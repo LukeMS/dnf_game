@@ -176,7 +176,7 @@ class RndMap:
         for y in range(height):
             for x in range(width):
                 self.map[x, y] = Tile((x, y), 'wall', block_mov=False)
-        # self.draw()
+        self.draw()
 
         print("MAX_ROOMS:", MAX_ROOMS)
 
@@ -249,7 +249,7 @@ class RndMap:
                     quarter_choice.update_weight(sector)
                     # self.draw()
                     break
-        # self.draw()
+        self.draw()
 
         print("rooms:", len(self.rooms), 'max_rooms', MAX_ROOMS)
 
@@ -292,18 +292,16 @@ class RndMap:
 
             self.register_connection(wall1, wall2)
 
-            # try:
-            path = self.scene.map_mgr.a_path(
-                wall1[0], wall2[0], diagonals=True, check_obj=False,
-                max_distance=None)
-            """
+            try:
+                path = self.scene.map_mgr.a_path(
+                    wall1[0], wall2[0], diagonals=False, check_obj=False,
+                    max_distance=None)
             except KeyError as e:
                 self.fill_list(
                     [wall1[0], wall2[0]], "floor", color=(123, 123, 196))
                 # self.draw()
                 print(e)
                 continue
-            """
 
             hall = HallWay(
                 point1=wall1,
@@ -478,9 +476,8 @@ class RndMap:
                 wall2 = hall_b.pos2, hall_b.came_from2, hall_b.room2
 
             self.register_connection(wall1, wall2)
-            path = self.scene.map_mgr.a_path(
-                wall1[0], wall2[0], diagonals=False, check_obj=False,
-                max_distance=None)
+            path = self.scene.map_mgr.a_path(wall1[0], wall2[0],
+                                             diagonals=False)
 
             hall = HallWay(point1=wall1, point2=wall2, path=path)
 
@@ -552,7 +549,7 @@ class River(RndMap):
             grid=self.map,
             start_pos=pos1,
             end_pos=pos2,
-            cost_func=self.cost)
+            cost_func=self.cost,)
 
         hall = HallWay(
             point1=(pos1, 0, 0),
