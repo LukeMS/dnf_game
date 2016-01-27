@@ -1,20 +1,51 @@
 from pygame import Rect
 
-from constants import TILE_W, TILE_H
+from constants import TILE_W, TILE_H, GameColor
 from game_types import Position
 
 
 class Tile:
-    # a tile of the map and its properties
-    def __init__(self, block_mov, pos, block_sight=None, id=0):
-        self.block_mov = block_mov
+    """a tile of the map and its properties"""
 
-        # by default, if a tile is block_mov, it also blocks sight
-        if block_sight is None:
-            block_sight = block_mov
-        self.block_sight = block_sight
+    _base = {
+        "block_mov": False,
+        "block_sight": False,
+        "id": ord("."),
+        "color": None
+    }
 
-        self.id = id
+    templates = {
+        "floor": {
+            "color": (129, 106, 86)
+        },
+        "wall": {
+            "block_mov": True,
+            "block_sight": True,
+            "id": ord("#"),
+            "color": (161, 161, 161)
+        },
+        "water": {
+            "id": ord("="),
+            "color": GameColor.blue
+        }
+    }
+
+    def __init__(self, pos, template,
+                 block_mov=None, block_sight=None,
+                 id=None, color=None):
+        self.name = template
+
+        component = dict(self._base)
+        component.update(self.templates[template])
+        if block_mov is not None:
+            component["block_mov"] = block_mov
+        component["block_sight"] = block_sight or component["block_sight"]
+        component["id"] = id or component["id"]
+        component["color"] = color or component["color"]
+
+        for key, value in component.items():
+            setattr(self, key, value)
+
         self.visible = False
         self.explored = False
 
@@ -34,31 +65,7 @@ class Tile:
         return self.rect.y
 
     def __floordiv__(self, n):
-        if isinstance(n, tuple):
+        try:
             return Position(int(self.x // n[0]), int(self.y // n[1]))
-        elif isinstance(n, (int, float)):
+        except TypeError:
             return Position(int(self.x // n), int(self.y // n))
-
-
-class Floor(Tile):
-    def __init__(
-        self, pos, block_mov=False, block_sight=None, id=ord(".")
-    ):
-        super().__init__(
-            pos=pos,
-            block_mov=block_mov,
-            block_sight=block_sight,
-            id=id)
-        self.name = 'floor'
-
-
-class Wall(Tile):
-    def __init__(
-        self, pos, block_mov=True, block_sight=True, id=ord("#")
-    ):
-        super().__init__(
-            pos=pos,
-            block_mov=block_mov,
-            block_sight=block_sight,
-            id=id)
-        self.name = 'wall'

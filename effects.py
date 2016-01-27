@@ -45,7 +45,11 @@ def cast_lightning(who, target=None):
 def cast_fireball(who, target):
     if target is None:
         return 'cancelled'
-    who.scene.gfx.msg_log.add(
+
+    level_dict = who.scene.levels[who.scene.current_level]
+    msg_log = who.scene.gfx.msg_log
+
+    msg_log.add(
         'The fireball explodes, burning everything within ' +
         str(FIREBALL_RADIUS) + ' tiles!', GameColor.yellow)
 
@@ -53,13 +57,13 @@ def cast_fireball(who, target):
         pos=target.pos,
         radius=FIREBALL_RADIUS)
 
-    for obj in who.scene.objects:
-        # damage every fighter in range, including the player
-        if obj.pos in area and obj.fighter:
-            who.scene.gfx.msg_log.add(
-                'The ' + obj.name + ' gets burned for ' +
-                str(FIREBALL_DAMAGE) + ' hit points.', GameColor.orange)
-            obj.fighter.take_damage(FIREBALL_DAMAGE)
+    for pos in area:
+        for creature in level_dict['pos']['creatures']:
+            if creature.fighter:
+                msg_log.add(
+                    'The ' + creature.name + ' gets burned for ' +
+                    str(FIREBALL_DAMAGE) + ' hit points.', GameColor.orange)
+                creature.fighter.take_damage(FIREBALL_DAMAGE)
 
     who.scene.tile_fx.add(
         coord=area,
@@ -136,6 +140,7 @@ def monster_death(monster, atkr=None):
     monster.scene.gfx.msg_log.add('{} is dead! You gain {} xp'.format(
         monster.name.capitalize(), monster.fighter.xp_value), GameColor.cyan)
 
+    monster.scene.rem_obj(monster, 'creatures', monster.pos)
     if random.randint(1, 100) > 66:
         monster.id = ord('%')
         monster.color = GameColor.dark_red
@@ -143,12 +148,8 @@ def monster_death(monster, atkr=None):
         monster.item.owner = monster
         monster.name = 'remains of ' + monster.name
 
-        monster.group = monster.scene.remains
-        monster.scene.remains.add(monster)
-    else:
-        monster.group = None
+        monster.scene.add_obj(monster, 'objects', monster.pos)
 
-    monster.scene.objects.remove(monster)
     monster.blocks = False
     monster.fighter = None
     monster.ai = None

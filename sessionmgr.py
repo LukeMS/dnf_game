@@ -1,4 +1,5 @@
 import os
+import pickle
 from pickle import Pickler, Unpickler
 from io import BytesIO
 import shelve
@@ -56,20 +57,27 @@ def new_level(self, level=0):
 
     # not the first level
     if len(self.levels) > 0:
-        # clean up and store the current level
+        # clean up the current level
+        self.rem_obj(self.player, 'creatures', self.player.pos)
+        self.levels[self.current_level]['groups']['creatures'] = []
+        self.levels[self.current_level]['groups']['objects'] = []
         self.levels[self.current_level]['player_pos'] = self.player.pos
-        self.objects.remove(self.player)
+        self.levels[self.current_level] = bz2.compress(pickle.dumps(
+            self.levels[self.current_level]))
 
     # going back to a level, it already exists
     if level in self.levels:
         # set the level number, properties will follow it
         self.current_level = level
+        self.levels[self.current_level] = pickle.loads(bz2.decompress(
+            self.levels[self.current_level]))
         #
+
+        self.set_groups()
 
         # recover player pos - should set it to stairs?
         self.player.pos = self.levels[level]['player_pos']
-        self.objects.add(self.player)
-        self.player.group = self.objects
+        self.add_obj(self.player, 'creatures', self.player.pos)
 
     else:
         import rnd_gen
@@ -77,28 +85,52 @@ def new_level(self, level=0):
         # set the level number, properties will follow it
         self.current_level = level
         self.levels[level] = {}
-        self.levels[level]['objects'] = sprite.Group()
-        self.levels[level]['remains'] = sprite.Group()
         self.levels[level]['tile_fx'] = []
-
-        grid, rooms, halls = rnd_gen.Map().make_map(
-            MAP_COLS, MAP_ROWS)
-
-        self.levels[level]['grid'] = grid
-        self.levels[level]['rooms'] = rooms
-        self.levels[level]['halls'] = halls
+        self.levels[level]['grid'] = {}
+        self.levels[level]['rooms'] = []
+        self.levels[level]['halls'] = []
 
         map_mgr = getattr(self, "map_mgr", None)
         if map_mgr is None:
             self.map_mgr = gamemap.Map(scene=self)
 
+        grid, rooms, halls = rnd_gen.RndMap().make_map(
+            scene=self, width=MAP_COLS, height=MAP_ROWS)
+
+        self.levels[level]['grid'] = grid
+        for pos in grid:
+            self.levels[level][pos] = {
+                "feature": grid[pos],
+                "objects": [],
+                "creatures": [],
+                "changed": False,
+                "owner": None
+            }
+
+        self.levels[level]['groups'] = {
+            'rooms': rooms,
+            'halls': halls,
+            'creatures': [],
+            'objects': []
+        }
+
         self.map_mgr.place_objects()
-        self.objects.add(self.player)
+        self.add_obj(self.player, 'creatures', self.player.pos)
 
     self.map_mgr.set_fov()
 
     self.player.active = True
     self.game_state = 'playing'
+
+
+def set_groups(self):
+    level_dict = self.levels[self.current_level]
+
+    for _type in ['creatures', 'objects']:
+        for pos in level_dict:
+            if _type in pos:
+                for obj in level_dict[pos][_type]:
+                    level_dict[_type].append(obj)
 
 
 def load_game(self):
@@ -108,20 +140,23 @@ def load_game(self):
         for att, value in shelf_file['scene'].items():
             setattr(self, att, value)
 
-        self.player = shelf_file['player']
-        self.player.pos = self.levels[self.current_level]['player_pos']
+        level_dict = self.levels[self.current_level]
 
-        self.objects.add(self.player)
+        self.player = shelf_file['player']
+
+        self.set_groups()
+        self.player.pos = level_dict['player_pos']
+        self.add_obj(self.player, 'creatures', self.player.pos)
 
         self.map_mgr = gamemap.Map(scene=self)
         self.tile_fx = tile_fx.TileFx(scene=self)
         self.cursor = sprite.Cursor(scene=self)
 
-        for group in [self.objects, self.remains]:
-            for obj in group:
-                obj.scene = self
-                obj.grid = self.grid
-                obj.group = group
+        for creature in level_dict['groups']['creatures']:
+            creature.scene = self
+
+        for obj in level_dict['groups']['objects']:
+            obj.scene = self
 
         self.map_mgr.set_fov()
 
@@ -133,7 +168,7 @@ def save_game(self):
     ensure_savedir()
 
     with zshelf_open(os.path.join('save', 'savegame'), 'n') as shelf_file:
-        self.objects.remove(self.player)
+        self.rem_obj(self.player, 'creatures', self.player.pos)
         self.levels[self.current_level]['player_pos'] = self.player.pos
         shelf_file['player'] = self.player
 
@@ -141,6 +176,9 @@ def save_game(self):
         for att in ['current_level', 'turn', "max_y", "max_x", "offset"]:
             scene[att] = getattr(self, att)
         shelf_file['scene'] = scene
+
+        self.levels[self.current_level]['groups']['creatures'] = []
+        self.levels[self.current_level]['groups']['objects'] = []
 
         shelf_file['levels'] = self.levels
 

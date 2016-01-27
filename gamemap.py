@@ -4,7 +4,7 @@ import random
 
 import fov
 import sprite
-from pathfinder import AStarSearch, GreedySearch
+from pathfinder import AStarSearch
 from rnd_utils import RoomItems, ItemTypes, MonsterTypes
 
 from constants import MAP_COLS, MAP_ROWS, MAX_ROOM_MONSTERS
@@ -27,14 +27,6 @@ class Map:
     @property
     def halls(self):
         return self._scene.halls
-
-    @property
-    def objects(self):
-        return self._scene.objects
-
-    @property
-    def remains(self):
-        return self._scene.remains
 
     @property
     def level(self):
@@ -158,11 +150,12 @@ class Map:
             points.reverse()
         return points
 
-    def valid_tile(self, pos, goal=None):
-        if goal is not None:
-            if self.distance(pos, goal) > 10:
+    def valid_tile(self, pos, goal=None, check_obj=True, max_distance=10):
+        """
+        if max_distance and goal is not None:
+            if self.distance(pos, goal) > max_distance:
                 return False
-
+        """
         if not (
             pos is not None and
             0 <= pos[0] < self.width
@@ -170,21 +163,23 @@ class Map:
         ):
             return False
         else:
-            return not self.is_blocked(pos)[0]
+            return not self.is_blocked(pos, check_obj=check_obj)
 
-    def is_blocked(self, pos, sprite=None):
-        # first test the map tile
+    def is_blocked(self, pos, check_obj=True):
         if self.grid[pos].block_mov:
-            return True, self.grid[pos]
+            return True
 
-        # now check for any blocking objects
-        for object in self.objects:
-            if object == sprite:
-                continue
-            elif object.blocks and object.pos == pos:
-                return True, object
+        """
+        if check_obj:
 
-        return False, None
+            for obj in self._scene.get_all_at_pos(
+                pos, _types=["creatures", "objects"]
+            ):
+                if obj.fighter:
+                    return True
+        """
+
+        return False
 
     def get_neighbors(self, pos):
         lst = []
@@ -196,6 +191,15 @@ class Map:
                 if self.valid_tile(n):
                     lst.append(n)
         return lst
+
+    def a_path(self, start_pos, end_pos,
+               diagonals=True, check_obj=True, max_distance=10):
+        a_star = AStarSearch(map_mgr=self, grid=self.grid)
+        path = a_star.new_search(start_pos, end_pos,
+                                 diagonals=diagonals, check_obj=check_obj,
+                                 max_distance=max_distance)
+        print("path:", path)
+        return path
 
     def distance(self, pos1, pos2):
         if isinstance(pos1, tuple):
@@ -218,12 +222,6 @@ class Map:
         straight_steps = max_d - min_d
 
         return math.sqrt(2) * (diagonal_steps + straight_steps)
-
-    def a_path(self, start_pos, end_pos):
-        return AStarSearch.new_search(self, self.grid, start_pos, end_pos)
-
-    def greedy_path(self, start_pos, end_pos):
-        return GreedySearch.new_search(self, self.grid, start_pos, end_pos)
 
     def new_xy(self, room, objects=None):
         attempts = 0
@@ -248,11 +246,11 @@ class Map:
                         x, y = xy
                         template = ItemTypes.random()
                         sprite.Item(template=template, scene=self._scene,
-                                    x=x, y=y, group=self.remains)
+                                    x=x, y=y)
 
                         """
                         tmp = sprite.Item(template=template, scene=self,
-                                    x=x, y=y, group=self.remains)
+                                    x=x, y=y)
                         tmp.item.pick_up(getter=self.player)
                         """
 
@@ -265,7 +263,7 @@ class Map:
                         x, y = xy
                         template = MonsterTypes.random()
                         sprite.NPC(template=template, scene=self._scene,
-                                   x=x, y=y, group=self.objects)
+                                   x=x, y=y)
                 if room_n == len(self.rooms) - 1:
                     pass
 
@@ -273,17 +271,21 @@ class Map:
                 x, y = room.random_point(map=self.grid)
                 player = getattr(self, 'player', None)
                 if player:
+                    self._scene.rem_obj(self.player, 'creatures',
+                                        self.player.pos)
+
                     self.player.pos = (x, y)
-                    self.objects.add(self.player)
-                    self.player.group = self.objects
+
+                    self._scene.add_obj(self.player, 'creatures',
+                                        self.player.pos)
                 else:
                     self.player = sprite.Player(
-                        scene=self._scene, x=x, y=y, group=self.objects)
+                        scene=self._scene, x=x, y=y)
 
                 x, y = self.new_xy(room, [self.player.pos])
                 template = "stair_down"
                 sprite.DngFeature(template=template, scene=self._scene,
-                                  x=x, y=y, group=self.remains)
+                                  x=x, y=y)
 
                 x, y = self.new_xy(room, [self.player.pos, (x, y)])
 
@@ -292,7 +294,7 @@ class Map:
                     'scroll of fireball'
                 ]:
                     sprite.Item(template=item, scene=self._scene,
-                                x=x, y=y, group=self.remains)
+                                x=x, y=y)
 
     def set_fov(self):
         self._scene.set_offset(self.player)
@@ -307,12 +309,14 @@ class Map:
                         self.func_visible, self.blocks_sight)
 
     def func_visible(self, x, y):
-        self.grid[x, y].visible = True
+        level_dict = self._scene.levels[self._scene.current_level]
+        level_dict[x, y]['feature'].visible = True
         if self.distance(self.player.pos, (x, 1)) <= EXPLORE_RADIUS:
-            self.grid[x, y].explored = True
+            level_dict[x, y]['feature'].explored = True
 
     def blocks_sight(self, x, y):
-        return self.grid[x, y].block_sight
+        level_dict = self._scene.levels[self._scene.current_level]
+        return level_dict[x, y]['feature'].block_sight
 
 
 class Area:

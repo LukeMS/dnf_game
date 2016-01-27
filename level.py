@@ -1,3 +1,5 @@
+import random
+
 import threading
 
 from game import BaseScene
@@ -12,6 +14,7 @@ from constants import SCREEN_ROWS, SCREEN_COLS, GameColor
 
 
 class LevelScene(BaseScene):
+
     def __init__(self, game, new=True):
         self.alive = False
         self.game = game
@@ -56,6 +59,7 @@ class LevelScene(BaseScene):
     new_game = sessionmgr.new_game
     new_level = sessionmgr.new_level
     load_game = sessionmgr.load_game
+    set_groups = sessionmgr.set_groups
     save_game = sessionmgr.save_game
 
     @property
@@ -63,24 +67,81 @@ class LevelScene(BaseScene):
         return self.game.gfx
 
     @property
-    def objects(self):
-        return self.levels[self.current_level]['objects']
-
-    @property
-    def remains(self):
-        return self.levels[self.current_level]['remains']
-
-    @property
     def grid(self):
         return self.levels[self.current_level]['grid']
 
     @property
     def rooms(self):
-        return self.levels[self.current_level]['rooms']
+        return self.levels[self.current_level]['groups']['rooms']
 
     @property
     def halls(self):
-        return self.levels[self.current_level]['halls']
+        return self.levels[self.current_level]['groups']['halls']
+
+    def rem_obj(self, obj, _type, pos):
+        level_dict = self.levels[self.current_level]
+        if obj in level_dict[pos][_type]:
+            level_dict[pos][_type].remove(obj)
+        if obj in level_dict['groups'][_type]:
+            level_dict['groups'][_type].remove(obj)
+
+    def add_obj(self, obj, _type, pos):
+        level_dict = self.levels[self.current_level]
+        if obj not in level_dict[pos][_type]:
+            level_dict[pos][_type].append(obj)
+        if obj not in level_dict['groups'][_type]:
+            level_dict['groups'][_type].append(obj)
+
+    def get_obj(self, _type, pos):
+        level_dict = self.levels[self.current_level]
+
+        if _type == "feature":
+            return level_dict[pos][_type]
+
+        for obj in level_dict[pos][_type]:
+            return obj
+
+        return None
+
+    def get_all_at_pos(self, pos,
+                       _types=["creatures", "objects", "feature"]):
+        level_dict = self.levels[self.current_level]
+
+        objects = []
+
+        for _type in _types:
+            if _type == "feature":
+                objects.append(level_dict[pos][_type])
+
+            for obj in level_dict[pos][_type]:
+                objects.append(obj)
+
+        return objects
+
+    def get_nearest_obj(self, _type, pos, max_range=None, visible_only=True,
+                        val_callback=None):
+        level_dict = self.levels[self.current_level]
+        target = None
+        target_dist = None
+        if visible_only:
+            for y in range(SCREEN_ROWS):
+                for x in range(SCREEN_COLS):
+                    for obj in level_dict[x, y][_type]:
+                        if not level_dict[x, y]['feature'].visible:
+                            continue
+
+                        if val_callback and not val_callback(obj):
+                            continue
+
+                        distance = self.map_mgr.distance(pos, (x, y))
+                        if max_range and distance > max_range:
+                            continue
+                        elif target is None:
+                            target = obj
+                        else:
+                            if distance < target_dist:
+                                target = obj
+        return target
 
     def validate_pos(self, pos):
         """Assures that the *relative* position is valid."""
@@ -126,47 +187,62 @@ class LevelScene(BaseScene):
         self.tile_fx.update()
 
         self.player.active = True
-        for object in self.objects:
-            object.active = True
+
+        level_dict = self.levels[self.current_level]
+        for creature in level_dict['groups']['creatures']:
+            creature.active = True
 
     def handle_turn(self):
         if self.alive:
+            level_dict = self.levels[self.current_level]
             if self.game_state == 'playing':
-                for object in self.objects:
-                    if object.ai and object.active and (
-                        object.next_to_vis or
-                        self.grid[object.pos].visible or
-                        object.ai.effect
-                    ):
-                        threading.Thread(
-                            target=object.ai.take_turn).start()
-
-                    if object is not self.player:
-                        object.active = False
+                for creature in level_dict['groups']['creatures']:
+                    if creature.ai and creature.active:
+                        if creature.visible or creature.ai.effect:
+                            self.gfx.msg_log.add(str(creature.name) + " acts")
+                            threading.Thread(
+                                target=creature.ai.take_turn).start()
+                        elif random.randrange(10) > 6:
+                            threading.Thread(
+                                target=creature.ai.take_turn).start()
+                    if creature is not self.player:
+                        creature.active = False
 
                 if not self.player.active:
                     self.new_turn()
 
     def on_update(self):
+        level_dict = self.levels[self.current_level]
+        draw = self.gfx.draw
         if self.alive:
             # loop all tiles, and draw
             for y in range(SCREEN_ROWS):
                 for x in range(SCREEN_COLS):
                     # draw tile at (x,y)
                     pos = self.offset + (x, y)
-                    tile = self.grid[pos]
-                    if tile.visible:
-                        if not self.remains.contain_pos(pos):
-                            self.gfx.draw(
-                                tile.id, (x, y),
-                                color=self.tile_fx.get(coord=pos))
-                    elif tile.explored:
+                    tile = level_dict[pos]
+                    if tile["feature"].visible:
+                        if tile["objects"]:
+                            if len(tile["objects"]) > 1:
+                                id = ord("&")
+                                color = (168, 168, 0)
+                            else:
+                                id = tile["objects"][0].id
+                                color = tile["objects"][0].color
+                            draw(id, (x, y), color)
+                        else:
+                            draw(tile["feature"].id, (x, y),
+                                 color=self.tile_fx.get(coord=pos))
+
+                        for creature in tile['creatures']:
+                            draw(creature.id, (x, y),
+                                 color=creature.color)
+
+                    elif tile["feature"].explored:
                         self.gfx.draw(
-                            tile.id, (x, y),
+                            tile["feature"].id, (x, y),
                             color=GameColor.darkest_grey)
 
-            self.remains.update()
-            self.objects.update()
             self.gfx.draw_hud()
 
             if self.game_state == 'inventory':

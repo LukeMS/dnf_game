@@ -26,7 +26,7 @@ class GameObject(pygame.sprite.Sprite):
     # it's always represented by a character on screen.
 
     def __init__(
-        self, scene, x, y, id, color, group,
+        self, scene, x, y, id, color,
         name=None, blocks=True, fighter=None, ai=None, item=None, active=True,
         dng_feat=None, equipment=None,
         **kwargs
@@ -39,7 +39,7 @@ class GameObject(pygame.sprite.Sprite):
 
         # unpack the arguments and store them in the instance
         for arg in [
-            "scene", "x", "y", "id", "color", "group", "name", "blocks",
+            "scene", "x", "y", "id", "color", "name", "blocks",
             "fighter", "ai", "item", "equipment", "dng_feat", "active"
         ]:
             value = eval(arg)
@@ -58,17 +58,17 @@ class GameObject(pygame.sprite.Sprite):
                 self.name = self.name.replace(trash, "")
             self.name = self.name.capitalize()
 
-        if self.name != 'cursor':
-            self.group.add(self)
-
         self.default_ai = self.ai
         self.default_color = self.color
 
-        self.set_next_to_vis()
+    @property
+    def visible(self):
+        tile = self.scene.levels[self.scene.current_level][self.pos]['feature']
+        return tile.visible
 
     def __getstate__(self):
         d = dict(self.__dict__)
-        for key in ['scene', 'group']:
+        for key in ['scene']:
             if key in d:
                 del d[key]
         return d
@@ -122,15 +122,20 @@ class GameObject(pygame.sprite.Sprite):
             return Position(int(self.x // n), int(self.y // n))
 
     def move(self, pos=None):
-        if pos is None:
-            return None
-        blocked, obj = self.scene.map_mgr.is_blocked(pos, self)
+        if self.name != 'cursor':
+            self.scene.rem_obj(self, 'creatures', self.pos)
 
-        if not blocked:
+        status = None
+
+        if pos is not None and not self.scene.map_mgr.is_blocked(pos, self):
             self.pos = pos
             self.set_next_to_vis()
-            return True
-        return None
+            status = True
+
+        if self.name != 'cursor':
+            self.scene.add_obj(self, 'creatures', self.pos)
+
+        return status
 
     def move_rnd(self):
         start_pos = self.pos
@@ -223,6 +228,7 @@ class Player(GameObject):
 
         super().__init__(
             id=id, color=color, fighter=fighter, **kwargs)
+        self.scene.add_obj(self, 'creatures', self.pos)
         self.inventory = []
         self.scene.gfx.hp_bar.set_value(self.fighter.hp, self.fighter.max_hp)
 
@@ -231,36 +237,32 @@ class Player(GameObject):
         self.scene.gfx.hp_bar.set_value(self.fighter.hp, self.fighter.max_hp)
 
     def action(self, dx=0, dy=0, action='std', key=None):
+        pos = self.pos + (dx, dy)
         if action is 'std':
             if not (dx == 0 == dy):
                 # the coordinates the player is moving to/attacking
-                pos = self.pos + (dx, dy)
 
                 # try to find an attackable object there
-                target = None
-                for object in self.group:
-                    if object.fighter and object.pos == pos:
-                        target = object
-                        break
+                target = self.scene.get_obj('creatures', pos)
 
-                if target is not None:
+                if target is not None and target.fighter:
                     self.fighter.attack(target)
                 else:
                     if self.move(pos):
                         self.scene.map_mgr.set_fov()
         elif action is 'get':
-            for object in self.scene.remains:
-                if object.item and object.pos == self.pos:
-                    if object.item.pick_up(getter=self):
-                        self.active = False
-                        return True
+            target = self.scene.get_obj('objects', pos)
+            if target is not None and target.item:
+                if target.item.pick_up(getter=self):
+                    self.active = False
+                    return True
             return False
         elif action is 'use':
-            for object in self.scene.remains:
-                if object.dng_feat and object.pos == self.pos:
-                    if object.dng_feat.use(who=self):
-                        self.active = False
-                        return True
+            target = self.scene.get_obj('objects', pos)
+            if target is not None and target.dng_feat:
+                if target.dng_feat.use(who=self):
+                    self.active = False
+                    return True
             return False
 
         self.active = False
@@ -288,6 +290,7 @@ class DngFeature(GameObject):
             new_obj['dng_feat'] = obj_components.DngFeat(template)
         super().__init__(
             **new_obj, name=str(template).capitalize())
+        self.scene.add_obj(self, 'objects', self.pos)
 
 
 class Item(GameObject):
@@ -348,6 +351,7 @@ class Item(GameObject):
         super().__init__(
             **new_obj,
             blocks=False, name=str(template).capitalize())
+        self.scene.add_obj(self, 'objects', self.pos)
 
     def update(self):
         if self.scene.grid[self.pos].visible:
@@ -384,6 +388,7 @@ class NPC(GameObject):
         if new_obj['ai'] is not None:
             new_obj['ai'] = new_obj['ai']()
         super().__init__(**new_obj)
+        self.scene.add_obj(self, 'creatures', self.pos)
 
         self.inventory = []
 
@@ -400,22 +405,14 @@ class Cursor(GameObject):
     def __init__(self, scene):
         super().__init__(
             scene=scene, x=1, y=1, id=None, color=None,
-            name='cursor', group=None)
+            name='cursor')
 
     def move(self, pos, rel_pos):
         self.pos = rel_pos
         return self.cursor_collision()
 
     def cursor_collision(self):
-        for object in self.scene.objects:
-            if object.pos == self.pos and object.next_to_vis:
-                return object
-
-        for object in self.scene.remains:
-            if object.pos == self.pos and object.next_to_vis:
-                return object
-
-        if self.pos in self.scene.grid:
-            object = self.scene.grid[self.pos]
-            if object.visible or object.explored:
-                return object
+        for _type in ['creatures', 'objects', 'feature']:
+            target = self.scene.get_obj(_type, self.pos)
+            if target and target.visible:
+                return target

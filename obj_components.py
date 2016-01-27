@@ -123,17 +123,22 @@ class Item(Component):
     }
 
     def pick_up(self, getter):
+        scene = self.owner.scene
+        msg_log = self.owner.scene.gfx.msg_log
+
         # add to the player's inventory and remove from the map
         if len(getter.inventory) >= 26:
             if getter == self.owner.scene.player:
-                self.owner.scene.gfx.msg_log.add(
+                msg_log.add(
                     'Your inventory is full, cannot pick up ' +
                     self.owner.name + '.', GameColor.yellow)
         else:
+            scene.rem_obj(self.owner, 'objects', self.owner.pos)
+
             getter.inventory.append(self.owner)
             self.possessor = getter
-            self.owner.group.remove(self.owner)
-            self.owner.scene.gfx.msg_log.add(
+
+            msg_log.add(
                 'You picked up a ' + self.owner.name + '!',
                 GameColor.blue)
 
@@ -148,16 +153,18 @@ class Item(Component):
         """Add to the map and remove from the player's inventory.
         Also, place  it at the player's coordinates.
         If it is an equipment, unequip it first."""
+        scene = self.owner.scene
+        msg_log = self.owner.scene.gfx.msg_log
 
         if self.owner.equipment:
             self.owner.equipment.unequip()
 
-        self.owner.group.add(self.owner)
+        scene.add_obj(self.owner, 'objects', dropper.pos)
         dropper.inventory.remove(self.owner)
         self.possessor = None
         self.owner.pos = dropper.pos
-        self.owner.scene.gfx.msg_log.add(
-            'You dropped a ' + self.owner.name + '.', GameColor.yellow)
+        msg_log.add('You dropped a ' + self.owner.name + '.', GameColor.yellow)
+
         return 'dropped'
 
     def use(self, user, target=None):
@@ -304,18 +311,16 @@ class Fighter(Component):
                 ' but it has no effect!', color)
 
     def closest_monster(self, who, max_range):
+        def val_callback(target):
+            return target.fighter and not target == who
         # find closest enemy, up to a maximum range, and in the player's FOV
-        closest_enemy = None
-        # start with (slightly more than) maximum range
-        closest_dist = max_range + 1
+        closest_enemy = self.owner.scene.get_nearest_obj(
+            _type='creatures',
+            pos=self.owner.pos,
+            max_range=max_range,
+            visible_only=True,
+            val_callback=val_callback)
 
-        for object in self.owner.group:
-            if object.fighter and not object == who and object.next_to_vis:
-                # calculate distance between this object and the player
-                dist = who.distance_to(object)
-                if dist < closest_dist:  # it's closer, so remember it
-                    closest_enemy = object
-                    closest_dist = dist
         return closest_enemy
 
 if __name__ == '__main__':
