@@ -1,5 +1,8 @@
+import threading
+
 import pygame
 import constants
+
 
 
 """
@@ -41,9 +44,11 @@ def on_key_press(self, event):
 
         elif event.key == pygame.K_g:
             if not self.player.action(action='get'):
+                threading.Thread(target=self.on_update, daemon=True).start()
                 return
         elif event.key == pygame.K_u:
             if not self.player.action(action='use'):
+                threading.Thread(target=self.on_update, daemon=True).start()
                 return
         elif event.key == pygame.K_i:
             self.gfx.inventory.set_inventory(self.player)
@@ -66,6 +71,7 @@ def on_key_press(self, event):
         if event.key in [pygame.K_i, pygame.K_ESCAPE]:
             self.game_state = 'playing'
             self.gfx.inventory.clean_inventory()
+            threading.Thread(target=self.on_update, daemon=True).start()
             return
     elif self.game_state == 'choice':
         if event.key == pygame.K_ESCAPE:
@@ -85,6 +91,7 @@ def on_key_press(self, event):
         if event.key in [pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_SPACE]:
             self.quit(save=False)
 
+    threading.Thread(target=self.on_update, daemon=True).start()
     self.handle_turn()
 
 
@@ -122,6 +129,7 @@ def on_mouse_press(self, event):
             self.gfx.inventory.clean_inventory()
             self.player.action()
 
+    threading.Thread(target=self.on_update, daemon=True).start()
     self.handle_turn()
 
 
@@ -142,3 +150,4 @@ def on_mouse_scroll(self, event):
                 self.scroll((1, 0))
             else:
                 self.scroll((0, 1))
+    threading.Thread(target=self.on_update, daemon=True).start()

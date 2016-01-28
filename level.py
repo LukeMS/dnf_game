@@ -1,4 +1,4 @@
-import random
+import pygame
 
 import threading
 
@@ -29,6 +29,7 @@ class LevelScene(BaseScene):
             self.load_game()
 
         self.alive = True
+        self.game.schedule(self.scheculed_update)
 
         if new:
             self.gfx.msg_log.add(
@@ -49,6 +50,8 @@ class LevelScene(BaseScene):
                 self.current_level)),
             GameColor.orange
         )
+        self.game.disable_fps()
+        self.on_update()
 
     # split input from drawing/logic
     on_key_press = game_input.on_key_press
@@ -195,9 +198,13 @@ class LevelScene(BaseScene):
                 for creature in level_dict['groups']['creatures']:
                     if creature.ai and creature.active:
                         if creature.visible or creature.ai.effect:
-                            self.gfx.msg_log.add(str(creature.name) + " acts")
+                            """
+                            self.gfx.msg_log.add(
+                                str(creature.name) + " acts")
+                            """
+                            creature.ai.take_turn()
                             threading.Thread(
-                                target=creature.ai.take_turn).start()
+                                target=self.on_update, daemon=True).start()
                         else:
                             # IDLE STEP, RANDOM CHANCE, ETC.
                             pass
@@ -206,8 +213,11 @@ class LevelScene(BaseScene):
 
                 if not self.player.active:
                     self.new_turn()
+        threading.Thread(target=self.on_update, daemon=True).start()
 
     def on_update(self):
+        self.game.screen.fill((0, 0, 0))
+
         grid = self.levels[self.current_level]['grid']
         draw = self.gfx.draw
         if self.alive:
@@ -252,6 +262,12 @@ class LevelScene(BaseScene):
         elif self.game_state == 'saving':
             self.gfx.msg.draw("Saving your game (Don't panic!)")
 
+        pygame.display.flip()
+
+    def scheculed_update(self):
+        if self.game_state not in ['playing', 'loading']:
+            self.on_update()
+
     def choice(self, title, items, callback):
         self.gfx.choice.set_list(title, items, callback)
         self.game_state = 'choice'
@@ -263,6 +279,8 @@ class LevelScene(BaseScene):
         self.alive = False
         if save:
             self.save_game()
+        self.game.unschedule(self.scheculed_update)
+        self.game.enable_fps()
         self.game.set_scene(scene=main_menu.MainMenu)
 
 

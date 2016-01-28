@@ -77,6 +77,8 @@ class Game:
     ):
         self.framerate = framerate
         self.playtime = 0
+        self.scheduled_tasks = []
+        self.update_on_time = True
 
         pygame.init()
         os.environ['SDL_VIDEO_CENTERED'] = '1'
@@ -103,7 +105,11 @@ class Game:
         self.ms = 0
         while self.alive:
 
-            threading.Thread(target=self.on_update, daemon=True).start()
+            for task in self.scheduled_tasks:
+                threading.Thread(target=task, daemon=True).start()
+
+            if self.update_on_time:
+                threading.Thread(target=self.on_update, daemon=True).start()
             self.on_event()
 
             self.ms = self.clock.tick(self.framerate)
@@ -116,6 +122,18 @@ class Game:
             else:
                 # Handles events to the current scene
                 self.current_scene.on_event(event)
+
+    def disable_fps(self):
+        self.update_on_time = False
+
+    def enable_fps(self):
+        self.update_on_time = True
+
+    def schedule(self, task):
+        self.scheduled_tasks.append(task)
+
+    def unschedule(self, task):
+        self.scheduled_tasks.remove(task)
 
     def on_update(self):
         # self.LOCK.acquire()
