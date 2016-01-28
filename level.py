@@ -67,10 +67,6 @@ class LevelScene(BaseScene):
         return self.game.gfx
 
     @property
-    def grid(self):
-        return self.levels[self.current_level]['grid']
-
-    @property
     def rooms(self):
         return self.levels[self.current_level]['groups']['rooms']
 
@@ -80,54 +76,54 @@ class LevelScene(BaseScene):
 
     def rem_obj(self, obj, _type, pos):
         level_dict = self.levels[self.current_level]
-        if obj in level_dict[pos][_type]:
-            level_dict[pos][_type].remove(obj)
+        if obj in level_dict['grid'][pos][_type]:
+            level_dict['grid'][pos][_type].remove(obj)
         if obj in level_dict['groups'][_type]:
             level_dict['groups'][_type].remove(obj)
 
     def add_obj(self, obj, _type, pos):
         level_dict = self.levels[self.current_level]
-        if obj not in level_dict[pos][_type]:
-            level_dict[pos][_type].append(obj)
+        if obj not in level_dict['grid'][pos][_type]:
+            level_dict['grid'][pos][_type].append(obj)
         if obj not in level_dict['groups'][_type]:
             level_dict['groups'][_type].append(obj)
 
     def get_obj(self, _type, pos):
-        level_dict = self.levels[self.current_level]
+        grid = self.levels[self.current_level]['grid']
 
         if _type == "feature":
-            return level_dict[pos][_type]
+            return grid[pos][_type]
 
-        for obj in level_dict[pos][_type]:
+        for obj in grid[pos][_type]:
             return obj
 
         return None
 
     def get_all_at_pos(self, pos,
                        _types=["creatures", "objects", "feature"]):
-        level_dict = self.levels[self.current_level]
+        grid = self.levels[self.current_level]['grid']
 
         objects = []
 
         for _type in _types:
             if _type == "feature":
-                objects.append(level_dict[pos][_type])
+                objects.append(grid[pos][_type])
 
-            for obj in level_dict[pos][_type]:
+            for obj in grid[pos][_type]:
                 objects.append(obj)
 
         return objects
 
     def get_nearest_obj(self, _type, pos, max_range=None, visible_only=True,
                         val_callback=None):
-        level_dict = self.levels[self.current_level]
+        grid = self.levels[self.current_level]['grid']
         target = None
         target_dist = None
         if visible_only:
             for y in range(SCREEN_ROWS):
                 for x in range(SCREEN_COLS):
-                    for obj in level_dict[x, y][_type]:
-                        if not level_dict[x, y]['feature'].visible:
+                    for obj in grid[x, y][_type]:
+                        if not grid[x, y]['feature'].visible:
                             continue
 
                         if val_callback and not val_callback(obj):
@@ -202,9 +198,9 @@ class LevelScene(BaseScene):
                             self.gfx.msg_log.add(str(creature.name) + " acts")
                             threading.Thread(
                                 target=creature.ai.take_turn).start()
-                        elif random.randrange(10) > 6:
-                            threading.Thread(
-                                target=creature.ai.take_turn).start()
+                        else:
+                            # IDLE STEP, RANDOM CHANCE, ETC.
+                            pass
                     if creature is not self.player:
                         creature.active = False
 
@@ -212,7 +208,7 @@ class LevelScene(BaseScene):
                     self.new_turn()
 
     def on_update(self):
-        level_dict = self.levels[self.current_level]
+        grid = self.levels[self.current_level]['grid']
         draw = self.gfx.draw
         if self.alive:
             # loop all tiles, and draw
@@ -220,7 +216,7 @@ class LevelScene(BaseScene):
                 for x in range(SCREEN_COLS):
                     # draw tile at (x,y)
                     pos = self.offset + (x, y)
-                    tile = level_dict[pos]
+                    tile = grid[pos]
                     if tile["feature"].visible:
                         if tile["objects"]:
                             if len(tile["objects"]) > 1:
@@ -231,8 +227,10 @@ class LevelScene(BaseScene):
                                 color = tile["objects"][0].color
                             draw(id, (x, y), color)
                         else:
+                            color = (self.tile_fx.get(coord=pos) or
+                                     tile["feature"].color)
                             draw(tile["feature"].id, (x, y),
-                                 color=self.tile_fx.get(coord=pos))
+                                 color=color)
 
                         for creature in tile['creatures']:
                             draw(creature.id, (x, y),

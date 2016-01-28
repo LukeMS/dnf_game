@@ -90,17 +90,16 @@ def new_level(self, level=0):
         self.levels[level]['rooms'] = []
         self.levels[level]['halls'] = []
 
+        self.grid = gamemap.Map(scene=self)
         map_mgr = getattr(self, "map_mgr", None)
         if map_mgr is None:
-            self.map_mgr = gamemap.Map(scene=self)
+            self.map_mgr = gamemap.MapMgr(scene=self)
 
-        grid, rooms, halls = rnd_gen.RndMap().make_map(
-            scene=self, width=MAP_COLS, height=MAP_ROWS)
+        grid, rooms, halls = rnd_gen.RndMap().make_map(width=MAP_COLS, height=MAP_ROWS)
 
-        self.levels[level]['grid'] = grid
-        for pos in grid:
-            self.levels[level][pos] = {
-                "feature": grid[pos],
+        for pos, tile in grid.items():
+            self.levels[level]['grid'][pos] = {
+                "feature": tile,
                 "objects": [],
                 "creatures": [],
                 "changed": False,
@@ -127,9 +126,9 @@ def set_groups(self):
     level_dict = self.levels[self.current_level]
 
     for _type in ['creatures', 'objects']:
-        for pos in level_dict:
+        for pos in level_dict['grid']:
             if _type in pos:
-                for obj in level_dict[pos][_type]:
+                for obj in level_dict['grid'][pos][_type]:
                     level_dict[_type].append(obj)
 
 
@@ -148,7 +147,8 @@ def load_game(self):
         self.player.pos = level_dict['player_pos']
         self.add_obj(self.player, 'creatures', self.player.pos)
 
-        self.map_mgr = gamemap.Map(scene=self)
+        self.grid = gamemap.Map(scene=self)
+        self.map_mgr = gamemap.MapMgr(scene=self)
         self.tile_fx = tile_fx.TileFx(scene=self)
         self.cursor = sprite.Cursor(scene=self)
 

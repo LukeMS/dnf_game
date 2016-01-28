@@ -101,6 +101,8 @@ def on_mouse_press(self, event):
                 "Clicked on {}".format(target))
         elif event.button == 3:  # right button
             target = self.cursor.move(pos, rel_pos)
+
+            """
             # area = self.map_mgr.get_line(target.pos, self.player.pos)
             area = self.map_mgr.get_octant(
                 self.player.pos, 4,
@@ -112,7 +114,6 @@ def on_mouse_press(self, event):
                 holder=self.player,
                 target=target)
             self.game_state = 'inventory'
-            """
 
     elif self.game_state == 'inventory':
         result = self.gfx.inventory.click_on(pos)

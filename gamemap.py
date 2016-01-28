@@ -4,7 +4,7 @@ import random
 
 import fov
 import sprite
-from pathfinder import AStarSearch
+from pathfinder import AStarSearch, GreedySearch
 from rnd_utils import RoomItems, ItemTypes, MonsterTypes
 
 from constants import MAP_COLS, MAP_ROWS, MAX_ROOM_MONSTERS
@@ -12,6 +12,23 @@ from constants import EXPLORE_RADIUS, FOV_RADIUS, SCREEN_ROWS, SCREEN_COLS
 
 
 class Map:
+
+    @classmethod
+    def __init__(cls, scene):
+        cls._scene = scene
+
+    @classmethod
+    def __setitem__(cls, key, value):
+        dic = cls._scene.levels[cls._scene.current_level]['grid']
+        dic[key]['feature'] = value
+
+    @classmethod
+    def __getitem__(cls, key):
+        dic = cls._scene.levels[cls._scene.current_level]['grid']
+        return dic[key]['feature']
+
+
+class MapMgr:
     """Handles data operations with maps."""
     def __init__(self, scene):
         self._scene = scene
@@ -150,10 +167,13 @@ class Map:
             points.reverse()
         return points
 
-    def valid_tile(self, pos, goal=None, check_obj=True, max_distance=None):
-        if max_distance and goal is not None:
-            if self.distance(pos, goal) > max_distance:
+    def valid_tile(self, pos, goal=None):
+        """
+        if goal is not None:
+            if self.distance(pos, goal) > 10:
                 return False
+        """
+
         if not (
             pos is not None and
             0 <= pos[0] < self.width
@@ -161,19 +181,19 @@ class Map:
         ):
             return False
         else:
-            return not self.is_blocked(pos, check_obj=check_obj)
+            return not self.is_blocked(pos)
 
-    def is_blocked(self, pos, sprite=None, check_obj=True):
+    def is_blocked(self, pos, sprite=None):
+        # first test the map tile
         if self.grid[pos].block_mov:
             return True
 
-        if check_obj:
-
-            for obj in self._scene.get_all_at_pos(
+        # now check for any blocking objects
+        for obj in self._scene.get_all_at_pos(
                 pos, _types=["creatures", "objects"]
-            ):
-                if obj.fighter:
-                    return True
+        ):
+            if obj.fighter:
+                return True
 
         return False
 
@@ -210,18 +230,18 @@ class Map:
 
         return math.sqrt(2) * (diagonal_steps + straight_steps)
 
-    def a_path(self, start_pos, end_pos,
-               diagonals=True, check_obj=True, max_distance=10):
-        a_star = AStarSearch(map_mgr=self, grid=self.grid)
-        return a_star.new_search(start_pos, end_pos, diagonals,
-                                 check_obj, max_distance)
+    def a_path(self, start_pos, end_pos):
+        return AStarSearch.new_search(self, self.grid, start_pos, end_pos)
+
+    def greedy_path(self, start_pos, end_pos):
+        return GreedySearch.new_search(self, self.grid, start_pos, end_pos)
 
     def new_xy(self, room, objects=None):
         attempts = 0
         while True:
             if attempts > 10:
                 return None
-            xy = room.random_point(map=self.grid)
+            xy = room.random_point(_map=self.grid)
             if xy not in objects:
                 return xy
             attempts += 1
@@ -261,7 +281,7 @@ class Map:
                     pass
 
             elif room_n == 0:
-                x, y = room.random_point(map=self.grid)
+                x, y = room.random_point(_map=self.grid)
                 player = getattr(self, 'player', None)
                 if player:
                     self._scene.rem_obj(self.player, 'creatures',
@@ -293,23 +313,19 @@ class Map:
         self._scene.set_offset(self.player)
         for y in range(SCREEN_ROWS):
             for x in range(SCREEN_COLS):
-                # draw tile at (x,y)
-                tile = self.grid[self._scene.offset + (x, y)]
-                tile.visible = False
+                self.grid[x, y].visible = False
 
         fov.fieldOfView(self.player.x, self.player.y,
                         MAP_COLS, MAP_ROWS, FOV_RADIUS,
                         self.func_visible, self.blocks_sight)
 
     def func_visible(self, x, y):
-        level_dict = self._scene.levels[self._scene.current_level]
-        level_dict[x, y]['feature'].visible = True
-        if self.distance(self.player.pos, (x, 1)) <= EXPLORE_RADIUS:
-            level_dict[x, y]['feature'].explored = True
+        self.grid[x, y].visible = True
+        if self.distance(self.player.pos, (x, y)) <= EXPLORE_RADIUS:
+            self.grid[x, y].explored = True
 
     def blocks_sight(self, x, y):
-        level_dict = self._scene.levels[self._scene.current_level]
-        return level_dict[x, y]['feature'].block_sight
+        return self.grid[x, y].block_sight
 
 
 class Area:

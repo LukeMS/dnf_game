@@ -3,4 +3,5 @@
 *.bat
 *.7z
 run_env_cmd.cmd
-__pycache__
+__pycache__/
+save/

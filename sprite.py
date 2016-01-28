@@ -63,8 +63,7 @@ class GameObject(pygame.sprite.Sprite):
 
     @property
     def visible(self):
-        tile = self.scene.levels[self.scene.current_level][self.pos]['feature']
-        return tile.visible
+        return self.scene.grid[self.pos].visible
 
     def __getstate__(self):
         d = dict(self.__dict__)
@@ -147,17 +146,15 @@ class GameObject(pygame.sprite.Sprite):
         end_pos = target.pos
 
         try:
-            path = self.scene.map_mgr.a_path(start_pos, end_pos)
-            if len(path) < 10:
-                next_step = Position(path[1])
-                if self.move(next_step):
-                    return path
-                else:
-                    return None
+            path = self.scene.map_mgr.a_path(
+                start_pos, end_pos)
+            next_step = Position(path[1])
+            if self.move(next_step):
+                return path
             else:
-                return self.move_rnd()
+                return None
         except KeyError:
-            # the path must be blocked
+            # print("the path must be blocked")
             return self.move_rnd()
 
     def distance_to(self, pos1, pos2=None):

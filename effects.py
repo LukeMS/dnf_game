@@ -58,7 +58,7 @@ def cast_fireball(who, target):
         radius=FIREBALL_RADIUS)
 
     for pos in area:
-        for creature in level_dict['pos']['creatures']:
+        for creature in level_dict['grid'][pos]['creatures']:
             if creature.fighter:
                 msg_log.add(
                     'The ' + creature.name + ' gets burned for ' +

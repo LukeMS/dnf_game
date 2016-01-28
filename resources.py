@@ -13,6 +13,11 @@ class Tileset(object):
 
     @classmethod
     def get(cls, color):
+        __colors = 64
+        __factor = 256 // __colors
+        if color:
+            color = tuple(c // __factor * __factor for c in (color))
+
         if not hasattr(cls, 'tileset'):
             cls.tileset = pygame.image.load(
                 os.path.join("resources", TILESET)).convert_alpha()
@@ -33,6 +38,7 @@ class Tileset(object):
         arr[:, :, 0] = color[0]
         arr[:, :, 1] = color[1]
         arr[:, :, 2] = color[2]
+        del arr
         return new_surface
 
     def __getstate__(self):
