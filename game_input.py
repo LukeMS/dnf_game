@@ -2,7 +2,7 @@ import threading
 
 import pygame
 import constants
-
+import debug_status
 
 
 """
@@ -59,13 +59,11 @@ def on_key_press(self, event):
             self.game_state = 'inventory'
 
         elif event.key == pygame.K_k:
-            self.player.fighter.take_damage(999999, "user")
-
+            self.player.combat.receive_dmg(999999, "user")
         elif event.key == pygame.K_s:
-            self.gfx.msg_log.add(
-                "Power {}, Defense {}".format(
-                    self.player.fighter.power, self.player.fighter.defense
-                ), GameColor.azure)
+            threading.Thread(target=debug_status.view,
+                             kwargs=({"creature": self.player.combat})).start()
+            return
 
     elif self.game_state == 'inventory':
         if event.key in [pygame.K_i, pygame.K_ESCAPE]:
@@ -97,16 +95,20 @@ def on_key_press(self, event):
 
 def on_mouse_press(self, event):
     pos = pygame.mouse.get_pos()
-    if self.game_state == 'playing' and self.player.active:
-        rel_pos = (
-            (pos[0] // constants.TILE_W) + self.offset[0],
-            (pos[1] // constants.TILE_H) + self.offset[1])
+    rel_pos = (
+        (pos[0] // constants.TILE_W) + self.offset[0],
+        (pos[1] // constants.TILE_H) + self.offset[1])
 
+    if self.game_state == 'playing' or self.game_state == 'dead':
         if event.button == 1:  # left button
             target = self.cursor.move(pos, rel_pos)
-            self.gfx.msg_log.add(
-                "Clicked on {}".format(target))
-        elif event.button == 3:  # right button
+            combat = getattr(target, 'combat', None)
+            threading.Thread(target=debug_status.view,
+                             kwargs=({"creature": combat or target})).start()
+            return
+
+    if self.game_state == 'playing' and self.player.active:
+        if event.button == 3:  # right button
             target = self.cursor.move(pos, rel_pos)
 
             """
@@ -114,7 +116,7 @@ def on_mouse_press(self, event):
             area = self.map_mgr.get_octant(
                 self.player.pos, 4,
                 self.turn)
-            self.tile_fx.add(area, constants.GameColor.blue, 1)
+            self.tile_fx.add(area, constants.GAME_COLORS["blue"], 1)
             self.player.action()
             """
             self.gfx.inventory.set_inventory(

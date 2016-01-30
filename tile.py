@@ -1,6 +1,6 @@
 from pygame import Rect
 
-from constants import TILE_W, TILE_H, GameColor
+from constants import TILE_W, TILE_H, GAME_COLORS
 from game_types import Position
 
 
@@ -26,7 +26,7 @@ class Tile:
         },
         "water": {
             "id": ord("="),
-            "color": GameColor.blue
+            "color": GAME_COLORS["blue"]
         }
     }
 

@@ -1,5 +1,7 @@
-from constants import GameColor
+from constants import GAME_COLORS
 import effects
+from data.equipment.weapons import weapons_db
+from data.equipment.items import items_db
 
 
 class Component:
@@ -17,110 +19,28 @@ class Component:
             from pprint import pprint
             pprint(component)
 
-
-class Equipment(Component):
-    """An object that can be equipped, yielding bonuses."""
-
-    _base = {
-        'is_equipped': False,
-        'power_bonus': 0,
-        'defense_bonus': 0,
-        'max_hp_bonus': 0
-    }
-    templates = {
-        "dagger": {
-            'slot': 'right hand',
-            'power_bonus': 1
-        },
-        "short sword": {
-            'slot': 'right hand',
-            'power_bonus': 2
-        },
-        "sword": {
-            'slot': 'right hand',
-            'power_bonus': 3
-        },
-        "shield": {
-            'slot': 'left hand',
-            'defense_bonus': 1
-        }
-    }
-
-    def toggle_equip(self):
-        """Toggle equip/unequip status."""
-        if self.is_equipped:
-            self.unequip()
-        else:
-            self.equip()
-
-    def equip(self):
-        """Equip object and show a message about it.
-        If the slot is already being used, unequip whatever is there first."""
-        old_equipment = self.equipped_in_slot(self.slot)
-        if old_equipment:
-            old_equipment.unequip()
-
-        self.is_equipped = True
-        self.owner.scene.gfx.msg_log.add(
-            'Equipped ' + self.owner.name + ' on ' +
-            self.slot + '.', GameColor.light_green)
-
-    def unequip(self):
-        """Unequip object and show a message about it."""
-        if not self.is_equipped:
-            return
-        self.is_equipped = False
-        self.owner.scene.gfx.msg_log.add(
-            'Unequipped ' + self.owner.name + ' from ' +
-            self.slot + '.', GameColor.light_yellow)
-
-    def equipped_in_slot(self, slot):
-        """Returns the equipment in a slot, or None if it's empty."""
-        inventory = self.owner.item.possessor.inventory
-
-        for obj in inventory:
-            if (
-                obj.equipment and obj.equipment.slot == slot and
-                obj.equipment.is_equipped
-            ):
-                return obj.equipment
-        return None
+    @classmethod
+    def test(cls):
+        from mylib.data_tree import tk_tree_view
+        tk_tree_view(cls.templates)
 
 
 class Item(Component):
 
-    _base = {
-        'possessor': None,
-        'use_function': None
-    }
+    var_name = "item"
+    possessor = None
+    use_function = None
 
-    templates = {
-        'healing potion': {
-            'use_function': effects.cast_heal
-        },
+    templates = items_db.keys()
 
-        'scroll of lightning bolt': {
-            'use_function': effects.cast_lightning
-        },
-
-        'scroll of confusion': {
-            'use_function': effects.cast_confuse
-        },
-
-        'scroll of fireball': {
-            'use_function': effects.cast_fireball
-        },
-
-        "dagger": {},
-        "short sword": {},
-        "sword": {},
-
-        'shield': {},
-
-        'remains': {
-            'use_function': effects.cast_heal
-        }
-    }
+    def __init__(self, template):
+        try:
+            component = items_db[template]
+            self.__dict__.update(component)
+            self.name = template.capitalize()
+        except KeyError:
+            # no usable functions or item definitions for this item
+            pass
 
     def pick_up(self, getter):
         scene = self.owner.scene
@@ -131,7 +51,7 @@ class Item(Component):
             if getter == self.owner.scene.player:
                 self.owner.scene.gfx.msg_log.add(
                     'Your inventory is full, cannot pick up ' +
-                    self.owner.name + '.', GameColor.yellow)
+                    self.owner.name + '.', GAME_COLORS["yellow"])
         else:
             scene.rem_obj(self.owner, 'objects', self.owner.pos)
 
@@ -140,29 +60,24 @@ class Item(Component):
 
             msg_log.add(
                 'You picked up a ' + self.owner.name + '!',
-                GameColor.blue)
-
-        """special case: automatically equip, if the corresponding equipment
-        slot is unused"""
-        equipment = self.owner.equipment
-        if equipment:
-            if not equipment.equipped_in_slot(equipment.slot):
-                equipment.equip()
+                GAME_COLORS["blue"])
 
     def drop(self, dropper):
         """Add to the map and remove from the player's inventory.
         Also, place  it at the player's coordinates.
         If it is an equipment, unequip it first."""
 
+        scene = self.owner.scene
+
         if self.owner.equipment:
             self.owner.equipment.unequip()
 
-        self.owner.group.add(self.owner)
+        scene.add_obj(self.owner, 'objects', self.owner.pos)
         dropper.inventory.remove(self.owner)
         self.possessor = None
-        self.owner.pos = dropper.pos
+
         self.owner.scene.gfx.msg_log.add(
-            'You dropped a ' + self.owner.name + '.', GameColor.yellow)
+            'You dropped a ' + self.owner.name + '.', GAME_COLORS["yellow"])
         return 'dropped'
 
     def use(self, user, target=None):
@@ -187,6 +102,8 @@ class Item(Component):
 
 class DngFeat(Component):
 
+    var_name = 'dng_feat'
+
     templates = {
         'stair_up': {
             'use_function': effects.change_dng_level,
@@ -209,125 +126,127 @@ class DngFeat(Component):
                 return self.use_function(who=who)
 
 
-class Fighter(Component):
-    """Combat-related properties and methods (monster, player, NPC)."""
+class Equipment(Component):
+    """An object that can be equipped, yielding bonuses."""
 
-    _base = {
-        "damage": 0,
-        "xp": 0,
-        "level": 1
+    is_equipped = False
+    slot = None
+
+    def toggle_equip(self):
+        """Toggle equip/unequip status."""
+        if self.is_equipped:
+            self.unequip()
+        else:
+            self.equip()
+        self.owner.item.possessor.combat.set_melee_atk()
+
+    def equip(self):
+        """Equip object and show a message about it.
+        If the slot is already being used, unequip whatever is there first."""
+
+        if self.type == 'two-handed melee weapons':
+            for slot in ['right hand', 'left hand']:
+                old_equipment = self.equipped_in_slot(slot)
+                if old_equipment:
+                    old_equipment.unequip()
+            self.slot = 'right hand'
+        else:
+            for slot in ['right hand', 'left hand']:
+                old_equipment = self.equipped_in_slot(slot)
+                if old_equipment and \
+                        old_equipment.type == 'two-handed melee weapons':
+                    old_equipment.unequip()
+                    self.slot = 'right hand'
+                    break
+                elif not old_equipment:
+                    self.slot = slot
+                    break
+
+            if self.slot is None:
+                self.slot = 'right hand'
+                old_equipment = self.equipped_in_slot(self.slot)
+                old_equipment.unequip()
+
+        self.is_equipped = True
+        self.owner.scene.gfx.msg_log.add(
+            'Equipped ' + self.owner.name + ' on ' +
+            self.slot + '.', GAME_COLORS["light_green"])
+
+    def unequip(self):
+        """Unequip object and show a message about it."""
+        if not self.is_equipped:
+            return
+        self.is_equipped = False
+        self.owner.scene.gfx.msg_log.add(
+            'Unequipped ' + self.owner.name + ' from ' +
+            self.slot + '.', GAME_COLORS["light_yellow"])
+        self.slot = None
+
+    def equipped_in_slot(self, slot):
+        """Returns the equipment in a slot, or None if it's empty."""
+        inventory = self.owner.item.possessor.inventory
+
+        for obj in inventory:
+            if (
+                obj.equipment and obj.equipment.slot == slot and
+                obj.equipment.is_equipped
+            ):
+                return obj.equipment
+        return None
+
+
+class Weapon(Equipment):
+    var_name = "equipment"
+    templates = weapons_db.keys()
+
+    _default = {
+        "id": ord("|"),
+        "color": GAME_COLORS["grey"]
     }
 
-    templates = {
-        "player": {
-            "base_max_hp": 30,
-            "base_defense": 1,
-            "base_power": 3,
-            "xp_value": 50,
-            "death_func": effects.player_death
-        },
-        "orc": {
-            "base_max_hp": 10,
-            "base_defense": 0,
-            "base_power": 3,
-            'xp_value': 35,
-            "death_func": effects.monster_death
-        },
-        "troll": {
-            "base_max_hp": 16,
-            "base_defense": 1,
-            "base_power": 4,
-            'xp_value': 100,
-            "death_func": effects.monster_death
-        }
-    }
+    def __init__(self, template):
+        component = weapons_db[template]
+        [component.setdefault(key, value)
+            for key, value in self._default.items()]
+        self.__dict__.update(component)
+        self.slot = None
+        self.name = component["melee_desc"]
 
-    @property
-    def power(self):
-        return self.base_power + self.equipment_bonus('power_bonus')
+        # every weapon is an item (can be picked up, etc.)
 
-    @property
-    def defense(self):
-        return self.base_defense + self.equipment_bonus('defense_bonus')
+    # 'light melee weapons', 'one-handed melee weapons',
+    # 'two-handed melee weapons'}
 
-    @property
-    def max_hp(self):
-        return self.base_max_hp + self.equipment_bonus('max_hp_bonus')
+    @classmethod
+    def test(cls):
 
-    def equipment_bonus(self, bonus):
-        return sum(
-            getattr(item.equipment, bonus) for item in self.all_equipped())
+        class Owner():
+            inventory = []
 
-    def all_equipped(self):
-        return [
-            item for item in self.owner.inventory if
-            item.equipment and item.equipment.is_equipped
-        ]
+        from mylib.data_tree import tk_tree_view
 
-    @property
-    def hp(self):
-        return self.max_hp - self.damage
+        weapon = Weapon("aklys")
+        tk_tree_view(weapon.__dict__)
 
-    def take_damage(self, damage, atkr=None):
-        # apply damage if possible
-        if damage > 0:
-            self.damage += damage
 
-        # check for death. if there's a death function, call it
-        if self.hp <= 0:
-            if self.death_func is not None:
-                self.death_func(self.owner, atkr=atkr)
-            if hasattr(atkr, 'gainxp'):
-                atkr.gain_xp(self.xp_value)
+class TemplateHandler:
+    templates = {}
+    for _component in [Item, DngFeat, Weapon]:
+        for cmp_template in _component.templates:
+            templates.setdefault(cmp_template, [])
+            templates[cmp_template].append({
+                'type': _component,
+                'name': _component.var_name})
+            # every weapon is an item
+            if _component == Weapon and len(templates[cmp_template]) == 1:
+                templates[cmp_template].append({
+                    'type': Item,
+                    'name': Item.var_name})
 
-        self.owner.update_hp()
+    @classmethod
+    def get(cls, value):
+        return cls.templates[value]
 
-    def heal(self, amount):
-        # heal by the given amount, without going over the maximum
-        self.damage -= amount
-        self.damage = max(0, self.damage)  # no negative damage
-        self.owner.update_hp()
-
-    def attack(self, target):
-        """A simple formula for attack damage."""
-        damage = self.power - target.fighter.defense
-
-        if self.owner.ai:
-            color = GameColor.red  # I'm a monster!
-        else:
-            color = None  # I'm the player
-
-        if damage > 0:
-            # make the target take some damage
-            self.owner.scene.gfx.msg_log.add(
-                self.owner.name.capitalize() + ' attacks ' + target.name +
-                ' for ' + str(damage) + ' hit points.', color)
-            target.fighter.take_damage(damage=damage, atkr=self.owner)
-        else:
-            self.owner.scene.gfx.msg_log.add(
-                self.owner.name.capitalize() + ' attacks ' + target.name +
-                ' but it has no effect!', color)
-
-    def closest_monster(self, who, max_range):
-        # find closest enemy, up to a maximum range, and in the player's FOV
-        closest_enemy = None
-        # start with (slightly more than) maximum range
-        closest_dist = max_range + 1
-
-        for object in self.owner.group:
-            if object.fighter and not object == who and object.next_to_vis:
-                # calculate distance between this object and the player
-                dist = who.distance_to(object)
-                if dist < closest_dist:  # it's closer, so remember it
-                    closest_enemy = object
-                    closest_dist = dist
-        return closest_enemy
 
 if __name__ == '__main__':
-    for component in [Equipment, Item, DngFeat, Fighter]:
-        print("#" * 6)
-        print("Component:", component)
-        for template in component.templates.keys():
-            print("_" * 3)
-            print("Template:", template)
-            component(template=template, test=True)
+    print(TemplateHandler.templates["aklys"])

@@ -1,5 +1,5 @@
 import random
-from constants import GameColor
+from constants import GAME_COLORS
 from constants import CONFUSE_NUM_TURNS
 
 
@@ -33,7 +33,7 @@ class Confused(Ai):
             # confused
             if monster.scene.grid[monster.pos].visible:
                 monster.scene.gfx.msg_log.add(
-                    (monster.name + " looks confused"), GameColor.pink)
+                    (monster.name + " looks confused"), GAME_COLORS["pink"])
             if random.randint(1, 100) > 33:
                 monster.move_rnd()
             else:
@@ -48,7 +48,7 @@ class Confused(Ai):
             monster.color = monster.default_color
             monster.scene.gfx.msg_log.add(
                 'The ' + monster.name + ' is no longer confused!',
-                GameColor.yellow)
+                GAME_COLORS["yellow"])
 
         self.locked = False
 
@@ -82,7 +82,7 @@ class Basic(Ai):
                 else:
                     monster.scene.tile_fx.add(
                         coord=old_path[2:-1],
-                        color=GameColor.green,
+                        color=GAME_COLORS["green"],
                         duration=1)
             else:
                 moved = False
@@ -93,13 +93,13 @@ class Basic(Ai):
                 try:
                     monster.scene.tile_fx.add(
                         coord=monster.path[2:-1],
-                        color=GameColor.green,
+                        color=GAME_COLORS["green"],
                         duration=1)
                 except:
                     monster.scene.pathing = []
 
         # close enough, attack! (if the player is still alive.)
-        elif target.fighter.hp > 0:
-            monster.fighter.attack(target)
+        elif target.combat.hit_points_current > 0:
+            monster.combat.attack(target)
 
         self.locked = False

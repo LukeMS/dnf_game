@@ -10,7 +10,7 @@ import main_menu
 import game_input
 import sessionmgr
 
-from constants import SCREEN_ROWS, SCREEN_COLS, GameColor
+from constants import SCREEN_ROWS, SCREEN_COLS, GAME_COLORS
 
 
 class LevelScene(BaseScene):
@@ -36,19 +36,19 @@ class LevelScene(BaseScene):
                 (
                     'Welcome stranger! '
                     'Prepare to perish in the Tombs of the Ancient Kings.'),
-                GameColor.purple
+                GAME_COLORS["purple"]
             )
         else:
             self.gfx.msg_log.add(
                 ('Welcome back stranger! '
                  'This time you WILL perish in the Tombs of the Ancient'
                  ' Kings!'),
-                GameColor.purple
+                GAME_COLORS["purple"]
             )
         self.gfx.msg_log.add(
             ('You are at level {} of the dungeon.'.format(
                 self.current_level)),
-            GameColor.orange
+            GAME_COLORS["orange"]
         )
         self.game.disable_fps()
         self.on_update()
@@ -249,7 +249,7 @@ class LevelScene(BaseScene):
                     elif tile["feature"].explored:
                         self.gfx.draw(
                             tile["feature"].id, (x, y),
-                            color=GameColor.darkest_grey)
+                            color=GAME_COLORS["darkest_grey"])
 
             self.gfx.draw_hud()
 

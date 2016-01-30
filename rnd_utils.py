@@ -1,4 +1,5 @@
 import random
+from combat import char_roll
 
 
 class RangedDictionary(dict):
@@ -38,6 +39,20 @@ class RoomItems(RandomDictionary):
     })
 
 
+def rnd_cr_per_level(level):
+    dic = RangedDictionary({
+        range(0, 10): 0,
+        range(10, 35): 1,
+        range(35, 65): 2,
+        range(65, 90): 3,
+        range(90, 100): 4
+    })
+
+    v = dic[random.randrange(100)] + level
+    v = min(v, len(char_roll.cr) - 1)
+    return char_roll.cr[v]
+
+
 def set_rnd_dic(_class):
     dic = RangedDictionary()
 
@@ -49,28 +64,26 @@ def set_rnd_dic(_class):
 
     return dic
 
-
+"""
 class ItemTypes(RandomDictionary):
-    """
-    Use RoomItems.random() to get a random item quantity roll.
-    """
+    # Use RoomItems.random() to get a random item quantity roll.
     from sprite import Item
     dic = set_rnd_dic(Item)
+"""
 
-
+"""
 class MonsterTypes(RandomDictionary):
-    """
-    Use RoomItems.random() to get a random item quantity roll.
-    """
+    # Use RoomItems.random() to get a random item quantity roll.
     from sprite import NPC
     dic = set_rnd_dic(NPC)
-
+"""
 
 if __name__ == '__main__':
-    print(MonsterTypes.dic)
-    print(MonsterTypes.random())
+    d = {}
+    for i in range(10000):
+        v = rnd_cr_per_level(1)
+        d.setdefault(v, 0)
+        d[v] += 1
 
-    print()
-
-    print(ItemTypes.dic)
-    print(ItemTypes.random())
+    from pprint import pprint
+    pprint(d)

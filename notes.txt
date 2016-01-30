@@ -1,3 +1,9 @@
+Changes:
+- SRD bestiary integration;
+- SRD weapons! :)
+- prototyp SRD char creation (randomic, ui to manually create missing)
+
+
 I suspect that the vast majority of games would be satisfied with five core data structures: player, enemies, playing field, pick-ups and effects. You may even be able to collapse e.g. player and enemy together.
 
 level: {

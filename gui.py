@@ -1,6 +1,6 @@
 import pygame
 
-from constants import GameColor
+from constants import GAME_COLORS
 
 from pygame.compat import xrange_
 
@@ -81,7 +81,7 @@ class Choice:
         self.head_title_obj.center = (x, y)
 
         self.head_title_shadow_sfc = self.head_font.render(
-            self._title, True, GameColor.darker_gray)
+            self._title, True, GAME_COLORS["darker_gray"])
         self.head_title_shadow_obj = self.head_title_sfc.get_rect()
         self.head_title_shadow_obj.center = (x + 2, y + 2)
 
@@ -108,7 +108,7 @@ class Choice:
             txt_obj.midtop = x, y
 
             txt_shd_sfc = self.main_font.render(
-                item, True, GameColor.black)
+                item, True, GAME_COLORS["black"])
             txt_shd_obj = txt_shd_sfc.get_rect()
             txt_shd_obj.midtop = x + 2, y + 2
 
@@ -155,7 +155,7 @@ class Msg:
         self.head_title_obj.center = (x, y)
 
         self.head_title_shadow_sfc = self.head_font.render(
-            text, True, GameColor.gray)
+            text, True, GAME_COLORS["gray"])
         self.head_title_shadow_obj = self.head_title_sfc.get_rect()
         self.head_title_shadow_obj.center = (x, y)
 
@@ -177,7 +177,7 @@ class Menu:
         self._items = items
         self.color = (223, 0, 0)
 
-        self.unselected_color = GameColor.white
+        self.unselected_color = GAME_COLORS["white"]
         self.set_selected_color()
 
         self.selection = 0
@@ -214,7 +214,7 @@ class Menu:
         self.head_title_obj.center = x, y
 
         self.head_title_shadow_sfc = self.head_font.render(
-            self._title, True, GameColor.darker_gray)
+            self._title, True, GAME_COLORS["darker_gray"])
         self.head_title_shadow_obj = self.head_title_sfc.get_rect()
         self.head_title_shadow_obj.center = x + 2, y + 2
 
@@ -256,7 +256,7 @@ class Menu:
             txt_obj.midtop = x, y
 
             txt_shd_sfc = self.main_font.render(
-                item, True, GameColor.darker_gray)
+                item, True, GAME_COLORS["darker_gray"])
             txt_shd_obj = txt_shd_sfc.get_rect()
             txt_shd_obj.midtop = x + 2, y + 2
 
@@ -315,12 +315,12 @@ class Inventory:
         del ar
 
         self.head_title_sfc = self.head_font.render(
-            "< Inventory >", True, GameColor.chartreuse)
+            "< Inventory >", True, GAME_COLORS["chartreuse"])
         self.head_title_obj = self.head_title_sfc.get_rect()
         self.head_title_obj.center = self.head_rect.center
 
         self.head_title_shadow_sfc = self.head_font.render(
-            "< Inventory >", True, GameColor.black)
+            "< Inventory >", True, GAME_COLORS["black"])
         self.head_title_shadow_obj = self.head_title_shadow_sfc.get_rect()
         self.head_title_shadow_obj.x, self.head_title_shadow_obj.y = (
             self.head_title_obj.x + 2, self.head_title_obj.y + 2)
@@ -397,7 +397,7 @@ class Inventory:
                 color = item.color
             else:
                 text = item.name + str(i)
-                color = GameColor.chartreuse
+                color = GAME_COLORS["chartreuse"]
 
             txt_sfc = self.main_font.render(text, True, color)
             txt_obj = txt_sfc.get_rect()
@@ -405,7 +405,8 @@ class Inventory:
                 self.main_rect.left + self.tab_x + self.main_item_w * col)
             txt_obj.top = self.main_rect.top + (self.main_item_h * row) + 12
 
-            txt_shd_sfc = self.main_font.render(text, True, GameColor.black)
+            txt_shd_sfc = self.main_font.render(text, True,
+                GAME_COLORS["black"])
             txt_shd_obj = txt_shd_sfc.get_rect()
             txt_shd_obj.x, txt_shd_obj.y = (
                 txt_obj.x + 2, txt_obj.y + 2)
@@ -466,12 +467,12 @@ class Bar:
     font_size = 20
     total_width = 160
     alpha = 90
-    bar_color = GameColor.light_red
+    bar_color = GAME_COLORS["blood_red"]
     text_color_table = [
         (range(-999, 25), (223, 0, 0)),
-        (range(25, 50), GameColor.yellow),
-        (range(50, 75), GameColor.lime),
-        (range(75, 101), GameColor.green)
+        (range(25, 50), GAME_COLORS["yellow"]),
+        (range(50, 75), GAME_COLORS["lime"]),
+        (range(75, 101), GAME_COLORS["green"])
     ]
 
     def __init__(self, name, value, maximum, gfx):
@@ -576,7 +577,7 @@ class MsgLog:
 
     def add(self, string, color=None):
         if color is None:
-            color = GameColor.desaturated_green
+            color = GAME_COLORS["desaturated_green"]
         img = self.font.render(string, 1, color)
         self._history.append(img)
         self._history = self._history[-5:]
@@ -612,7 +613,7 @@ class Hud:
 
     def draw(self):
         self.display = self.font.render(
-            self.text, False, GameColor.desaturated_green)
+            self.text, False, GAME_COLORS["desaturated_green"])
         w, h = self.font.size(self.text)
         self.screen.blit(self.display, (self.x - w, self.y + h))
 

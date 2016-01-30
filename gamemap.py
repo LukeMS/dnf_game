@@ -5,7 +5,8 @@ import random
 import fov
 import sprite
 from pathfinder import AStarSearch, GreedySearch
-from rnd_utils import RoomItems, ItemTypes, MonsterTypes
+from rnd_utils import RoomItems, rnd_cr_per_level  # , ItemTypes, MonsterTypes
+from combat.bestiary import Bestiary
 
 from constants import MAP_COLS, MAP_ROWS, MAX_ROOM_MONSTERS
 from constants import EXPLORE_RADIUS, FOV_RADIUS, SCREEN_ROWS, SCREEN_COLS
@@ -192,7 +193,7 @@ class MapMgr:
         for obj in self._scene.get_all_at_pos(
                 pos, _types=["creatures", "objects"]
         ):
-            if obj.fighter:
+            if obj.combat:
                 return True
 
         return False
@@ -247,6 +248,8 @@ class MapMgr:
             attempts += 1
 
     def place_objects(self):
+        # level ?
+        level = self._scene.current_level
         for room_n, room in enumerate(self.rooms):
 
             if room_n > 2:
@@ -257,8 +260,9 @@ class MapMgr:
                     if xy is not None:
                         items_placed.append(xy)
                         x, y = xy
-                        template = ItemTypes.random()
-                        sprite.Item(template=template, scene=self._scene,
+                        # template = ItemTypes.random()
+                        sprite.Item(template="healing potion",
+                                    scene=self._scene,
                                     x=x, y=y)
 
                         """
@@ -274,8 +278,10 @@ class MapMgr:
                     if xy is not None:
                         monsters_placed.append(xy)
                         x, y = xy
-                        template = MonsterTypes.random()
-                        sprite.NPC(template=template, scene=self._scene,
+                        # template = MonsterTypes.random()
+                        template = Bestiary.get_by_cr(rnd_cr_per_level(level))
+                        sprite.NPC(template=template,
+                                   scene=self._scene,
                                    x=x, y=y)
                 if room_n == len(self.rooms) - 1:
                     pass
@@ -303,8 +309,8 @@ class MapMgr:
                 x, y = self.new_xy(room, [self.player.pos, (x, y)])
 
                 for item in [
-                    random.choice(['dagger', 'shield']),
-                    'scroll of fireball'
+                    random.choice(['falchion', 'aklys']),
+                    'scroll of fireball', 'scroll of confusion'
                 ]:
                     sprite.Item(template=item, scene=self._scene,
                                 x=x, y=y)
