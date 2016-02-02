@@ -3,8 +3,7 @@ import os
 import random
 
 if not os.path.isdir('combat'):
-    if os.path.isdir(os.path.join('..')):
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import packer
 
@@ -26,6 +25,8 @@ class Bestiary:
 
         cls.db = packer.unpack_json(fname)
 
+        cls.create_cr_dict()
+
     @classmethod
     def create_cr_dict(cls):
         cls.cr_dict = {}
@@ -46,40 +47,73 @@ class Bestiary:
     @classmethod
     def filter_empty_melee(cls, creature_key):
         creature = cls.db[creature_key]
-        print("Checking creature {}'s melee: '{}'".format(
+        status = creature['melee'] != ""
+        print("Creature {}'s melee: '{}', valid:{}".format(
             creature_key,
-            creature['melee']
+            creature['melee'],
+            status
         ))
-        return creature['melee'] != ""
+        return status
 
     @classmethod
     def get_model(cls):
-        return random.choice(list(cls.db.keys()))
+        return random.choice(cls.get_filtered())
 
     @classmethod
-    def get(cls, creature=False, filter_fields=['non_empty_melee']):
-        if not creature:
-            if filter_fields:
-                status_all_filters = False
-                while not status_all_filters:
-                    creature = random.choice(list(cls.db.keys()))
+    def get(cls, creature=None):
+        if creature is None:
+            model = cls.get_model()
+        else:
+            model = creature
 
-                    # a filter; others should be built
-                    if 'non_empty_melee' in filter_fields:
-                        status_empty_melee = cls.filter_empty_melee(creature)
-                    else:
-                        status_empty_melee = True
+        creature = cls.db[model]
 
-                    status_all_filters = status_empty_melee  # and others
-            else:
-                creature = random.choice(list(cls.db.keys()))
-        return cls.db[creature]
+        if creature["type"] in [
+            "aberration", "vermin", "outsider", "undead", "magical beast",
+            "ooze"
+        ] and creature['str'] == "-":
+            creature['str'] = 10
+
+        if creature["type"] in [
+            "construct"
+        ] and creature['dex'] == "-":
+            creature['dex'] = 10
+
+        """
+        Constructs do not have a Constitution score. Any DCs or other
+        Statistics that rely on a Constitution score treat a construct as
+        having a score of 10 (no bonus or penalty).
+        """
+        if creature["type"] in [
+            "construct"
+        ] and creature['con'] == "-":
+            creature['con'] = 10
+
+        """
+        Undead creatures do not have a Constitution score. Undead use their
+        Charisma score in place of their Constitution score when calculating
+        hit points, Fortitude saves, and any special ability that relies on
+        Constitution(such as when calculating a breath weapon’s DC).
+        """
+        if creature["type"] in [
+            "undead"
+        ] and creature['con'] == "-":
+            creature['con'] = creature['cha']
+
+        if creature["type"] in [
+            "vermin", "undead", "plant", "construct", "ooze", "magical beast",
+            "outsider"
+        ] and creature['int'] == "-":
+            creature['int'] = 0
+
+        for att in ['str', 'dex', 'con', 'int', 'wis', 'cha']:
+            creature[att] = int(creature[att])
+
+        return creature
 
     @classmethod
     def get_by_cr(cls, cr):
-        if "cr_dict" not in cls.__dict__:
-            cls.create_cr_dict()
-            cr = float(cr)
+        cr = float(cr)
         return random.choice(cls.cr_dict[cr])
 
     @classmethod
@@ -90,14 +124,65 @@ class Bestiary:
         return list_
 
     @classmethod
-    def get_field_with_value(cls, string, value):
+    def get_field_with_value(cls, string, value=None):
         d = {}
         [d.update({key: field[string]})
-         for key, field in cls.db.items() if field[string] == value]
+         for key, field in cls.db.items() if not value or
+         field[string] == value]
         return d
+
+    @classmethod
+    def get_filtered(cls, filter_list=[]):
+        """
+        filter_list: a list of 4 element tuples containing:
+            [0] the key to be searched;
+            [1] the value to be searched;
+            [2] the re function (match or search);
+            [3] the condition: if True, the result will be valid
+            if the function returns True.
+        """
+
+        import re
+
+        matches = []
+
+        for name, creature in cls.db.items():
+            match = True
+            if name == "":
+                continue
+            if creature['def_name'] == "":
+                continue
+            if creature['melee'] == "":
+                continue
+            for filter in filter_list:
+                func = getattr(re, filter[2])
+                result = func(filter[1], creature[filter[0]])
+                if result:
+                    if filter[3]:
+                        continue
+                    else:
+                        match = False
+                        break
+                else:
+                    if not filter[3]:
+                        continue
+                    else:
+                        match = False
+                        break
+            if match:
+                matches.append(name)
+
+        return matches
 
 Bestiary()
 
-if __name__ == '__main__':
-    from pprint import pprint
-    pprint(Bestiary.get_field_with_value("ac_flat-footed", "38"))
+"""
+Get a beast by its name:
+    Bestiary.get("tarrasque")
+
+Get a beast that pass on certain filters:
+    Bestiary.get_filtered(filter_list=[
+        ("type", "aberration", "match", True)
+    ])
+"""
+

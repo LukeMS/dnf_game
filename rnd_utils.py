@@ -1,5 +1,56 @@
+import sys
+import os
 import random
-from combat import char_roll
+
+
+def bubble_sort(_items):
+    """ Implementation of bubble sort """
+    items = list(_items)
+
+    for i in range(len(items)):
+        for j in range(len(items) - 1 - i):
+            if items[j].start > items[j + 1].start:
+                items[j], items[j + 1] = items[j + 1], items[j]     # Swap!
+    return items
+
+
+def test_range100(obj):
+    if isinstance(obj, RangedDictionary):
+        try:
+            rng_list = sorted(list(obj.keys()))
+        except TypeError:
+            rng_list = bubble_sort(list(obj.keys()))
+
+        for i, rng in enumerate(rng_list):
+            print(rng, obj[rng], "previous:", rng_list[i - 1])
+            if i == 0:
+                assert(rng.start == 1)
+            elif i == len(rng_list) - 1:
+                a = rng.start
+                b = rng_list[i - 1].stop
+
+                try:
+                    assert(a == b)
+                except AssertionError:
+                    print(a, b)
+                    raise(AssertionError)
+
+                try:
+                    assert(rng.stop == 101)
+                except AssertionError:
+                    print(rng.stop, "!=", 101)
+                    raise(AssertionError)
+            else:
+                a = rng.start
+                b = rng_list[i - 1].stop
+                try:
+                    assert(a == b)
+                except AssertionError:
+                    print(a, b)
+                    raise(AssertionError)
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            test_range100(v)
 
 
 class RangedDictionary(dict):
@@ -40,6 +91,9 @@ class RoomItems(RandomDictionary):
 
 
 def rnd_cr_per_level(level):
+    if not os.path.isdir('combat'):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from combat import char_roll
     dic = RangedDictionary({
         range(0, 10): 0,
         range(10, 35): 1,
@@ -78,12 +132,21 @@ class MonsterTypes(RandomDictionary):
     dic = set_rnd_dic(NPC)
 """
 
-if __name__ == '__main__':
-    d = {}
-    for i in range(10000):
-        v = rnd_cr_per_level(1)
-        d.setdefault(v, 0)
-        d[v] += 1
+"""
+d = {}
+for i in range(10000):
+    v = rnd_cr_per_level(1)
+    d.setdefault(v, 0)
+    d[v] += 1
 
-    from pprint import pprint
-    pprint(d)
+from pprint import pprint
+pprint(d)
+"""
+
+if __name__ == '__main__':
+    rnd_potions_grade = RangedDictionary({
+        range(1, 40): (0, 1),
+        range(41, 101): (1, 1)
+    })
+
+    test_range100(rnd_potions_grade)

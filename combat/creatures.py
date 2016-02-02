@@ -653,51 +653,9 @@ class Beast(Creature):
         """ ['strenght', 'dexterity', 'constitution',
         'intelligence', 'wisdom', 'charisma']"""
 
-        if self.table["type"] in [
-            "aberration", "vermin", "outsider", "undead", "magical beast",
-            "ooze"
-        ] and self.table['str'] == "-":
-            self.table['str'] = 10
-
-        if self.table["type"] in [
-            "construct"
-        ] and self.table['dex'] == "-":
-            self.table['dex'] = 10
-
-        """
-        Constructs do not have a Constitution score. Any DCs or other
-        Statistics that rely on a Constitution score treat a construct as
-        having a score of 10 (no bonus or penalty).
-        """
-        if self.table["type"] in [
-            "construct"
-        ] and self.table['con'] == "-":
-            self.table['con'] = 10
-
-        """
-        Undead creatures do not have a Constitution score. Undead use their
-        Charisma score in place of their Constitution score when calculating
-        hit points, Fortitude saves, and any special ability that relies on
-        Constitution(such as when calculating a breath weapon’s DC).
-        """
-        if self.table["type"] in [
-            "undead"
-        ] and self.table['con'] == "-":
-            self.table['con'] = self.table['cha']
-
-        if self.table["type"] in [
-            "vermin", "undead", "plant", "construct", "ooze", "magical beast",
-            "outsider"
-        ] and self.table['int'] == "-":
-            self.table['int'] = 0
-
-        # if table["Type"] == "undead": # ???
-        # print(table)
         self.attributes = [0] * 6
-        for att, i in zip(
-                ['str', 'dex', 'con', 'int', 'wis', 'cha'],
-                range(6)):
-            self.attributes[i] = int(self.table[att])
+        for i, att in enumerate(['str', 'dex', 'con', 'int', 'wis', 'cha']):
+            self.attributes[i] = self.table[att]
 
     def set_save_mod(self):
         # {"fort": 0, "ref": 1, "will": 2}

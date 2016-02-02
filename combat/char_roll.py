@@ -5,8 +5,7 @@ import re
 import random
 
 if not os.path.isdir('combat'):
-    if os.path.isdir(os.path.join('..')):
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from rnd_utils import RangedDictionary
 from combat.char_data import data
 

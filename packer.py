@@ -16,21 +16,21 @@ def split_path(string):
     return path, no_ext_f
 
 
-def pack_json():
-    with open(JOBJ) as f:
+def pack_json(source=JOBJ, dest=BZOBJ):
+    with open(source) as f:
         bin_data = bz2.compress(pickle.dumps(json.load(f)))
-    with open(BZOBJ, "wb") as f:
+    with open(dest, "wb") as f:
         f.write(bin_data)
 
 
-def unpack_json(fname):
+def unpack_json(fname=BZOBJ):
     with open(fname, 'rb') as f:
         data = pickle.loads(bz2.decompress(f.read()))
     return data
 
 
-def write_json(data):
-    with open(JOBJ, 'w') as outfile:
+def write_json(data, obj=JOBJ):
+    with open(obj, 'w') as outfile:
         json.dump(data, outfile, indent=4)
 
 if __name__ == '__main__':
