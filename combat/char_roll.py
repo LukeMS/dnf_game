@@ -225,7 +225,7 @@ def roll_attributes(verbose=False):
 
         rolls += 1
 
-        print('Invalid attributes...')
+        # print('Invalid attributes...')
 
     @property
     def att_mod(self):

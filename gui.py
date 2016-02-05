@@ -578,6 +578,7 @@ class MsgLog:
     def add(self, string, color=None):
         if color is None:
             color = GAME_COLORS["desaturated_green"]
+        print(string)
         img = self.font.render(string, 1, color)
         self._history.append(img)
         self._history = self._history[-5:]

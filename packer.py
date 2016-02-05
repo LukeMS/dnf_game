@@ -6,8 +6,11 @@ import json
 import bz2
 import pickle
 
-JOBJ = os.path.join('.', 'data', 'bestiary', 'bestiary_optimized.json')
-BZOBJ = os.path.join('.', 'data', 'bestiary', 'bestiary_optimized.bzp')
+
+WEAPONS = (os.path.join('..', 'etc', 'weapons.json'),
+           os.path.join('.', 'data', 'items', 'weapons.bzp'))
+JOBJ = os.path.join('.', 'data', 'items', 'weapons.json')
+BZOBJ = os.path.join('.', 'data', 'items', 'weapons.bzp')
 
 
 def split_path(string):
@@ -34,4 +37,4 @@ def write_json(data, obj=JOBJ):
         json.dump(data, outfile, indent=4)
 
 if __name__ == '__main__':
-    pack_json()
+    pack_json(*WEAPONS)

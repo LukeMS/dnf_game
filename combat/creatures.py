@@ -142,6 +142,33 @@ class Creature:
             else:
                 log_miss()
 
+    def two_handed_atk(self):
+
+        # You receibe a base penalty of -6 to mh and -10 to of.
+        mh_pen, oh_pen = -6, -10
+
+        # Reduce both by 2 if off-hand weapon is light
+        if left is light:
+            mh_pen += 2
+            oh_pen += 2
+
+        # Reduce mh by 2 and of by 6 if Two-Weapon Fighting Feat
+        if twf:
+            mh_pen += 2
+            oh_pen += 6
+
+        # Gain a 2nd attack with -5 and 3rd with -10 on oh
+        if gtwf:
+            off_hand_attacks = [off_atk, off_atk - 5, off_atk - 10]
+        # Gain a 2nd attack with -5 on oh
+        elif itwf:
+            off_hand_attacks = [off_atk, off_atk - 5]
+        # If not get a single extra attack oh with adjusted penalty.
+        else:
+            off_hand_attacks = [off_atk]
+
+        return mh_pen, oh_pen, off_hand_attacks
+
     def receive_dmg(self, dmg, source=None):
         """
         Hit Points
@@ -199,6 +226,29 @@ class Creature:
 
     def set_equipment_slots(self):
         pass
+
+    def all_equipped(self, slot=None):
+        return [
+            item for item in self.owner.inventory if
+            item.equipment and item.equipment.is_equipped and
+            (slot is None or (getattr(item.equipment, 'slot', None) == slot))
+        ]
+
+    def equipped_in_slot(self, slot):
+        """Returns the equipment in a slot, or None if it's empty."""
+        inventory = self.owner.inventory
+
+        for obj in inventory:
+            if (
+                obj.equipment and obj.equipment.slot == slot and
+                obj.equipment.is_equipped
+            ):
+                return obj.equipment
+        return None
+
+    def equipment_bonus(self, bonus):
+        return sum(
+            getattr(item.equipment, bonus) for item in self.all_equipped())
 
     @classmethod
     def test(cls):
@@ -570,17 +620,6 @@ class Character(Creature):
         return [combat.char_roll.AttributeModifers.get(x)
                 for x in self.attributes]
 
-    def all_equipped(self, slot=None):
-        return [
-            item for item in self.owner.inventory if
-            item.equipment and item.equipment.is_equipped and
-            (slot is None or (getattr(item.equipment, 'slot', None) == slot))
-        ]
-
-    def equipment_bonus(self, bonus):
-        return sum(
-            getattr(item.equipment, bonus) for item in self.all_equipped())
-
 
 class Beast(Creature):
     """docstring for Beast"""
@@ -685,4 +724,3 @@ if __name__ == '__main__':
                   "height_", "weight_", "bestiary", "game", "hp_history",
                   "namegen", "table", "owner"],
         ordered=["name"])
-

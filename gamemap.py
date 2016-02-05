@@ -309,8 +309,9 @@ class MapMgr:
                 x, y = self.new_xy(room, [self.player.pos, (x, y)])
 
                 for item in [
-                    random.choice(['falchion', 'aklys']),
-                    'scroll of fireball', 'scroll of confusion'
+                    # random.choice(['falchion', 'aklys']),
+                    'scroll of fireball', 'scroll of confusion',
+                    "bastard's sting", "shortsword"
                 ]:
                     sprite.Item(template=item, scene=self._scene,
                                 x=x, y=y)

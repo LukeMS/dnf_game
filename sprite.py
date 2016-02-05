@@ -176,7 +176,14 @@ class GameObject:
         this level before any of the following adjustments are made. Second,
         apply any ability score increases due to gaining a level. Third,
         integrate all of the level's class abilities and then roll for
-        additional hit points. Finally, add new skills and feats."""
+        additional hit points. Finally, add new skills and feats.
+        Humans gain 1 additional skill rank per class level.
+        Characters who take a level in a favored class have the option of
+        gaining 1 additional skill rank or an additional hit point . If you
+        select a level in a new class, all of its class skills are
+        automatically added to your list of class skills, and you gain a +3
+        bonus on these skills if you have ranks in them.
+        """
 
         def gain_ability():
             self.scene.gfx.msg_log.add(
@@ -202,6 +209,9 @@ class GameObject:
             pass
 
         def gain_feat():
+            pass
+
+        def gain_skill():
             pass
 
         # see if the creature's experience is enough to level-up
@@ -369,21 +379,7 @@ class Item(GameObject):
 
     @classmethod
     def test(cls):
-        def dummy(*args, **kwargs):
-            pass
 
-        class Dummy:
-            pass
-
-        class Owner:
-            inventory = []
-
-            scene = Dummy()
-            scene.rem_obj = dummy
-
-            scene.gfx = Dummy()
-            scene.gfx.msg_log = Dummy()
-            scene.gfx.msg_log.add = print
 
         owner = Owner()
 

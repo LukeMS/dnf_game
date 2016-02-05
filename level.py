@@ -181,7 +181,7 @@ class LevelScene(BaseScene):
 
     def new_turn(self):
         self.turn += 1
-        self.gfx.msg_log.add("Turn {}".format(self.turn))
+        print("Turn {}".format(self.turn))
 
         self.tile_fx.update()
 
