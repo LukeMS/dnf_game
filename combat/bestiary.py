@@ -16,10 +16,10 @@ class Bestiary:
     """
     @classmethod
     def __init__(cls, optmize=False):
-        if os.path.isdir(os.path.join('.', 'data', 'bestiary')):
-            _path = os.path.join('.', 'data', 'bestiary')
+        if os.path.isdir(os.path.join('.', 'data')):
+            _path = os.path.join('.', 'data')
         else:
-            _path = os.path.join('..', 'data', 'bestiary')
+            _path = os.path.join('..', 'data')
 
         fname = os.path.join(_path, 'bestiary_optimized.bzp')
 
@@ -185,4 +185,30 @@ Get a beast that pass on certain filters:
         ("type", "aberration", "match", True)
     ])
 """
+"""
+    print(Bestiary.get_filtered(filter_list=[
+        ("feats", "light armor proficiency", "search", True)
+    ]))
+"""
 
+"""
+Get all "field" values of existing monsters:
+    fields = set()
+    bestiary_fields = Bestiary.get_field("source")
+    for creature in bestiary_fields:
+        for feat in creature.split(","):
+            fields.add(feat.strip())
+
+    import json
+    print(json.dumps(list(fields), indent=4))
+"""
+
+if __name__ == '__main__':
+    fields = set()
+    bestiary_fields = Bestiary.get_field("feats")
+    for creature in bestiary_fields:
+        for feat in creature.split(","):
+            fields.add(feat.strip())
+
+    import json
+    print(json.dumps(list(fields), indent=4))

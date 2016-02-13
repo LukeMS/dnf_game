@@ -9,9 +9,9 @@ if not os.path.isdir('combat'):
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import combat.char_roll
-import combat.parse_saves
-import combat.parse_atk
 from combat.bestiary import Bestiary
+import combat.feats
+import combat.skills
 from rnd_name import NameGen
 
 import effects
@@ -234,6 +234,10 @@ class Creature:
             (slot is None or (getattr(item.equipment, 'slot', None) == slot))
         ]
 
+    @property
+    def equipped_armor(self):
+        return self.equipped_in_slot("body")
+
     def equipped_in_slot(self, slot):
         """Returns the equipment in a slot, or None if it's empty."""
         inventory = self.owner.inventory
@@ -249,6 +253,11 @@ class Creature:
     def equipment_bonus(self, bonus):
         return sum(
             getattr(item.equipment, bonus) for item in self.all_equipped())
+        # for debug move this up
+        for item in self.all_equipped():
+            print(item.name)
+            print(bonus)
+            print(getattr(item.equipment, bonus))
 
     @classmethod
     def test(cls):
@@ -293,7 +302,7 @@ class Character(Creature):
     }
     xp = 0
 
-    def __init__(self, rnd=True, *args, **kwargs):
+    def __init__(self, race=None, _class=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.__dict__.update(kwargs)
@@ -302,8 +311,12 @@ class Character(Creature):
         self.races = combat.char_roll.races
         self.classes = combat.char_roll.classes
 
-        self.change_race()
-        self.change_class()
+        self.change_race(race=race)
+        self.change_class(_class=_class)
+
+        self.feats = combat.feats.FeatTree(creature=self)
+        self.skills = combat.skills.SkillTree(creature=self)
+
         self.change_gender()
         self.change_height_weight()
         self.change_alignment()
@@ -315,27 +328,37 @@ class Character(Creature):
 
         self.death_func = effects.player_death
 
-    def change_race(self, value=None):
-        if value is None:  # make it random
+
+    def change_race(self, race=None):
+        if race is None:  # make it random
             self.race = random.choice(self.races)
-        elif isinstance(value, int):
+        elif isinstance(race, int):
             index = self.races.index(self.race)
-            index += value
+            index += race
             index = index % len(self.races)
             self.race = self.races[index]
         else:
-            self.race = value
+            self.race = race
 
         self.change_age()
         self.change_name()
         self.change_height_weight()
 
-    def change_class(self, value=None):
-        if value is None:
-            self._class = random.choice(self.classes)
+    def change_class(self, _class=None):
+        if _class is None:
+            self._class = random.choice(list(self.classes))
+        else:
+            if _class not in self.classes:
+                raise ValueError(_class)
+            else:
+                # print("Changing class to", _class)
+                self._class = _class
 
         self.alignments = combat.char_roll.alignments[
             self._class]
+
+        self.set_hit_points()
+        self.set_unarmed_atk()
 
     def change_alignment(self, value=None):
         if value is None:
@@ -512,12 +535,15 @@ class Character(Creature):
 
     @property
     def ac(self):
-        description = """10 + armor bonus + shield bonus + Dex modifier
+        """AC (armor class).
+
+        10 + armor bonus + shield bonus + Dex modifier
          + other modifiers.
         Armor, shield and natural armor bonuses do not applyto touch AC.
         Dex and Dodge bonuses do not apply to flat footed AC (unless you have
         an ability like uncanny dodge to mitigate things)
         """
+        # print("calling 'ac' property")
         return (10 +
                 self.ac_from_equip +
                 # dodge_bonus
@@ -528,6 +554,9 @@ class Character(Creature):
     def ac_from_equip(self):
         return sum(getattr(item.equipment, 'ac_bonus', 0)
                    for item in self.all_equipped())
+        ### for debug move this up
+        for item in self.all_equipped():
+            print(item.name, getattr(item.equipment, 'ac_bonus', 0))
 
     @property
     def ac_flat(self):
@@ -605,6 +634,17 @@ class Character(Creature):
         return [base + mod for base, mod in zip(
                 self.save_base, self.save_att_bonus)]
 
+
+    @property
+    def attributes_dict(self):
+        return {k[:3]: v for k, v in zip(combat.char_roll.att_names,
+                                         self.attributes)}
+
+    @property
+    def att_mod_dict(self):
+        return {k[:3]: v for k, v in zip(combat.char_roll.att_names,
+                                         self.att_mod)}
+
     @property
     def save_att_bonus(self):
         """
@@ -650,33 +690,26 @@ class Beast(Creature):
             self._class = None
 
         self.set_att()
-        self.set_save_mod()
         self.hit_dice = self.table["hd"]
-        self.hit_points_total = int(self.table["hp"])
+        self.hit_points_total = self.table["hp"]
+        self.ac_flat = self.table["ac_flat-footed"]
+        self.fancy_name = self.table["fancy"]
+
+        self.ac = self.table["ac"]
+        self.ac_touch = self.table["ac_touch"]
+        self.melee = self.table["melee"]
         self.speed = self.table["speed"]
         self.size = self.table["size"]
-
-        self.ac = int(self.table["ac"])
-        self.ac_flat = int(self.table["ac_flat-footed"])
-
-        self.ac_touch = int(self.table["ac_touch"])
-
-        self.set_melee()
-
         self.space = self.table["space"]
         self.reach = self.table["reach"]
-
-        self.xp_award = int(self.table["xp award"].replace(',', ''))
-        self.cr = float(self.table["cr"])
-
-        self.fancy_name = self.table["fancy"]
+        self.xp_award = self.table["xp award"]
+        self.cr = self.table["cr"]
+        self.alignment = self.table['alignment']
 
         self.age, self.max_age = combat.char_roll.get_age(self.race,
                                                           self._class)
 
         self.change_gender()
-
-        self.alignment = self.table['alignment']
 
         """
         weight: d&d 3.5 monster manual appears to have a table of creature's
@@ -696,27 +729,21 @@ class Beast(Creature):
         for i, att in enumerate(['str', 'dex', 'con', 'int', 'wis', 'cha']):
             self.attributes[i] = self.table[att]
 
-    def set_save_mod(self):
-        # {"fort": 0, "ref": 1, "will": 2}
-        self.save_mod, self.specials_saves = combat.parse_saves.parse(
-            self.table)
-
-    def set_melee(self):
-        self.melee = combat.parse_atk.parse_melee(
-            self.table['melee'], verbose=False)
-        if self.table['def_name'] == 'demilich':
-            print(self.table['def_name'])
-            print(self.melee)
-
 
 if __name__ == '__main__':
     from mylib import compare_classes
 
-    pc = Character()
-    pc.test()
+    pc = Character(_class="fighter", race="human")
+
+    exit()
+
     beast = Beast()
     beast.test()
-    exit()
+    pc.change_race("dwarf")
+    pc.change_class("fighter")
+    print(pc._class)
+    pc.test()
+
 
     compare_classes.compare_classes(
         pc, beast,

@@ -11,7 +11,9 @@ from constants import GAME_COLORS
 import data_handler
 
 import effects
-from data.items.items import items_db
+from data.items import items_db
+
+from interpreter import interpreter
 
 
 class Component:
@@ -156,9 +158,13 @@ class Equipment(Component):
         if self.is_equipped:
             self.unequip()
             actions = self.on_unequip
+            post_actions = [
+                self.owner.item.possessor.combat.feats.on_unequip]
         else:
             self.equip()
             actions = self.on_equip
+            post_actions = [
+                self.owner.item.possessor.combat.feats.on_equip]
 
         for action in actions:
             if action['type'] == "check":
@@ -166,7 +172,9 @@ class Equipment(Component):
             elif action['type'] == "action":
                 self.action(action)
 
-        self.owner.item.possessor.combat.set_melee_atk()
+        for action in post_actions:
+            action()
+
 
     def check(self, dic):
         """Check a condition and call an action according to it."""
@@ -211,6 +219,47 @@ class Equipment(Component):
         setattr(self, field, value)
 
     def equip(self):
+        """Should be overwritten by subclass."""
+        pass
+
+    def unequip(self):
+        """Unequip object and show a message about it."""
+        if not self.is_equipped:
+            return
+        self.is_equipped = False
+        self.owner.scene.gfx.msg_log.add(
+            'Unequipped ' + self.owner.name + ' from ' +
+            self.slot + '.', GAME_COLORS["light_yellow"])
+        self.slot = None
+
+
+class Weapon(Equipment):
+    var_name = "equipment"
+    templates = data_handler.get_all_weapons()
+
+    _default = {
+        "id": ord("|"),
+        "color": GAME_COLORS["grey"]
+    }
+
+    def __init__(self, template):
+        """Creates the weapons instance base on the template name."""
+        component = data_handler.get_weapon(template)
+        [component.setdefault(key, value)
+            for key, value in self._default.items()]
+        self.__dict__.update(component)
+        self.slot = None
+        self.name = component["melee_desc"]
+
+        # every weapon is an item (can be picked up, etc.)
+
+    def toggle_equip(self):
+        """Toggle equip/unequip status."""
+        super().toggle_equip()
+
+        self.owner.item.possessor.combat.set_melee_atk()
+
+    def equip(self):
         """Equip object and show a message about it.
 
         If the slot is already being used, unequip whatever is there first.
@@ -245,35 +294,60 @@ class Equipment(Component):
             'Equipped ' + self.owner.name + ' on ' +
             self.slot + '.', GAME_COLORS["light_green"])
 
-    def unequip(self):
-        """Unequip object and show a message about it."""
-        if not self.is_equipped:
-            return
-        self.is_equipped = False
-        self.owner.scene.gfx.msg_log.add(
-            'Unequipped ' + self.owner.name + ' from ' +
-            self.slot + '.', GAME_COLORS["light_yellow"])
-        self.slot = None
+    # 'light melee weapons', 'one-handed melee weapons',
+    # 'two-handed melee weapons'}
+
+    @classmethod
+    def test(cls):
+
+        class Owner():
+            inventory = []
+
+        from mylib.data_tree import tk_tree_view
+
+        weapon = Weapon("aklys")
+        tk_tree_view(weapon.__dict__)
 
 
-class Weapon(Equipment):
+class Armor(Equipment):
     var_name = "equipment"
-    templates = data_handler.get_all_weapons()
+    templates = data_handler.get_all_armors()
 
     _default = {
-        "id": ord("|"),
-        "color": GAME_COLORS["grey"]
+        "id": ord("["),
+        "color": GAME_COLORS["grey"],
+        "on_equip": [],
+        "on_unequip": []
     }
 
     def __init__(self, template):
-        component = data_handler.get_weapon(template)
+        component = data_handler.get_armor(template)
         [component.setdefault(key, value)
             for key, value in self._default.items()]
+        self.type = component.pop("family")
         self.__dict__.update(component)
         self.slot = None
-        self.name = component["melee_desc"]
 
         # every weapon is an item (can be picked up, etc.)
+
+    def equip(self):
+        """Equip object and show a message about it.
+
+        If the slot is already being used, unequip whatever is there first.
+        """
+        equipped_in_slot = self.possessor.combat.equipped_in_slot
+
+
+        self.slot = 'left hand' if self.type == 'shields' else 'body'
+
+        old_equipment = equipped_in_slot(self.slot)
+        if old_equipment:
+            old_equipment.unequip()
+
+        self.is_equipped = True
+        self.owner.scene.gfx.msg_log.add(
+            'Equipped ' + self.owner.name + ' on ' +
+            self.slot + '.', GAME_COLORS["light_green"])
 
     # 'light melee weapons', 'one-handed melee weapons',
     # 'two-handed melee weapons'}
@@ -292,14 +366,15 @@ class Weapon(Equipment):
 
 class TemplateHandler:
     templates = {}
-    for _component in [Item, DngFeat, Weapon]:
+    for _component in [Item, DngFeat, Weapon, Armor]:
         for cmp_template in _component.templates:
             templates.setdefault(cmp_template, [])
             templates[cmp_template].append({
                 'type': _component,
                 'name': _component.var_name})
             # every weapon is an item
-            if _component == Weapon and len(templates[cmp_template]) == 1:
+            if _component in (Weapon, Armor) and \
+                    len(templates[cmp_template]) == 1:
                 templates[cmp_template].append({
                     'type': Item,
                     'name': Item.var_name})
@@ -310,4 +385,4 @@ class TemplateHandler:
 
 
 if __name__ == '__main__':
-    print(TemplateHandler.templates["bastard's sting"])
+    print(TemplateHandler.templates["studded leather"])

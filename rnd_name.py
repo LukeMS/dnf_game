@@ -21,10 +21,10 @@ class NameGen(dict):
     @classmethod
     def __init__(cls):
 
-        if os.path.isdir(os.path.join('.', 'data', 'names')):
-            _path = os.path.join('.', 'data', 'names')
+        if os.path.isdir(os.path.join('.', 'data')):
+            _path = os.path.join('.', 'data')
         else:
-            _path = os.path.join('..', 'data', 'names')
+            _path = os.path.join('..', 'data')
 
         cls.names_db = packer.unpack_json(os.path.join(_path, 'names.bzp'))
 

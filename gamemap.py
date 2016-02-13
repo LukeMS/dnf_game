@@ -311,7 +311,7 @@ class MapMgr:
                 for item in [
                     # random.choice(['falchion', 'aklys']),
                     'scroll of fireball', 'scroll of confusion',
-                    "bastard's sting", "shortsword"
+                    "bastard's sting", "shortsword", "studded leather"
                 ]:
                     sprite.Item(template=item, scene=self._scene,
                                 x=x, y=y)

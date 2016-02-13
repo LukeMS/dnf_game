@@ -279,7 +279,10 @@ class Player(GameObject):
     def __init__(
             self, id=ord('@'), color=GAME_COLORS["yellow"], **kwargs):
 
-        kwargs['combat'] = creatures.Character()
+        race = kwargs['race'] if 'race' in kwargs else None
+        _class = kwargs['_class'] if '_class' in kwargs else None
+
+        kwargs['combat'] = creatures.Character(race=race, _class=_class)
 
         super().__init__(
             id=id, color=color, **kwargs)
