@@ -10,11 +10,15 @@ SPECIFIC = {
         "on_equip": [
             {
                 "type": "check",
-                "condition": {
-                    'object': 'owner.item.possessor.combat',
-                    'attribute': '_class',
-                    'value': "antipaladin"
-                },
+                "match": "all",  # "all" or "any" of the conditions
+                "conditions": [
+                    {
+                        # if creature IS of class antipaladin
+                        'object': 'owner.item.possessor.combat',
+                        'attribute': '_class',
+                        'value': ("is", "antipaladin")
+                    }
+                ],
                 True: [
                     {
                         "type": "action",
@@ -73,7 +77,10 @@ SPECIFIC = {
             {
                 "type": "action",
                 "action": "set_attribute",
-                "args": ["magic", 2]
+                "args": {
+                    "field": "magic",
+                    "value": 2
+                }
             }
         ]
     }

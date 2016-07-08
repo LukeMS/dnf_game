@@ -2,8 +2,8 @@ import random
 import json
 from pprint import pprint
 
-import coins
-import gems
+import loot_coins
+import loot_gems
 
 treasure_budget = {
     "none": 0,
@@ -138,8 +138,8 @@ def get_treasure_budget(creature):
             d['value'] = npc_gear_table[d['cr']]
         return d
     else:
-        raise ValueError("{}: {}".format(creature['def_name'],
-                                         creature['treasure']))
+        raise ValueError('"{}": "{}" (source: {})'.format(
+            creature['def_name'], creature['treasure'], creature['source']))
 
 
 def get_treasure_types(creature, budget):
@@ -391,21 +391,22 @@ def set_value_per_type(value, percents):
 
 def set_hoard(values):
     hoard = {
-        'coins': coins.Coins(),
+        'coins': loot_coins.Coins(),
         'gems': []
     }
     if "A" in values:
         # Treasure of this type is made up entirely of coins.
-        hoard['coins'] += coins.calculate_hoard(values["A"])
+        hoard['coins'] += loot_coins.calculate_hoard(values["A"])
         print(hoard['coins'])
     if "B" in values:
-        res = gems.calculate_hoard(values["B"])
+        res = loot_gems.calculate_hoard(values["B"])
         print(res['coins'])
         hoard['coins'] += res['coins']
         hoard['gems'].extend(res['gems'])
     if "C" in values:
         print("WTF!!! treasure type c")
     if "D" in values:
+        pass
 
     return hoard
 
@@ -431,16 +432,15 @@ def main(creature):
 
     pprint(budget, indent=4)
 
-    exit()
-
 
 if __name__ == '__main__':
 
     from bestiary import Bestiary
 
-    results = Bestiary.get_filtered([
-        ('treasure', 'none', 'search', False)
+    results = Bestiary.get_filtered(filter_list=[
+        ('treasure', None, 'search', False)
     ])
+    print(results)
     tables = {}
 
     for i, result in enumerate(results):

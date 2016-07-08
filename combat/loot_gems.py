@@ -1,7 +1,7 @@
 import random
 
 from char_roll import roll
-import coins
+import loot_coins
 
 """Generating Gems
 When randomly determining gems, roll on the appropriate grade chart. To
@@ -294,7 +294,7 @@ def calculate_hoard(total):
     gem_total = 5 * int((total - coins_part) / 5)
 
     hoard = {
-        'coins': coins.calculate_hoard(coins_part),
+        'coins': loot_coins.calculate_hoard(coins_part),
         'gems': []
     }
 
@@ -307,7 +307,7 @@ def calculate_hoard(total):
             else:
                 break
     if not hoard['gems']:
-        hoard['coins'] += coins.calculate_hoard(total - coins_part)
+        hoard['coins'] += loot_coins.calculate_hoard(total - coins_part)
     # print(hoard)
     # gem_total = sum(gem.default_value for gem in hoard)
     # print(total, coins_v, gem_total)

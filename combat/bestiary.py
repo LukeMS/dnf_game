@@ -155,21 +155,38 @@ class Bestiary:
             if creature['melee'] == "":
                 continue
             for filter in filter_list:
-                func = getattr(re, filter[2])
-                result = func(filter[1], creature[filter[0]])
-                if result:
-                    if filter[3]:
-                        continue
+                field, pattern, func, match = filter
+                func = getattr(re, func)
+                string = creature[field]
+                match_result = True
+                if pattern is None or string is None:
+                    if match:
+                        if pattern == string:
+                            continue
+                        else:
+                            match_result = False
+                            break
                     else:
-                        match = False
-                        break
+                        if pattern == string:
+                            match_result = False
+                            break
+                        else:
+                            continue
                 else:
-                    if not filter[3]:
-                        continue
+                    result = func(pattern, string)
+                    if result:
+                        if filter[3]:
+                            continue
+                        else:
+                            match_result = False
+                            break
                     else:
-                        match = False
-                        break
-            if match:
+                        if not filter[3]:
+                            continue
+                        else:
+                            match_result = False
+                            break
+            if match_result:
                 matches.append(name)
 
         return matches
@@ -204,11 +221,6 @@ Get all "field" values of existing monsters:
 """
 
 if __name__ == '__main__':
-    fields = set()
-    bestiary_fields = Bestiary.get_field("feats")
-    for creature in bestiary_fields:
-        for feat in creature.split(","):
-            fields.add(feat.strip())
-
-    import json
-    print(json.dumps(list(fields), indent=4))
+    print(Bestiary.get_filtered(filter_list=[
+        ("treasure", "SQ", "search", True)
+    ]))

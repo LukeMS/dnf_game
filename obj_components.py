@@ -157,46 +157,12 @@ class Equipment(Component):
         """Toggle equip/unequip status."""
         if self.is_equipped:
             self.unequip()
-            actions = self.on_unequip
-            post_actions = [
-                self.owner.item.possessor.combat.feats.on_unequip]
+            interpreter(self, self.on_unequip)
+            self.owner.item.possessor.combat.feats.on_unequip()
         else:
             self.equip()
-            actions = self.on_equip
-            post_actions = [
-                self.owner.item.possessor.combat.feats.on_equip]
-
-        for action in actions:
-            if action['type'] == "check":
-                self.check(action)
-            elif action['type'] == "action":
-                self.action(action)
-
-        for action in post_actions:
-            action()
-
-
-    def check(self, dic):
-        """Check a condition and call an action according to it."""
-        obj_string = dic['condition']['object']
-        obj = self
-        for level in obj_string.split("."):
-            obj = getattr(obj, level)
-        compared_att = getattr(obj, dic['condition']['attribute'])
-        value = dic['condition']['value']
-        result = compared_att == value
-
-        self.action(*dic[result])
-
-    def action(self, *dicts):
-        """Perform action with args, both specified on dicts."""
-        for dic in dicts:
-            act = getattr(self, dic['action'])
-            args = dic['args']
-            if isinstance(args, list):
-                act(*args)
-            elif isinstance(args, dict):
-                act(**args)
+            interpreter(self, self.on_equip)
+            self.owner.item.possessor.combat.feats.on_equip()
 
     def add_to(self, category, actions):
         """Add one or more actions to the category's list."""
@@ -213,10 +179,6 @@ class Equipment(Component):
         for action in actions:
             if action in action_list:
                 action_list.remove(action)
-
-    def set_attribute(self, field, value):
-        """Set the specified field with the given value."""
-        setattr(self, field, value)
 
     def equip(self):
         """Should be overwritten by subclass."""
@@ -336,7 +298,6 @@ class Armor(Equipment):
         If the slot is already being used, unequip whatever is there first.
         """
         equipped_in_slot = self.possessor.combat.equipped_in_slot
-
 
         self.slot = 'left hand' if self.type == 'shields' else 'body'
 

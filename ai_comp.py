@@ -10,8 +10,8 @@ class Ai:
 
 
 class Confused(Ai):
-    """AI for a temporarily confused monster (reverts to previous AI after a
-    while)."""
+    """AI for a temporarily confused monster.
+    It reverts to previous AI after a while)."""
 
     def __init__(self, num_turns=CONFUSE_NUM_TURNS):
         self.num_turns = num_turns

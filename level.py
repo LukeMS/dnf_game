@@ -206,7 +206,7 @@ class LevelScene(BaseScene):
                             threading.Thread(
                                 target=self.on_update, daemon=True).start()
                         else:
-                            # IDLE STEP, RANDOM CHANCE, ETC.
+                            # IDLE STEP, RANDOM CHANCE, ETC.?
                             pass
                     if creature is not self.player:
                         creature.active = False
