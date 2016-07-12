@@ -1,48 +1,11 @@
 import sys
 import os
+import random
 
 import pygame
 import weakref
 
-
-from constants import TILESET
-
-
-class Tileset(object):
-    cache = {}
-
-    @classmethod
-    def get(cls, color):
-        __colors = 64
-        __factor = 256 // __colors
-        if color:
-            color = tuple(c // __factor * __factor for c in (color))
-
-        if not hasattr(cls, 'tileset'):
-            cls.tileset = pygame.image.load(
-                os.path.join("resources", TILESET)).convert_alpha()
-        if color is None:
-            return cls.tileset
-        else:
-            try:
-                tileset = cls.cache[color]
-            except KeyError:
-                tileset = cls.color_surface(cls.tileset, color)
-                cls.cache[color] = tileset
-            return tileset
-
-    @classmethod
-    def color_surface(cls, surface, color):
-        new_surface = surface.copy()
-        arr = pygame.surfarray.pixels3d(new_surface)
-        arr[:, :, 0] = color[0]
-        arr[:, :, 1] = color[1]
-        arr[:, :, 2] = color[2]
-        del arr
-        return new_surface
-
-    def __getstate__(self):
-        return None
+from constants import TILESET, TILE_W, TILE_H
 
 
 class Resources(object):
@@ -51,8 +14,8 @@ class Resources(object):
 
     @classmethod
     def __init__(cls, loader, path, types, weak_ref=True):
-        cls._index(path, types)
-        if weakref:
+        cls._names = cls._index(path, types)
+        if weak_ref:
             cls.cache = weakref.WeakValueDictionary()
         else:
             cls.cache = {}
@@ -73,6 +36,7 @@ class Resources(object):
 
     @classmethod
     def _index(cls, path, types):
+        _names = {}
         if sys.version_info >= (3, 5):
             # Python version >=3.5 supports glob
             import glob
@@ -81,7 +45,7 @@ class Resources(object):
                     (path + '/**/' + img_type), recursive=True
                 ):
                     f_base = os.path.basename(filename)
-                    cls._names.update({f_base: filename})
+                    _names.update({f_base: filename})
         else:
             # Python version <=3.4
             import fnmatch
@@ -90,7 +54,8 @@ class Resources(object):
                 for img_type in types:
                     for f_base in fnmatch.filter(filenames, img_type):
                         filename = os.path.join(root, f_base)
-                        cls._names.update({f_base: filename})
+                        _names.update({f_base: filename})
+        return _names
 
     def __getstate__(self):
         return None
@@ -104,13 +69,105 @@ class Images(Resources):
             path=path,
             types=types)
 
+    @classmethod
+    def __getattr__(cls, name):
+        try:
+            img = cls.cache[name]
+        except KeyError:
+            img = cls.loader(cls._names[name]).convert_alpha()
+            cls.cache[name] = img
+        return img
+
+class Tilesets(Images):
+    _tilesets = {}
+
+    @classmethod
+    def __init__(cls, path=os.path.join("resources", "tilesets"),
+                 types=['*.jpg', '*.png', '*.bmp']):
+        cls.loader = pygame.image.load
+        cls._names = cls._index(path=path, types=types)
+
+        tiles = {}
+        for k in cls._names.keys():
+            if k.startswith('_id'):
+                k_fields = k.split('$')
+
+                id = int(k_fields[0].replace('_id', ''))
+                size = int(k_fields[2].replace('px', ''))
+                theme = k_fields[1]
+                var = int(k_fields[3].replace('v', ''))
+
+                tiles.setdefault(id, {})
+                tiles[id][size, theme] = {
+                    'var': var,
+                    'img': cls.load(k)
+                }
+        cls.tiles = tiles
+
+        _tileset = cls.get_set()
+        cls.tileset_width, cls.tileset_height = _tileset.get_size()
+
+    @classmethod
+    def get_tile_maximum_variation(cls, _id):
+        try:
+            return cls.tiles[_id][TILE_W, 'default']['var']
+        except KeyError:
+            return 0
+
+    @classmethod
+    def get_tile(cls, _id, color=None,
+        tiling_index=0, tile_variation=0):
+        if isinstance(_id, str):
+            _id = ord(_id)
+
+        try:
+            surface = cls.tiles[_id][TILE_W, 'default']['img']
+            col = tiling_index
+            row = tile_variation
+            src = col * TILE_W, row * TILE_H, TILE_W, TILE_H
+        except KeyError:
+            y = _id // (cls.tileset_width // TILE_W)
+            x = _id % (cls.tileset_width // TILE_W)
+            src = x * TILE_W, y * TILE_H, TILE_W, TILE_H
+            surface = cls.get_set(color)
+
+        return src, surface
+
+    @classmethod
+    def get_set(cls, color=None):
+        __colors = 64
+        __factor = 256 // __colors
+        if color:
+            color = tuple(c // __factor * __factor for c in (color))
+
+        if color not in cls._tilesets:
+            if color is None:
+                cls._tilesets[color] = Images.load(TILESET)
+            else:
+                tileset = cls.color_surface(cls._tilesets[None], color)
+                cls._tilesets[color] = tileset
+
+        return cls._tilesets[color]
+
+    @classmethod
+    def color_surface(cls, surface, color):
+        new_surface = surface.copy()
+        arr = pygame.surfarray.pixels3d(new_surface)
+        arr[:, :, 0] = color[0]
+        arr[:, :, 1] = color[1]
+        arr[:, :, 2] = color[2]
+        del arr
+        return new_surface
+
     def __getstate__(self):
         return None
 
 
 class Fonts(Resources):
     @classmethod
-    def __init__(cls, path=".", types=['*.ttf']):
+    def __init__(
+            cls, path=os.path.join("resources", "fonts"),
+            types=['*.ttf']):
         super().__init__(
             loader=pygame.font.Font,
             path=path,

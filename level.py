@@ -1,7 +1,5 @@
 import pygame
 
-import threading
-
 from game import BaseScene
 
 from game_types import Position
@@ -198,13 +196,17 @@ class LevelScene(BaseScene):
                 for creature in level_dict['groups']['creatures']:
                     if creature.ai and creature.active:
                         if creature.visible or creature.ai.effect:
-                            """
-                            self.gfx.msg_log.add(
-                                str(creature.name) + " acts")
-                            """
+                            old_pos = creature.get_rect
                             creature.ai.take_turn()
-                            threading.Thread(
-                                target=self.on_update, daemon=True).start()
+                            new_pos = creature.get_rect
+
+                            self.gfx.draw(
+                                creature.id,
+                                (creature.x, creature.y),
+                                color=creature.color)
+
+                            pygame.display.update([old_pos, new_pos])
+
                         else:
                             # IDLE STEP, RANDOM CHANCE, ETC.?
                             pass
@@ -212,8 +214,8 @@ class LevelScene(BaseScene):
                         creature.active = False
 
                 if not self.player.active:
+                    self.on_update()
                     self.new_turn()
-        threading.Thread(target=self.on_update, daemon=True).start()
 
     def on_update(self):
         self.game.screen.fill((0, 0, 0))
@@ -228,6 +230,13 @@ class LevelScene(BaseScene):
                     pos = self.offset + (x, y)
                     tile = grid[pos]
                     if tile["feature"].visible:
+                        color = (self.tile_fx.get(coord=pos) or
+                                 tile["feature"].color)
+                        draw(tile["feature"].id, (x, y),
+                             color=color,
+                             tiling_index=tile["feature"].tiling_index,
+                             tile_variation=tile["feature"].tile_variation)
+
                         if tile["objects"]:
                             if len(tile["objects"]) > 1:
                                 id = ord("&")
@@ -236,20 +245,16 @@ class LevelScene(BaseScene):
                                 id = tile["objects"][0].id
                                 color = tile["objects"][0].color
                             draw(id, (x, y), color)
-                        else:
-                            color = (self.tile_fx.get(coord=pos) or
-                                     tile["feature"].color)
-                            draw(tile["feature"].id, (x, y),
-                                 color=color)
 
                         for creature in tile['creatures']:
                             draw(creature.id, (x, y),
                                  color=creature.color)
 
                     elif tile["feature"].explored:
-                        self.gfx.draw(
-                            tile["feature"].id, (x, y),
-                            color=GAME_COLORS["darkest_grey"])
+                        draw(tile["feature"].id, (x, y),
+                             color=GAME_COLORS["darkest_grey"],
+                             tiling_index=tile["feature"].tiling_index,
+                             tile_variation=tile["feature"].max_var)
 
             self.gfx.draw_hud()
 
@@ -273,9 +278,6 @@ class LevelScene(BaseScene):
         self.game_state = 'choice'
 
     def quit(self, save=True):
-        threading.Thread(target=self._quit, args=([save])).start()
-
-    def _quit(self, save):
         self.alive = False
         if save:
             self.save_game()

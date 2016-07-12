@@ -1,0 +1,11 @@
+Title:
+    Dungeon Crawl 32x32 tiles
+
+Author:
+    Various
+
+URL:
+    http://opengameart.org/content/dungeon-crawl-32x32-tiles
+	
+License(s):
+    CC0 (http://creativecommons.org/publicdomain/zero/1.0/)

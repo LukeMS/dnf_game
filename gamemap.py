@@ -28,6 +28,11 @@ class Map:
         dic = cls._scene.levels[cls._scene.current_level]['grid']
         return dic[key]['feature']
 
+    @classmethod
+    def keys(cls):
+        dic = cls._scene.levels[cls._scene.current_level]['grid']
+        return dic.keys()
+
 
 class MapMgr:
     """Handles data operations with maps."""
@@ -71,6 +76,66 @@ class MapMgr:
 
     def get_area(self, pos, radius):
         return Area.get(self.grid, pos, radius)
+
+    def get_neighbors(self, pos):
+        lst = []
+        for x in [-1, 0, 1]:
+            for y in [-1, 0, 1]:
+                if x == 0 and y == 0:
+                    continue
+                n = pos + (x, y)
+                if self.valid_tile(n):
+                    lst.append(n)
+        return lst
+
+    def has_same_id(self, t1, t2, invalid_return_value=True):
+        """Compare the id value of two cells.
+
+        t1 = (x1, y1) # a tuple of coordinates
+        t2 = (x2, y2)
+        """
+        try:
+            status = self.grid[t1].id == self.grid[t2].id
+            return status
+        except KeyError:
+            return invalid_return_value
+
+    def set_tile_variation(self, check_func, pos=None):
+        if pos is None:
+            for x, y in self.grid.keys():
+                cell = self.grid[x, y]
+                cell.max_var = check_func(cell.id)
+                # TODO: use perlin noise instead of rnd
+                cell.tile_variation = random.randrange(0, cell.max_var)
+
+    def set_tiling_index(self, pos=None):
+        if pos is None:
+            for x, y in self.grid.keys():
+                self.grid[x, y].tiling_index = self.get_tiling_index(x, y)
+
+    def get_tiling_index(self, x, y):
+        """Calculate the tile index based on its neighbours."""
+        s = 0
+        max_x = self.width - 1
+        max_y = self.height - 1
+
+        # isAboveSame
+        if (y - 1 < 0) or self.has_same_id((x, y), (x, y - 1)):
+            s += 1
+
+        # isLeftSame
+        if (x - 1 < 0) or self.has_same_id((x, y), (x - 1, y)):
+            s += 2
+
+        # isBelowSame
+        if (y + 1 > max_y) or self.has_same_id((x, y), (x, y + 1)):
+            s += 4
+
+        # isRightSame
+        if (x + 1 > max_x) or self.has_same_id((x, y), (x + 1, y)):
+            s += 8
+
+        return s
 
     @staticmethod
     def get_octant(pos, distance, octant=0):
@@ -198,17 +263,6 @@ class MapMgr:
 
         return False
 
-    def get_neighbors(self, pos):
-        lst = []
-        for x in [-1, 0, 1]:
-            for y in [-1, 0, 1]:
-                if x == 0 and y == 0:
-                    continue
-                n = pos + (x, y)
-                if self.valid_tile(n):
-                    lst.append(n)
-        return lst
-
     def distance(self, pos1, pos2):
         if isinstance(pos1, tuple):
             x1, y1 = pos1
@@ -320,7 +374,8 @@ class MapMgr:
         self._scene.set_offset(self.player)
         for y in range(SCREEN_ROWS):
             for x in range(SCREEN_COLS):
-                self.grid[x, y].visible = False
+                pos = self._scene.offset + (x, y)
+                self.grid[pos].visible = False
 
         fov.fieldOfView(self.player.x, self.player.y,
                         MAP_COLS, MAP_ROWS, FOV_RADIUS,
@@ -328,8 +383,8 @@ class MapMgr:
 
     def func_visible(self, x, y):
         self.grid[x, y].visible = True
-        if self.distance(self.player.pos, (x, y)) <= EXPLORE_RADIUS:
-            self.grid[x, y].explored = True
+        # if self.distance(self.player.pos, (x, y)) <= EXPLORE_RADIUS:
+        self.grid[x, y].explored = True
 
     def blocks_sight(self, x, y):
         return self.grid[x, y].block_sight

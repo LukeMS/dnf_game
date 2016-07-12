@@ -25,7 +25,7 @@ class BaseScene:
 
     def on_update(self):
         "Called from the game and defined on the subclass."
-        "Precedes on_draw, so this can be used for you logic"
+        "Precedes on_draw, so this can be used for you game logic."
         pass
 
     def post_update(self):
@@ -85,7 +85,7 @@ class Game:
         self.screen = pygame.display.set_mode(
             (width, height),
             pygame.NOFRAME|pygame.HWSURFACE|pygame.DOUBLEBUF)
-        # pygame.display.set_caption("libtcod tutorial")
+
         self.gfx = gfx.PygameGFX(game=self)
 
         self.show_fps = show_fps

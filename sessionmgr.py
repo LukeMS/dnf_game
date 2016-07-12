@@ -114,6 +114,9 @@ def new_level(self, level=0):
         }
 
         self.map_mgr.place_objects()
+        self.map_mgr.set_tile_variation(
+            check_func=self.gfx.tileset_mgr.get_tile_maximum_variation)
+        self.map_mgr.set_tiling_index()
         self.add_obj(self.player, 'creatures', self.player.pos)
 
     self.map_mgr.set_fov()

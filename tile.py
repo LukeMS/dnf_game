@@ -48,6 +48,9 @@ class Tile:
 
         self.visible = False
         self.explored = False
+        self.tiling_index = 0
+        self.tile_variation = 0
+        self.max_var = 0
 
         x, y = pos
         self.rect = Rect(x, y, TILE_W, TILE_H)

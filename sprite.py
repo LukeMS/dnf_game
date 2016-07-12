@@ -62,6 +62,10 @@ class GameObject:
         self.default_color = self.color
 
     @property
+    def get_rect(self):
+        return tuple((self.x, self.y, TILE_W, TILE_H))
+
+    @property
     def visible(self):
         return self.scene.grid[self.pos].visible
 
@@ -337,7 +341,7 @@ class DngFeature(GameObject):
             'blocks': False
         },
         'stair_down': {
-            'id': "<",
+            'id': ">",
             'color': GAME_COLORS["gray"],
             'blocks': False
         }
