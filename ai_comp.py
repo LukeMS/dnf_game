@@ -1,3 +1,4 @@
+"""Defines monster's behaviours."""
 import random
 from constants import GAME_COLORS
 from constants import CONFUSE_NUM_TURNS

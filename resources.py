@@ -1,3 +1,5 @@
+"""..."""
+
 import sys
 import os
 import random
@@ -9,11 +11,13 @@ from constants import TILESET, TILE_W, TILE_H
 
 
 class Resources(object):
+    """..."""
 
     _names = {}
 
     @classmethod
     def __init__(cls, loader, path, types, weak_ref=True):
+        """..."""
         cls._names = cls._index(path, types)
         if weak_ref:
             cls.cache = weakref.WeakValueDictionary()
@@ -23,6 +27,7 @@ class Resources(object):
 
     @classmethod
     def __getattr__(cls, name):
+        """..."""
         try:
             img = cls.cache[name]
         except KeyError:
@@ -32,10 +37,12 @@ class Resources(object):
 
     @classmethod
     def load(cls, name):
+        """..."""
         return cls.__getattr__(name)
 
     @classmethod
     def _index(cls, path, types):
+        """..."""
         _names = {}
         if sys.version_info >= (3, 5):
             # Python version >=3.5 supports glob
@@ -58,12 +65,16 @@ class Resources(object):
         return _names
 
     def __getstate__(self):
+        """..."""
         return None
 
 
 class Images(Resources):
+    """..."""
+
     @classmethod
     def __init__(cls, path=".", types=['*.jpg', '*.png', '*.bmp']):
+        """..."""
         super().__init__(
             loader=pygame.image.load,
             path=path,
@@ -71,6 +82,7 @@ class Images(Resources):
 
     @classmethod
     def __getattr__(cls, name):
+        """..."""
         try:
             img = cls.cache[name]
         except KeyError:
@@ -79,11 +91,14 @@ class Images(Resources):
         return img
 
 class Tilesets(Images):
+    """..."""
+
     _tilesets = {}
 
     @classmethod
     def __init__(cls, path=os.path.join("resources", "tilesets"),
                  types=['*.jpg', '*.png', '*.bmp']):
+        """..."""
         cls.loader = pygame.image.load
         cls._names = cls._index(path=path, types=types)
 
@@ -109,6 +124,7 @@ class Tilesets(Images):
 
     @classmethod
     def get_tile_maximum_variation(cls, _id):
+        """..."""
         try:
             return cls.tiles[_id][TILE_W, 'default']['var']
         except KeyError:
@@ -116,7 +132,8 @@ class Tilesets(Images):
 
     @classmethod
     def get_tile(cls, _id, color=None,
-        tiling_index=0, tile_variation=0):
+                 tiling_index=0, tile_variation=0):
+        """..."""
         if isinstance(_id, str):
             _id = ord(_id)
 
@@ -135,6 +152,7 @@ class Tilesets(Images):
 
     @classmethod
     def get_set(cls, color=None):
+        """..."""
         __colors = 64
         __factor = 256 // __colors
         if color:
@@ -151,6 +169,7 @@ class Tilesets(Images):
 
     @classmethod
     def color_surface(cls, surface, color):
+        """..."""
         new_surface = surface.copy()
         arr = pygame.surfarray.pixels3d(new_surface)
         arr[:, :, 0] = color[0]
@@ -160,14 +179,17 @@ class Tilesets(Images):
         return new_surface
 
     def __getstate__(self):
+        """..."""
         return None
 
 
 class Fonts(Resources):
+    """..."""
+
     @classmethod
-    def __init__(
-            cls, path=os.path.join("resources", "fonts"),
-            types=['*.ttf']):
+    def __init__(cls, path=os.path.join("resources", "fonts"),
+                 types=['*.ttf']):
+        """..."""
         super().__init__(
             loader=pygame.font.Font,
             path=path,
@@ -176,6 +198,7 @@ class Fonts(Resources):
 
     @classmethod
     def __getattr__(cls, name, size):
+        """..."""
         try:
             font = cls.cache[name, size]
         except KeyError:
@@ -185,7 +208,9 @@ class Fonts(Resources):
 
     @classmethod
     def load(cls, name, size):
+        """..."""
         return cls.__getattr__(name, size)
 
     def __getstate__(self):
+        """..."""
         return None

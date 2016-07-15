@@ -1,3 +1,5 @@
+"""Some constant values used by the game."""
+
 TILE_W = TILE_H = 32
 TILESET = "DejaVuSansMono-Bold32.png"
 

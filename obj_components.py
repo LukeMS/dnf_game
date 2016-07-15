@@ -1,3 +1,5 @@
+"""..."""
+
 import os
 import sys
 
@@ -8,7 +10,7 @@ except:
     import data
 
 from constants import GAME_COLORS
-import data_handler
+from common import data_handler
 
 import effects
 from data.items import items_db
@@ -17,12 +19,14 @@ from interpreter import interpreter
 
 
 class Component:
+    """..."""
 
     owner = None
     _base = {}
     templates = {}
 
     def __init__(self, template, test=False):
+        """..."""
         component = dict(self._base)
         component.update(self.templates[template])
         for key, value in component.items():
@@ -33,11 +37,13 @@ class Component:
 
     @classmethod
     def test(cls):
+        """..."""
         from mylib.data_tree import tk_tree_view
         tk_tree_view(cls.templates)
 
 
 class Item(Component):
+    """..."""
 
     var_name = "item"
     possessor = None
@@ -46,6 +52,7 @@ class Item(Component):
     templates = items_db.keys()
 
     def __init__(self, template):
+        """..."""
         try:
             component = items_db[template]
             self.__dict__.update(component)
@@ -55,6 +62,7 @@ class Item(Component):
             pass
 
     def pick_up(self, getter):
+        """..."""
         scene = self.owner.scene
         msg_log = self.owner.scene.gfx.msg_log
 
@@ -93,6 +101,7 @@ class Item(Component):
         return 'dropped'
 
     def use(self, user, target=None):
+        """..."""
         # special case: if the object has the Equipment component, the "use"
         # action is to equip/unequip
         if self.owner.equipment:
@@ -113,6 +122,7 @@ class Item(Component):
 
 
 class DngFeat(Component):
+    """..."""
 
     var_name = 'dng_feat'
 
@@ -128,6 +138,7 @@ class DngFeat(Component):
     }
 
     def use(self, who):
+        """..."""
         if self.use_function is None:
             self.owner.scene.gfx.msg_log.add(
                 'This ' + self.owner.name + ' cannot be used.')
@@ -151,6 +162,7 @@ class Equipment(Component):
 
     @property
     def possessor(self):
+        """..."""
         return self.owner.item.possessor
 
     def toggle_equip(self):
@@ -196,6 +208,7 @@ class Equipment(Component):
 
 
 class Weapon(Equipment):
+    """..."""
     var_name = "equipment"
     templates = data_handler.get_all_weapons()
 
@@ -261,7 +274,7 @@ class Weapon(Equipment):
 
     @classmethod
     def test(cls):
-
+        """..."""
         class Owner():
             inventory = []
 
@@ -315,6 +328,7 @@ class Armor(Equipment):
 
     @classmethod
     def test(cls):
+        """..."""
 
         class Owner():
             inventory = []
@@ -326,6 +340,8 @@ class Armor(Equipment):
 
 
 class TemplateHandler:
+    """..."""
+
     templates = {}
     for _component in [Item, DngFeat, Weapon, Armor]:
         for cmp_template in _component.templates:
@@ -342,6 +358,7 @@ class TemplateHandler:
 
     @classmethod
     def get(cls, value):
+        """..."""
         return cls.templates[value]
 
 

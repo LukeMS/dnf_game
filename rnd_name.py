@@ -1,13 +1,17 @@
+"""..."""
+
 import os
 
 import random
 
-import packer
+from common import packer
 
 
 class RangedDictionary(dict):
+    """..."""
 
     def __getitem__(self, key):
+        """..."""
         for r in self.keys():
             if key == r:
                 return super().__getitem__(key)
@@ -17,10 +21,11 @@ class RangedDictionary(dict):
 
 
 class NameGen(dict):
+    """..."""
 
     @classmethod
     def __init__(cls):
-
+        """..."""
         if os.path.isdir(os.path.join('.', 'data')):
             _path = os.path.join('.', 'data')
         else:
@@ -104,10 +109,11 @@ class NameGen(dict):
         }
 
     @classmethod
-    def get_name(cls, race=False, gender=False, number=1):
-        if not race:
+    def get_name(cls, race=None, gender=None, number=1):
+        """..."""
+        if race is None:
             race = random.choice(list(cls.name_dict.keys()))
-        if not gender:
+        if gender is None:
             gender = random.choice(['male', 'female'])
 
         name_list = []
@@ -142,6 +148,6 @@ NameGen()
 
 if __name__ == '__main__':
     name_list, surname_list = NameGen.get_name(
-        race='human', gender=False, number=1)
+        race='human', number=1)
     for name, surname in zip(name_list, surname_list):
         print(name, surname)

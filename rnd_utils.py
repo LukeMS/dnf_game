@@ -4,17 +4,29 @@ import random
 
 
 def bubble_sort(_items):
-    """ Implementation of bubble sort """
+    """..."""
     items = list(_items)
 
     for i in range(len(items)):
         for j in range(len(items) - 1 - i):
             if items[j].start > items[j + 1].start:
-                items[j], items[j + 1] = items[j + 1], items[j]     # Swap!
+                items[j], items[j + 1] = items[j + 1], items[j]  # Swap!
     return items
+
+def insertion_sort(_list):
+    """..."""
+    for i in range(1, len(_list)):
+        tmp = _list[i]
+        k = i
+        while k > 0 and tmp.start < _list[k - 1].start:
+            _list[k] = _list[k - 1]
+            k -= 1
+        _list[k] = tmp
+    return _list
 
 
 def test_range100(obj):
+    """..."""
     if isinstance(obj, RangedDictionary):
         try:
             rng_list = sorted(list(obj.keys()))
@@ -54,7 +66,10 @@ def test_range100(obj):
 
 
 class RangedDictionary(dict):
+    """..."""
+
     def __getitem__(self, key):
+        """..."""
         for rng in self.keys():
             if key == rng:
                 return super().__getitem__(key)
@@ -64,6 +79,7 @@ class RangedDictionary(dict):
 
 
 def rnd_dic_rng(dic):
+    """..."""
     min_v = min([key.start for key in dic.keys()])
     max_v = max([key.stop for key in dic.keys()])
     rnd = random.randint(min_v, max_v - 1)
@@ -73,16 +89,17 @@ def rnd_dic_rng(dic):
 
 
 class RandomDictionary:
+    """..."""
 
     @classmethod
     def random(cls):
+        """..."""
         return rnd_dic_rng(cls.dic)
 
 
 class RoomItems(RandomDictionary):
-    """
-    Use RoomItems.random() to get a random item quantity roll.
-    """
+    """Use RoomItems.random() to get a random item quantity roll."""
+
     dic = RangedDictionary({
         range(0, 70): 0,  # min <= x < max: 0 items
         range(70, 90): 1,  # min <= x < max: 1 item
@@ -91,6 +108,7 @@ class RoomItems(RandomDictionary):
 
 
 def rnd_cr_per_level(level):
+    """..."""
     if not os.path.isdir('combat'):
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
     from combat import char_roll
@@ -108,6 +126,7 @@ def rnd_cr_per_level(level):
 
 
 def set_rnd_dic(_class):
+    """..."""
     dic = RangedDictionary()
 
     max_v = 0
@@ -143,10 +162,15 @@ from pprint import pprint
 pprint(d)
 """
 
-if __name__ == '__main__':
-    rnd_potions_grade = RangedDictionary({
-        range(1, 40): (0, 1),
-        range(41, 101): (1, 1)
-    })
+"""
+rnd_potions_grade = RangedDictionary({
+    range(1, 40): (0, 1),
+    range(41, 101): (1, 1)
+})
 
-    test_range100(rnd_potions_grade)
+test_range100(rnd_potions_grade)
+print(rnd_potions_grade)
+"""
+
+if __name__ == '__main__':
+    pass

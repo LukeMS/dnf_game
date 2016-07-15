@@ -1,4 +1,5 @@
 """Test for specific_weapons.py."""
+
 import os
 import sys
 import unittest
@@ -15,7 +16,7 @@ import obj_components
 
 import sprite
 
-import tree_view
+from common.tree_view import tree_view
 
 class TestSpecificWeapon(unittest.TestCase):
 
@@ -63,7 +64,7 @@ class TestSpecificWeapon(unittest.TestCase):
         weapon.item.pick_up(player)
         weapon.item.use(player)
 
-        tree_view.tree_view(weapon, expand=[obj_components.Weapon])
+        tree_view(weapon, expand=[obj_components.Weapon])
 
 
 if __name__ == '__main__':

@@ -1,3 +1,4 @@
+"""Game and graphics logic, mostly."""
 import pygame
 
 from game import BaseScene
@@ -5,30 +6,33 @@ from game import BaseScene
 from game_types import Position
 import main_menu
 
-import game_input
-import sessionmgr
+import level_input
+import level_session_mgr
 import sprite
 
 from constants import SCREEN_ROWS, SCREEN_COLS, GAME_COLORS
 
 
 class LevelScene(BaseScene):
+    """The standard play scene for the game."""
 
     def __init__(self, game, new=True):
+        """..."""
         self.alive = False
         self.game = game
+
         self.offset = Position((0, 0))
         self.scrolling = True
         self.game_state = 'loading'
         self.gfx.msg_log.clear()
+        self.ignore_regular_update = True
 
         if new:
-            self.new_game()
+            level_session_mgr.new_game(self)
         else:
-            self.load_game()
+            level_session_mgr.load_game(self)
 
         self.alive = True
-        self.game.schedule(self.scheculed_update)
 
         if new:
             self.gfx.msg_log.add(
@@ -52,31 +56,23 @@ class LevelScene(BaseScene):
         self.game.disable_fps()
         self.on_update()
 
-    # split input from drawing/logic
-    on_key_press = game_input.on_key_press
-    on_mouse_press = game_input.on_mouse_press
-    on_mouse_scroll = game_input.on_mouse_scroll
-
-    # split sessions management from drawing/logic
-    new_game = sessionmgr.new_game
-    new_level = sessionmgr.new_level
-    load_game = sessionmgr.load_game
-    set_groups = sessionmgr.set_groups
-    save_game = sessionmgr.save_game
-
     @property
     def gfx(self):
+        """..."""
         return self.game.gfx
 
     @property
     def rooms(self):
+        """..."""
         return self.levels[self.current_level]['groups']['rooms']
 
     @property
     def halls(self):
+        """..."""
         return self.levels[self.current_level]['groups']['halls']
 
     def rem_obj(self, obj, _type, pos):
+        """..."""
         level_dict = self.levels[self.current_level]
         if obj in level_dict['grid'][pos][_type]:
             level_dict['grid'][pos][_type].remove(obj)
@@ -84,6 +80,7 @@ class LevelScene(BaseScene):
             level_dict['groups'][_type].remove(obj)
 
     def add_obj(self, obj, _type, pos):
+        """..."""
         level_dict = self.levels[self.current_level]
         if obj not in level_dict['grid'][pos][_type]:
             level_dict['grid'][pos][_type].append(obj)
@@ -91,6 +88,7 @@ class LevelScene(BaseScene):
             level_dict['groups'][_type].append(obj)
 
     def get_obj(self, _type, pos):
+        """..."""
         grid = self.levels[self.current_level]['grid']
 
         if _type == "feature":
@@ -103,6 +101,7 @@ class LevelScene(BaseScene):
 
     def get_all_at_pos(self, pos,
                        _types=["creatures", "objects", "feature"]):
+        """..."""
         grid = self.levels[self.current_level]['grid']
 
         objects = []
@@ -118,6 +117,7 @@ class LevelScene(BaseScene):
 
     def get_nearest_obj(self, _type, pos, max_range=None, visible_only=True,
                         val_callback=None):
+        """..."""
         grid = self.levels[self.current_level]['grid']
         target = None
         target_dist = None
@@ -142,7 +142,7 @@ class LevelScene(BaseScene):
         return target
 
     def validate_pos(self, pos):
-        """Assures that the *relative* position is valid."""
+        """Assure that the *relative* position is valid."""
         x, y = pos
         x = max(0, x)
         x = min(self.max_x - SCREEN_COLS, x)
@@ -153,8 +153,10 @@ class LevelScene(BaseScene):
         return Position((x, y))
 
     def set_offset(self, object):
-        """Centers the view around an object, with minor adjustments to better
-        show map edges."""
+        """Center the view around an object.
+
+        Adjustments are made to better show map edges.
+        """
         x, y = object.pos // 2
 
         x = min(SCREEN_COLS - 1, x)
@@ -166,7 +168,7 @@ class LevelScene(BaseScene):
         self.offset = Position((x, y))
 
     def scroll(self, rel):
-        """scroll map using relative coordinates"""
+        """Scroll map using relative coordinates."""
         if not self.scrolling:
             return
 
@@ -175,6 +177,7 @@ class LevelScene(BaseScene):
         self.offset = self.validate_pos((x, y))
 
     def new_turn(self):
+        """..."""
         self.turn += 1
         print("Turn {}".format(self.turn))
 
@@ -187,6 +190,7 @@ class LevelScene(BaseScene):
             creature.active = True
 
     def handle_turn(self):
+        """..."""
         if self.alive:
             level_dict = self.levels[self.current_level]
             if self.game_state == 'playing':
@@ -251,6 +255,7 @@ class LevelScene(BaseScene):
                          color=creature.color)
 
     def update_tiles(self):
+        """..."""
         if self.alive:
             # loop all tiles
             for y in range(SCREEN_ROWS):
@@ -261,6 +266,7 @@ class LevelScene(BaseScene):
                     self.update_pos(pos, scr_pos)
 
     def update_gui(self):
+        """..."""
         if self.alive:
             self.gfx.draw_hud()
 
@@ -274,30 +280,48 @@ class LevelScene(BaseScene):
             self.gfx.msg.draw("Saving your game (Don't panic!)")
 
     def on_update(self, tiles=True, gui=True):
-        self.game.screen.fill((0, 0, 0))
+        """..."""
+        game = self.game
+        game.screen.fill((0, 0, 0))
 
         if tiles:
             self.update_tiles()
         if gui:
             self.update_gui()
 
-        pygame.display.flip()
+        self.game.draw_fps()
 
-    def scheculed_update(self):
-        if self.game_state not in ['playing', 'loading']:
-            self.on_update()
+        game.display.flip()
 
     def choice(self, title, items, callback):
+        """..."""
         self.gfx.choice.set_list(title, items, callback)
         self.game_state = 'choice'
 
     def quit(self, save=True):
+        """..."""
         self.alive = False
         if save:
-            self.save_game()
-        self.game.unschedule(self.scheculed_update)
+            level_session_mgr.save_game(self)
         self.game.enable_fps()
         self.game.set_scene(scene=main_menu.MainMenu)
+
+    # Input is handled by level_input
+    def on_key_press(self, event):
+        """..."""
+        level_input.on_key_press(self, event)
+
+    def on_mouse_press(self, event):
+        """..."""
+        level_input.on_mouse_press(self, event)
+
+    def on_mouse_scroll(self, event):
+        """..."""
+        level_input.on_mouse_scroll(self, event)
+
+    def new_level(self, level=0):
+        """..."""
+        level_session_mgr.new_level(self, level)
 
 
 if __name__ == '__main__':

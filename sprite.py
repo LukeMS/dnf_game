@@ -1,3 +1,5 @@
+"""..."""
+
 # import traceback  # print(traceback.format_exc())
 import random
 
@@ -13,8 +15,10 @@ from combat import char_roll
 
 
 class Group(pygame.sprite.Group):
+    """..."""
 
     def contain_pos(self, pos):
+        """..."""
         for sprite in self.__iter__():
             xy = (sprite.rect.x, sprite.rect.y)
             if pos == xy:
@@ -23,16 +27,15 @@ class Group(pygame.sprite.Group):
 
 
 class GameObject:
+    """..."""
     # (pygame.sprite.Sprite)
     # this is a generic object: the player, a monster, an item, the stairs...
     # it's always represented by a character on screen.
 
-    def __init__(
-        self, scene, x, y, id, color,
-        name=None, blocks=True, combat=None, ai=None, item=None, active=True,
-        dng_feat=None, equipment=None, test=False,
-        **kwargs
-    ):
+    def __init__(self, scene, x, y, id, color, name=None, blocks=True,
+                 combat=None, ai=None, item=None, active=True,
+                 dng_feat=None, equipment=None, test=False, **kwargs):
+        """..."""
         if not test:
             super().__init__()
 
@@ -63,13 +66,16 @@ class GameObject:
 
     @property
     def get_rect(self):
+        """..."""
         return tuple((self.x, self.y, TILE_W, TILE_H))
 
     @property
     def visible(self):
+        """..."""
         return self.scene.grid[self.pos].visible
 
     def __getstate__(self):
+        """..."""
         d = dict(self.__dict__)
         for key in ['scene']:
             if key in d:
@@ -77,12 +83,13 @@ class GameObject:
         return d
 
     def is_clicked(self):
-        return (
-            pygame.mouse.get_pressed()[0]
-            and self.rect.collidepoint(pygame.mouse.get_pos()))
+        """..."""
+        return (pygame.mouse.get_pressed()[0] and
+                self.rect.collidepoint(pygame.mouse.get_pos()))
 
     # next to a visible tile
     def set_next_to_vis(self):
+        """..."""
         for x in [-1, 0, 1]:
             for y in [-1, 0, 1]:
                 n = self.pos + (x, y)
@@ -93,10 +100,12 @@ class GameObject:
 
     @property
     def pos(self):
+        """..."""
         return Position((self.rect.x, self.rect.y))
 
     @pos.setter
     def pos(self, value):
+        """..."""
         if isinstance(value, tuple):
             self.rect.x, self.rect.y = value
         else:
@@ -104,27 +113,33 @@ class GameObject:
 
     @property
     def x(self):
+        """..."""
         return self.rect.x
 
     @x.setter
     def x(self, value):
+        """..."""
         self.rect.x = value
 
     @property
     def y(self):
+        """..."""
         return self.rect.y
 
     @y.setter
     def y(self, value):
+        """..."""
         self.rect.y = value
 
     def __floordiv__(self, n):
+        """..."""
         if isinstance(n, tuple):
             return Position(int(self.x // n[0]), int(self.y // n[1]))
         elif isinstance(n, (int, float)):
             return Position(int(self.x // n), int(self.y // n))
 
     def move(self, pos=None):
+        """..."""
         if self.name != 'cursor':
             self.scene.rem_obj(self, 'creatures', self.pos)
 
@@ -141,11 +156,13 @@ class GameObject:
         return status
 
     def move_rnd(self):
+        """..."""
         start_pos = self.pos
         next_step = random.choice(self.scene.map_mgr.get_neighbors(start_pos))
         return self.move(next_step)
 
     def move_towards(self, target):
+        """..."""
         start_pos = self.pos
         end_pos = target.pos
 
@@ -162,11 +179,13 @@ class GameObject:
             return self.move_rnd()
 
     def distance_to(self, pos1, pos2=None):
+        """..."""
         if pos2 is None:
             pos2 = self.pos
         return self.scene.map_mgr.distance(pos1.pos, pos2)
 
     def update(self):
+        """..."""
         self.scene.gfx.draw(
             self.id,
             (
@@ -233,6 +252,7 @@ class GameObject:
                 gain_feat()
 
     def increase_stat(self, choice):
+        """..."""
         id, desc = choice
 
         if id == 0:
@@ -253,11 +273,12 @@ class GameObject:
 
 
 class NPC(GameObject):
+    """..."""
 
     path = None
 
     def __init__(self, template, **kwargs):
-
+        """..."""
         kwargs['combat'] = creatures.Beast(model=template)
         kwargs['name'] = kwargs['combat'].name
         kwargs['ai'] = ai_comp.Basic()
@@ -271,18 +292,20 @@ class NPC(GameObject):
         self.inventory = []
 
     def update(self):
+        """..."""
         if self.scene.grid[self.pos].visible:
             super().update()
 
     def update_hp(self):
+        """..."""
         pass
 
 
 class Player(GameObject):
+    """..."""
 
-    def __init__(
-            self, id=ord('@'), color=GAME_COLORS["yellow"], **kwargs):
-
+    def __init__(self, id=ord('@'), color=GAME_COLORS["yellow"], **kwargs):
+        """..."""
         race = kwargs['race'] if 'race' in kwargs else None
         _class = kwargs['_class'] if '_class' in kwargs else None
 
@@ -296,11 +319,13 @@ class Player(GameObject):
                                         self.combat.hit_points_total)
 
     def update_hp(self):
+        """..."""
         # max_hp
         self.scene.gfx.hp_bar.set_value(self.combat.hit_points_current,
                                         self.combat.hit_points_total)
 
     def action(self, dx=0, dy=0, action='std', key=None):
+        """..."""
         pos = self.pos + (dx, dy)
         if action is 'std':
             if any((dx, dy)):
@@ -333,6 +358,7 @@ class Player(GameObject):
 
 
 class DngFeature(GameObject):
+    """..."""
     templates = {
         'stair_up': {
             'id': "<",
@@ -347,6 +373,7 @@ class DngFeature(GameObject):
     }
 
     def __init__(self, template, **kwargs):
+        """..."""
         new_obj = dict(self.templates[template])
         new_obj.update(kwargs)
         if template in obj_components.DngFeat.templates:
@@ -357,8 +384,10 @@ class DngFeature(GameObject):
 
 
 class Item(GameObject):
+    """..."""
 
     def __init__(self, template, test=False, **kwargs):
+        """..."""
         for component in obj_components.TemplateHandler.get(template):
             # item = Item(template),
             # equipment = Weapon(template),
@@ -380,13 +409,13 @@ class Item(GameObject):
             self.scene.add_obj(self, 'objects', self.pos)
 
     def update(self):
+        """..."""
         if self.scene.grid[self.pos].visible:
             super().update()
 
     @classmethod
     def test(cls):
-
-
+        """..."""
         owner = Owner()
 
         item1 = Item("aklys", test=True, x=0, y=0, scene=None)
@@ -413,17 +442,21 @@ class Item(GameObject):
 
 
 class Cursor(GameObject):
+    """..."""
 
     def __init__(self, scene):
+        """..."""
         super().__init__(
             scene=scene, x=1, y=1, id=None, color=None,
             name='cursor')
 
     def move(self, pos, rel_pos):
+        """..."""
         self.pos = rel_pos
         return self.cursor_collision()
 
     def cursor_collision(self):
+        """..."""
         for _type in ['creatures', 'objects', 'feature']:
             target = self.scene.get_obj(_type, self.pos)
             if target and target.visible:

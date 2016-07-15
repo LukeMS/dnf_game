@@ -1,17 +1,16 @@
-"""
-    Author:         Aaron MacDonald
-    Date:           June 14, 2007
+"""Field of view.
 
-    Description:    An implementation of the precise permissive field
-                    of view algorithm for use in tile-based games.
-                    Based on the algorithm presented at
-                    http://roguebasin.roguelikedevelopment.org/
-                      index.php?title=
-                      Precise_Permissive_Field_of_View.
+Author: Aaron MacDonald
+Date: June 14, 2007
 
-    You are free to use or modify this code as long as this notice is
-    included.
-    This code is released without warranty.
+Description:
+    An implementation of the precise permissive field of view algorithm for
+    use in tile-based games. Based on the algorithm presented at:
+    http://roguebasin.roguelikedevelopment.org/
+    index.php?title=Precise_Permissive_Field_of_View.
+
+You are free to use or modify this code as long as this notice is included.
+This code is released without warranty.
 """
 
 import copy

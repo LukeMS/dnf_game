@@ -1,6 +1,7 @@
 import os
 
 import pygame
+"""..."""
 
 import game
 import gui
@@ -8,9 +9,11 @@ import level
 
 
 class MainMenu(game.BaseScene):
+    """..."""
+
     def __init__(self, game):
-        self.game = game
-        self.screen = game.screen
+        """..."""
+        super().__init__(game)
         self.selection = 0
 
         self.create_items()
@@ -20,9 +23,11 @@ class MainMenu(game.BaseScene):
             items=[item["text"] for item in self._menu])
 
     def on_update(self):
+        """..."""
         self.gui.draw()
 
     def create_items(self):
+        """..."""
         self._menu = [
             {
                 "text": "New Game",
@@ -53,11 +58,13 @@ class MainMenu(game.BaseScene):
             self._menu.pop(1)
 
     def change_selection(self, value):
+        """..."""
         self.selection += value
         self.selection = self.selection % len(self._menu)
         self.gui.select(self.selection)
 
     def on_key_press(self, event):
+        """..."""
         if event.key == pygame.K_ESCAPE:
             self.quit()
         if event.key == pygame.K_UP:
@@ -71,10 +78,12 @@ class MainMenu(game.BaseScene):
             )(**self._menu[self.selection]['kwargs'])
 
     def clear(self):
+        """..."""
         self.gui.clear()
         del self.gui
 
     def __getstate__(self):
+        """..."""
         return None
 
 

@@ -1,14 +1,23 @@
+"""..."""
+
+import random
+
 from common import PriorityQueue
 
+
 class PathFinders:
+    """..."""
+
     @staticmethod
     def heuristic(a, b):
+        """..."""
         (x1, y1) = a
         (x2, y2) = b
         return abs(x1 - x2) + abs(y1 - y2)
 
     @staticmethod
     def reconstruct_path(came_from, start, goal):
+        """..."""
         current = goal
         reconstruct_path = [current]
         while current != start:
@@ -19,16 +28,18 @@ class PathFinders:
 
     @classmethod
     def valid_tile(cls, pos):
+        """..."""
         if not (
             pos is not None and
-            0 <= pos[0] < cls.width
-            and 0 <= pos[1] < cls.height
+            0 <= pos[0] < cls.width and
+            0 <= pos[1] < cls.height
         ):
             return False
         return True
 
     @classmethod
     def neighbors(cls, node, goal=None):
+        """..."""
         lst = []
         for x in [-1, 0, 1]:
             for y in [-1, 0, 1]:
@@ -46,10 +57,11 @@ class PathFinders:
 
 
 class GreedySearch(PathFinders):
+    """..."""
+
     @classmethod
     def test(cls):
-        import random
-
+        """..."""
         height = cls.height = 4
         width = cls.width = 4
 
@@ -87,6 +99,7 @@ class GreedySearch(PathFinders):
 
     @classmethod
     def new_search(cls, map_mgr, grid, start_pos, end_pos):
+        """..."""
         cls.map_mgr = map_mgr
         cls.grid = grid
         start = tuple(start_pos)
@@ -100,6 +113,7 @@ class GreedySearch(PathFinders):
 
     @classmethod
     def search(cls, start, goal):
+        """..."""
         frontier = PriorityQueue()
         frontier.put(start, 0)
         came_from = {}
@@ -120,9 +134,11 @@ class GreedySearch(PathFinders):
 
 
 class AStarSearch(PathFinders):
+    """..."""
 
     @classmethod
     def new_search(cls, map_mgr, grid, start_pos, end_pos):
+        """..."""
         cls.map_mgr = map_mgr
         cls.grid = grid
         start = tuple(start_pos)
@@ -137,10 +153,12 @@ class AStarSearch(PathFinders):
 
     @classmethod
     def cost(cls, node):
+        """..."""
         return 1
 
     @classmethod
     def search(cls, start, goal):
+        """..."""
         frontier = PriorityQueue()
         frontier.put(start, 0)
         came_from = {}

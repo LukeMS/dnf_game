@@ -1,3 +1,5 @@
+"""Spell-like effects, used for spells, potions, skills, etc."""
+
 import random
 
 from constants import GAME_COLORS, HEAL_AMOUNT, LIGHTNING_DAMAGE, \

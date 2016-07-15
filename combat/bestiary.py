@@ -5,7 +5,7 @@ import random
 if not os.path.isdir('combat'):
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-import packer
+from common import packer
 
 
 class Bestiary:

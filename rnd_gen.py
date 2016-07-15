@@ -1,3 +1,5 @@
+"""..."""
+
 import random
 
 from pygame import Rect
@@ -8,12 +10,14 @@ from constants import MAX_ROOMS, ROOM_MIN_SIZE, ROOM_MAX_SIZE
 
 
 class RoomRect(Rect):
-    # a rectangle on the map. used to characterize a room.
+    """A rectangle on the map. used to characterize a room."""
 
     def __init__(self, x, y, w, h):
+        """..."""
         super().__init__(x, y, w, h)
 
     def random_point(self, _map, templates=["floor"]):
+        """..."""
         while True:
             x = random.randint(self.x1, self.x2)
             y = random.randint(self.y1, self.y2)
@@ -23,24 +27,30 @@ class RoomRect(Rect):
 
     @property
     def x1(self):
+        """..."""
         return self.x
 
     @property
     def x2(self):
+        """..."""
         return self.x + self.w
 
     @property
     def y1(self):
+        """..."""
         return self.y
 
     @property
     def y2(self):
+        """..."""
         return self.y + self.h
 
     def __hash__(self):
+        """..."""
         return hash((self.x, self.y, self.w, self.h))
 
     def valid(self, width, height):
+        """..."""
         x1 = self.x
         if not 1 <= x1 < width - 1:
             return False
@@ -61,12 +71,16 @@ class RoomRect(Rect):
 
 
 class RndMap:
+    """..."""
+
     def __init__(self):
+        """..."""
         self.map = {}
         self.rooms = []
         self.halls = []
 
     def make_map(self, width, height):
+        """..."""
         self.map = {}
         for y in range(height):
             for x in range(width):
@@ -120,14 +134,14 @@ class RndMap:
         return self.map, self.rooms, self.halls
 
     def create_room(self, room):
-        # go through the tiles in the rectangle and make them passable
+        """Go through the tiles in the rectangle and make them passable"""
         for x in range(room.x1 + 1, room.x2):
             for y in range(room.y1 + 1, room.y2):
                 self.map[x, y] = Tile((x, y), 'floor')
         self.rooms.append(room)
 
     def create_h_tunnel(self, x1, x2, y):
-        # horizontal tunnel
+        """Create a horizontal tunnel."""
         min_x = min(x1, x2)
         max_x = max(x1, x2)
         for x in range(min_x, max_x + 1):
@@ -135,7 +149,7 @@ class RndMap:
         self.halls.append(RoomRect(min_x, y, max_x - min_x, 0))
 
     def create_v_tunnel(self, y1, y2, x):
-        # vertical tunnel
+        """Create a vertical tunnel."""
         min_y = min(y1, y2)
         max_y = max(y1, y2) + 1
         for y in range(min_y, max_y + 1):
@@ -143,6 +157,7 @@ class RndMap:
         self.halls.append(RoomRect(x, min_y, 0, max_y - min_y))
 
     def rnd_open_tile(self):
+        """..."""
         big_list = list(self.rooms)
         big_list.extend(self.halls)
         place = random.choice(big_list)

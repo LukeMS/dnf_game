@@ -1,17 +1,20 @@
+"""Helper functions to open and handle bz2 compressed json file's content."""
+
 import os
 
-import packer
+from common import packer
 
 from data import specific_weapons
 
-STD_WEAPONS = os.path.join(os.path.dirname(__file__), 'data', 'weapons.bzp')
+STD_WEAPONS = os.path.join('data', 'weapons.bzp')
 SPEC_WEAPONS = specific_weapons.SPECIFIC
 
-STD_ARMORS = os.path.join(os.path.dirname(__file__), 'data', 'armors.bzp')
+STD_ARMORS = os.path.join('data', 'armors.bzp')
 SPEC_ARMORS = {}
 
 
 def get_all_weapons():
+    """..."""
     specific_names = list(SPEC_WEAPONS.keys())
 
     std_db = packer.unpack_json(STD_WEAPONS)
@@ -20,7 +23,7 @@ def get_all_weapons():
 
 
 def get_weapon(item):
-
+    """..."""
     specific = None
     if item in SPEC_WEAPONS:
         specific = SPEC_WEAPONS[item]
@@ -36,6 +39,7 @@ def get_weapon(item):
         return db[item]
 
 def get_all_armors():
+    """..."""
     specific_names = list(SPEC_ARMORS.keys())
 
     std_db = packer.unpack_json(STD_ARMORS)
@@ -44,7 +48,7 @@ def get_all_armors():
 
 
 def get_armor(item):
-
+    """..."""
     specific = None
     if item in SPEC_ARMORS:
         specific = SPEC_ARMORS[item]

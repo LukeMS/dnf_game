@@ -1,3 +1,5 @@
+"""..."""
+
 from pygame import Rect
 
 from constants import TILE_W, TILE_H, GAME_COLORS
@@ -5,7 +7,7 @@ from game_types import Position
 
 
 class Tile:
-    """a tile of the map and its properties"""
+    """A tile of the map and its properties."""
 
     _base = {
         "block_mov": False,
@@ -30,9 +32,9 @@ class Tile:
         }
     }
 
-    def __init__(self, pos, template,
-                 block_mov=None, block_sight=None,
+    def __init__(self, pos, template, block_mov=None, block_sight=None,
                  id=None, color=None):
+        """..."""
         self.name = template
 
         component = dict(self._base)
@@ -57,17 +59,21 @@ class Tile:
 
     @property
     def pos(self):
+        """..."""
         return Position((self.rect.x, self.rect.y))
 
     @property
     def x(self):
+        """..."""
         return self.rect.x
 
     @property
     def y(self):
+        """..."""
         return self.rect.y
 
     def __floordiv__(self, n):
+        """..."""
         try:
             return Position(int(self.x // n[0]), int(self.y // n[1]))
         except TypeError:
