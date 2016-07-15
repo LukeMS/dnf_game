@@ -119,6 +119,9 @@ def new_level(self, level=0):
         self.map_mgr.set_tiling_index()
         self.add_obj(self.player, 'creatures', self.player.pos)
 
+    # TODO export map templates
+    # pygame.Image.save(mySurface, 'myimagefile.png')
+
     self.map_mgr.set_fov()
 
     self.player.active = True

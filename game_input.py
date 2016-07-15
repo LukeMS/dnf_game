@@ -39,16 +39,22 @@ def on_key_press(self, event):
         elif event.key in [pygame.K_LEFT, pygame.K_KP4]:
             self.player.action(-1, 0)
 
+        # skip a turn
         elif event.key in [pygame.K_SPACE, pygame.K_KP5]:
             self.player.action()
 
         elif event.key == pygame.K_g:
             if not self.player.action(action='get'):
-                threading.Thread(target=self.on_update, daemon=True).start()
+                pos = self.player.pos
+                scr_pos = self.player.pos - self.offset
+                self.update_pos(pos, scr_pos)
+                self.on_update()
                 return
         elif event.key == pygame.K_u:
             if not self.player.action(action='use'):
-                threading.Thread(target=self.on_update, daemon=True).start()
+                pos = self.player.pos
+                scr_pos = self.player.pos - self.offset
+                self.update_pos(pos, scr_pos)
                 return
         elif event.key == pygame.K_i:
             self.gfx.inventory.set_inventory(self.player)
@@ -61,6 +67,7 @@ def on_key_press(self, event):
         elif event.key == pygame.K_k:
             self.player.combat.receive_dmg(999999, "user")
         elif event.key == pygame.K_s:
+            # TODO: remove threading and use in-game ui
             threading.Thread(target=debug_status.view,
                              kwargs=({"creature": self.player.combat})).start()
             return
@@ -69,7 +76,7 @@ def on_key_press(self, event):
         if event.key in [pygame.K_i, pygame.K_ESCAPE]:
             self.game_state = 'playing'
             self.gfx.inventory.clean_inventory()
-            threading.Thread(target=self.on_update, daemon=True).start()
+            self.on_update()
             return
     elif self.game_state == 'choice':
         if event.key == pygame.K_ESCAPE:
@@ -89,7 +96,6 @@ def on_key_press(self, event):
         if event.key in [pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_SPACE]:
             self.quit(save=False)
 
-    threading.Thread(target=self.on_update, daemon=True).start()
     self.handle_turn()
 
 

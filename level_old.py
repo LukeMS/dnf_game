@@ -157,13 +157,17 @@ class LevelScene(BaseScene):
         show map edges."""
         x, y = object.pos // 2
 
-        x = min(SCREEN_COLS - 1, x)
-        x = max(1, x)
+        if x > SCREEN_COLS // 4 * 3:
+            x += 2
+        elif x < SCREEN_COLS // 4:
+            x -= 2
 
-        y = min(SCREEN_ROWS - 1, y)
-        y = max(1, y)
+        if y > SCREEN_ROWS // 4 * 3:
+            y += 2
+        elif y < SCREEN_ROWS // 4:
+            y -= 2
 
-        self.offset = Position((x, y))
+        self.offset = self.validate_pos((x, y))
 
     def scroll(self, rel):
         """scroll map using relative coordinates"""
@@ -191,20 +195,22 @@ class LevelScene(BaseScene):
             level_dict = self.levels[self.current_level]
             if self.game_state == 'playing':
                 for creature in level_dict['groups']['creatures']:
-                    if creature.ai and creature.active and creature.visible:
-                        old_pos = creature.get_rect
-                        creature.ai.take_turn()
-                        new_pos = creature.get_rect
-
-                        if creature.visible:
+                    if creature.ai and creature.active:
+                        if creature.visible or creature.ai.effect:
+                            old_pos = creature.get_rect
+                            creature.ai.take_turn()
+                            new_pos = creature.get_rect
 
                             self.gfx.draw(
-                                ord(creature.name[0]),
+                                creature.id,
                                 (creature.x, creature.y),
                                 color=creature.color)
 
                             pygame.display.update([old_pos, new_pos])
 
+                        else:
+                            # IDLE STEP, RANDOM CHANCE, ETC.?
+                            pass
                     if creature is not self.player:
                         creature.active = False
 
@@ -212,56 +218,48 @@ class LevelScene(BaseScene):
                     self.on_update()
                     self.new_turn()
 
-    def update_pos(self, pos, scr_pos):
-        """Logic for redrawing specific positions of the screen."""
-        x, y = scr_pos
+    def on_update(self):
+        self.game.screen.fill((0, 0, 0))
+
         grid = self.levels[self.current_level]['grid']
-        tile = grid[pos]
         draw = self.gfx.draw
-
-        if tile["feature"].visible or tile["feature"].explored:
-            draw(tile["feature"].id, (x, y),
-                 color=tile["feature"].color,
-                 tiling_index=tile["feature"].tiling_index,
-                 tile_variation=tile["feature"].tile_variation)
-            fx_color = self.tile_fx.get(coord=pos)
-            if fx_color:
-                draw(ord(','), (x, y), color=fx_color)
-
-            mult = False
-            if len(tile["objects"]) > 1:
-                mult = True
-
-            for obj in tile["objects"]:
-                if isinstance(obj, sprite.DngFeature):
-                    draw(obj.id, (x, y), obj.color)
-
-            if not tile["feature"].visible:
-                self.gfx.draw_fog((x, y))
-            else:
-                if mult:
-                    draw(ord("&"), (x, y), (168, 168, 0))
-                else:
-                    if tile["objects"]:
-                        obj = tile["objects"][0]
-                        draw(obj.id, (x, y), obj.color)
-
-                for creature in tile['creatures']:
-                    draw(creature.id, (x, y),
-                         color=creature.color)
-
-    def update_tiles(self):
         if self.alive:
-            # loop all tiles
+            # loop all tiles, and draw
             for y in range(SCREEN_ROWS):
                 for x in range(SCREEN_COLS):
-                    # draw tile
+                    # draw tile at (x,y)
                     pos = self.offset + (x, y)
-                    scr_pos = (x, y)
-                    self.update_pos(pos, scr_pos)
+                    tile = grid[pos]
+                    if tile["feature"].visible or tile["feature"].explored:
+                        color = (self.tile_fx.get(coord=pos) or
+                                 tile["feature"].color)
+                        draw(tile["feature"].id, (x, y),
+                             color=color,
+                             tiling_index=tile["feature"].tiling_index,
+                             tile_variation=tile["feature"].tile_variation)
 
-    def update_gui(self):
-        if self.alive:
+                        mult = False
+                        if len(tile["objects"]) > 1:
+                            mult = True
+
+                        for obj in tile["objects"]:
+                            if isinstance(obj, sprite.DngFeature):
+                                draw(obj.id, (x, y), obj.color)
+
+                        if not tile["feature"].visible:
+                            self.gfx.draw_fog((x, y))
+                        else:
+                            if mult:
+                                draw(ord("&"), (x, y), (168, 168, 0))
+                            else:
+                                if tile["objects"]:
+                                    obj = tile["objects"][0]
+                                    draw(obj.id, (x, y), obj.color)
+
+                            for creature in tile['creatures']:
+                                draw(creature.id, (x, y),
+                                     color=creature.color)
+
             self.gfx.draw_hud()
 
             if self.game_state == 'inventory':
@@ -272,14 +270,6 @@ class LevelScene(BaseScene):
                 self.gfx.msg.draw("The End?")
         elif self.game_state == 'saving':
             self.gfx.msg.draw("Saving your game (Don't panic!)")
-
-    def on_update(self, tiles=True, gui=True):
-        self.game.screen.fill((0, 0, 0))
-
-        if tiles:
-            self.update_tiles()
-        if gui:
-            self.update_gui()
 
         pygame.display.flip()
 

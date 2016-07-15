@@ -5,7 +5,6 @@ from constants import CONFUSE_NUM_TURNS
 
 class Ai:
     owner = None
-    locked = False
     effect = None
 
 
@@ -20,9 +19,6 @@ class Confused(Ai):
     def take_turn(self):
         # some kind of lock to prevent double calling AND queueing of
         # same objects on a single turn.
-        if self.locked:
-            return
-        self.locked = True
 
         monster = self.owner
 
@@ -50,40 +46,49 @@ class Confused(Ai):
                 'The ' + monster.name + ' is no longer confused!',
                 GAME_COLORS["yellow"])
 
-        self.locked = False
-
 
 class Basic(Ai):
     """AI for a basic monster."""
 
     def take_turn(self):
         """A basic monster takes its turn."""
-
         # some kind of lock to prevent double calling AND queueing of
         # same objects on a single turn.
-        if self.locked:
-            return
-        self.locked = True
-        #
 
         monster = self.owner
+
         target = monster.scene.player
         distance = monster.distance_to(monster.scene.player)
 
-        # move towards player if far away
-        if distance >= 2:  # implement reach here
+        if not monster.visible and not monster.path:
+            monster.move_rnd()
+            print("AI1 (not visible not pathing): monster.move_rnd()")
+        elif distance >= 2:  # implement reach here
             if monster.path:
                 # continue following the path
                 try:
-                    old_path = list[monster.path]
-                    moved = monster.move(monster.path.pop(1))
+                    old_path = list(monster.path)
+                    moved = monster.move(monster.path.pop(2))
                 except:
+                    print("-AI2: failed to follow path")
                     moved = False
                 else:
-                    monster.scene.tile_fx.add(
-                        coord=old_path[2:-1],
-                        color=GAME_COLORS["green"],
-                        duration=1)
+                    print("AI2: following path, dist {}".format(distance))
+                    # show the path remaining
+                    for i, pos in enumerate(old_path[2:-1]):
+
+                        if i == 0:
+                            color = GAME_COLORS["orange"]
+                        elif i == 1:
+                            color = GAME_COLORS["yellow"]
+                        else:
+                            color = GAME_COLORS["green"]
+                        """
+                        monster.scene.tile_fx.add(
+                            coord=[pos],
+                            color=color,
+                            duration=1)
+                        """
             else:
                 moved = False
 
@@ -91,15 +96,23 @@ class Basic(Ai):
                 # find a new path
                 monster.path = monster.move_towards(target=target)
                 try:
+                    """
                     monster.scene.tile_fx.add(
                         coord=monster.path[2:-1],
                         color=GAME_COLORS["green"],
                         duration=1)
+                    """
+                    moved = monster.move(monster.path.pop(2))
+                    print("AI3: new path {}, FROM {}, TO {}, DIST {}".format(
+                        monster.path,
+                        tuple(monster.pos),
+                        tuple(monster.scene.player.pos),
+                        distance))
                 except:
                     monster.scene.pathing = []
+                    monster.move_rnd()
+                    print("AI4: path failed: monster.move_rnd()")
 
         # close enough, attack! (if the player is still alive.)
         elif target.combat.hit_points_current > 0:
             monster.combat.attack(target)
-
-        self.locked = False

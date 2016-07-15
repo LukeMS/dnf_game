@@ -41,6 +41,22 @@ class PygameGFX:
         self.screen.blit(
             source=surface, dest=dest, area=src)
 
+    def draw_fog(self, xy):
+        x, y = xy
+
+        dest = pygame.Rect(x * TILE_W, y * TILE_H, TILE_W, TILE_H)
+
+        # the size of your rect
+        surface = pygame.Surface((32, 32))
+
+        # alpha level
+        surface.set_alpha(191)
+
+        # this fills the entire surface
+        surface.fill((0, 0, 7))
+
+        self.screen.blit(source=surface, dest=dest)
+
     def __getstate__(self):
-        """Class will be ignored by pickle."""
+        """Class will be ignored by pickle when saving/loading."""
         return None

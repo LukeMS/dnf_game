@@ -303,9 +303,8 @@ class Player(GameObject):
     def action(self, dx=0, dy=0, action='std', key=None):
         pos = self.pos + (dx, dy)
         if action is 'std':
-            if not (dx == 0 == dy):
-                # the coordinates the player is moving to/attacking
-
+            if any((dx, dy)):
+                # player is moving to/attacking a direction
                 # try to find an attackable object there
                 target = self.scene.get_obj('creatures', pos)
 
