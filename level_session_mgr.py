@@ -2,7 +2,7 @@
 
 import os
 
-from constants import SCREEN_ROWS, MAP_ROWS, SCREEN_COLS, MAP_COLS
+from constants import MAP_ROWS, MAP_COLS
 import sprite
 import gamemap
 import tile_fx
@@ -32,9 +32,6 @@ def new_game(session):
 
     session.levels = {}
 
-    session.max_y = max(SCREEN_ROWS, MAP_ROWS)
-    session.max_x = max(SCREEN_COLS, MAP_COLS)
-
     session.tile_fx = tile_fx.TileFx(scene=session)
     new_level(session)
 
@@ -44,6 +41,7 @@ def new_game(session):
 def new_level(session, level=0):
     """Create a new map level for the session."""
     session.game_state = 'loading'
+    mode = session.mode
 
     # not the first level
     if len(session.levels) > 0:
@@ -83,8 +81,11 @@ def new_level(session, level=0):
         if map_mgr is None:
             session.map_mgr = gamemap.MapMgr(scene=session)
 
-        grid, rooms, halls = rnd_gen.RndMap().make_map(
-            width=MAP_COLS, height=MAP_ROWS)
+        if mode == 'default':
+            grid, rooms, halls, w, h = rnd_gen.RndMap().make_map()
+        else:
+            # TODO: other map generators
+            pass
 
         for pos, tile in grid.items():
             session.levels[level]['grid'][pos] = {
@@ -94,6 +95,9 @@ def new_level(session, level=0):
                 "changed": False,
                 "owner": None
             }
+
+        session.levels[level]['width'] = w
+        session.levels[level]['height'] = h
 
         session.levels[level]['groups'] = {
             'rooms': rooms,
@@ -175,9 +179,9 @@ def save_game(session):
         current_level['player_pos'] = session.player.pos
         shelf_file['player'] = session.player
 
-        scene = {}
-        for att in ['current_level', 'turn', "max_y", "max_x", "offset"]:
-            scene[att] = getattr(session, att)
+        scene = {att: getattr(session, att)
+                 for att in ['current_level', 'turn', "offset"]}
+
         shelf_file['scene'] = scene
 
         current_level['groups']['creatures'] = []

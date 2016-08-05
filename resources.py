@@ -2,7 +2,6 @@
 
 import sys
 import os
-import random
 
 import pygame
 import weakref
@@ -29,11 +28,11 @@ class Resources(object):
     def __getattr__(cls, name):
         """..."""
         try:
-            img = cls.cache[name]
+            obj = cls.cache[name]
         except KeyError:
-            img = cls.loader(cls._names[name])
-            cls.cache[name] = img
-        return img
+            obj = cls.loader(cls._names[name])
+            cls.cache[name] = obj
+        return obj
 
     @classmethod
     def load(cls, name):
@@ -47,9 +46,9 @@ class Resources(object):
         if sys.version_info >= (3, 5):
             # Python version >=3.5 supports glob
             import glob
-            for img_type in types:
+            for obj_type in types:
                 for filename in glob.iglob(
-                    (path + '/**/' + img_type), recursive=True
+                    (path + '/**/' + obj_type), recursive=True
                 ):
                     f_base = os.path.basename(filename)
                     _names.update({f_base: filename})
@@ -58,8 +57,8 @@ class Resources(object):
             import fnmatch
 
             for root, dirnames, filenames in os.walk(path):
-                for img_type in types:
-                    for f_base in fnmatch.filter(filenames, img_type):
+                for obj_type in types:
+                    for f_base in fnmatch.filter(filenames, obj_type):
                         filename = os.path.join(root, f_base)
                         _names.update({f_base: filename})
         return _names
@@ -197,12 +196,21 @@ class Fonts(Resources):
             types=types,
             weak_ref=False)
 
+    """
+    @classmethod
+    def _index(cls, path, types):
+        _names = super()._index(path, types)
+        print(_names)
+        return _names
+    """
+
     @classmethod
     def __getattr__(cls, name, size):
         """..."""
         try:
             font = cls.cache[name, size]
         except KeyError:
+            # print("Loading font", cls._names[name])
             font = cls.loader(cls._names[name], size)
             cls.cache[name, size] = font
         return font

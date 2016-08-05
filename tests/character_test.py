@@ -11,6 +11,7 @@ except ImportError:
 
 import sprite
 
+from common.tree_view import tree_view
 
 class TestCharacter(unittest.TestCase):
 
@@ -49,7 +50,6 @@ class TestCharacter(unittest.TestCase):
         pass
 
     def test_all(self):
-        import tree_view
         d = {}
         for _class in combat.char_roll.classes:
             for race in combat.char_roll.races:
@@ -60,15 +60,14 @@ class TestCharacter(unittest.TestCase):
         for character in d.keys():
             feats = d[character].__dict__.pop('feats')
             skills = d[character].__dict__.pop('skills')
-            d[character] = tree_view.Tree(d[character])
-            d[character]['feats'] = tree_view.Tree(
+            d[character] = tree_view(d[character])
+            d[character]['feats'] = tree_view(
                 feats, expand=[combat.feats.FeatNode])
-            d[character]['skills'] = tree_view.Tree(
+            d[character]['skills'] = tree_view(
                 skills, expand=[combat.skills.SkillNode])
 
-        from mylib.data_tree import tk_tree_view
 
-        tk_tree_view(d)
+        tree_view(d)
 
 
 if __name__ == '__main__':

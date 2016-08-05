@@ -9,17 +9,22 @@ import main_menu
 import level_input
 import level_session_mgr
 import sprite
+import resources
 
-from constants import SCREEN_ROWS, SCREEN_COLS, GAME_COLORS
+from constants import GAME_COLORS, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_COLS, \
+    SCREEN_ROWS, TILE_W, TILE_H
 
 
 class LevelScene(BaseScene):
     """The standard play scene for the game."""
 
-    def __init__(self, game, new=True):
+    def __init__(self, game, new=True, character=None, mode='default'):
         """..."""
-        self.alive = False
         self.game = game
+        self.create_char = character
+        self.mode = mode
+
+        self.alive = False
 
         self.offset = Position((0, 0))
         self.scrolling = True
@@ -71,6 +76,26 @@ class LevelScene(BaseScene):
         """..."""
         return self.levels[self.current_level]['groups']['halls']
 
+    @property
+    def width(self):
+        """..."""
+        return self.levels[self.current_level]['width']
+
+    @property
+    def height(self):
+        """..."""
+        return self.levels[self.current_level]['height']
+
+    @property
+    def max_x(self):
+        """..."""
+        return max(SCREEN_COLS, self.width)
+
+    @property
+    def max_y(self):
+        """..."""
+        return max(SCREEN_ROWS, self.height)
+
     def rem_obj(self, obj, _type, pos):
         """..."""
         level_dict = self.levels[self.current_level]
@@ -99,8 +124,9 @@ class LevelScene(BaseScene):
 
         return None
 
-    def get_all_at_pos(self, pos,
-                       _types=["creatures", "objects", "feature"]):
+    def get_all_at_pos(
+            self, pos, _types=["creatures", "objects", "feature"]
+    ):
         """..."""
         grid = self.levels[self.current_level]['grid']
 
@@ -115,8 +141,9 @@ class LevelScene(BaseScene):
 
         return objects
 
-    def get_nearest_obj(self, _type, pos, max_range=None, visible_only=True,
-                        val_callback=None):
+    def get_nearest_obj(
+        self, _type, pos, max_range=None, visible_only=True, val_callback=None
+    ):
         """..."""
         grid = self.levels[self.current_level]['grid']
         target = None
@@ -149,6 +176,7 @@ class LevelScene(BaseScene):
 
         y = max(0, y)
         y = min(self.max_y - SCREEN_ROWS, y)
+        print("pos val")
 
         return Position((x, y))
 
@@ -157,15 +185,17 @@ class LevelScene(BaseScene):
 
         Adjustments are made to better show map edges.
         """
-        x, y = object.pos // 2
+        x = object.x - SCREEN_COLS // 2
+        y = object.y - SCREEN_ROWS // 2
 
-        x = min(SCREEN_COLS - 1, x)
+        x = min(self.max_x - SCREEN_COLS, x)
         x = max(1, x)
 
-        y = min(SCREEN_ROWS - 1, y)
+        y = min(self.max_y - SCREEN_ROWS, y)
         y = max(1, y)
 
         self.offset = Position((x, y))
+        print("Player {}=={}, offset {}=={}, SCREEN_COLS {}, SCREEN_ROWS {}".format(self.player.pos, object.pos, self.offset, (x, y), SCREEN_COLS, SCREEN_ROWS))
 
     def scroll(self, rel):
         """Scroll map using relative coordinates."""
@@ -232,10 +262,6 @@ class LevelScene(BaseScene):
             if fx_color:
                 draw(ord(','), (x, y), color=fx_color)
 
-            mult = False
-            if len(tile["objects"]) > 1:
-                mult = True
-
             for obj in tile["objects"]:
                 if isinstance(obj, sprite.DngFeature):
                     draw(obj.id, (x, y), obj.color)
@@ -243,7 +269,7 @@ class LevelScene(BaseScene):
             if not tile["feature"].visible:
                 self.gfx.draw_fog((x, y))
             else:
-                if mult:
+                if len(tile["objects"]) > 1:
                     draw(ord("&"), (x, y), (168, 168, 0))
                 else:
                     if tile["objects"]:
@@ -306,9 +332,8 @@ class LevelScene(BaseScene):
         self.game.enable_fps()
         self.game.set_scene(scene=main_menu.MainMenu)
 
-    # Input is handled by level_input
     def on_key_press(self, event):
-        """..."""
+        """Input is handled by level_input."""
         level_input.on_key_press(self, event)
 
     def on_mouse_press(self, event):
@@ -323,10 +348,37 @@ class LevelScene(BaseScene):
         """..."""
         level_session_mgr.new_level(self, level)
 
+    def screenshot(self, fname=None, map_cols=None, map_rows=None):
+        """..."""
+        map_cols = map_cols or self.width
+        map_rows = map_rows or self.height
+        fname = fname or ("{}-{}.png".format(__file__, self.mode))
+
+        canvas = pygame.Surface((TILE_W * map_cols, TILE_H * map_rows))
+
+        grid = self.levels[self.current_level]['grid']
+
+        for x in range(0, map_cols):
+            for y in range(0, map_rows):
+                tile = grid[(x, y)]
+                id = tile.id
+                color = tile.color
+                tiling_index = tile.tiling_index
+                tile_variation = tile.tile_variation
+
+                dest = pygame.Rect(x * TILE_W, y * TILE_H, TILE_W, TILE_H)
+
+                src, surface = resources.Tilesets.get_tile(
+                    id, color, tiling_index, tile_variation)
+
+                canvas.blit(
+                    source=surface, dest=dest, area=src)
+
+        pygame.image.save(canvas, fname)
 
 if __name__ == '__main__':
     from game import Game
-    from constants import LIMIT_FPS, SCREEN_WIDTH, SCREEN_HEIGHT
+    from constants import LIMIT_FPS
     Game(
         scene=LevelScene, framerate=LIMIT_FPS,
         width=SCREEN_WIDTH, height=SCREEN_HEIGHT)

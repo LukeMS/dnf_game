@@ -9,13 +9,19 @@ import shelve
 
 import json
 
+objects = {
+    "armors": {
+        "source": os.path.join('..', '..', 'etc', 'armors.json'),
+        "dest": os.path.join('..', '.', 'data', 'armors.bzp')},
+    "weapons": {
+        "source": os.path.join('..', '..', 'etc', 'weapons.json'),
+        "dest": os.path.join('..', '.', 'data', 'weapons.bzp')},
+    "descriptions": {
+        "source": os.path.join('..', '..', 'etc', 'descriptions',
+                               'descriptions.json'),
+        "dest": os.path.join('..', '.', 'data', 'descriptions.bzp')},
 
-ARMORS = (os.path.join('..', '..', 'etc', 'armors.json'),
-          os.path.join('..', '.', 'data', 'armors.bzp'))
-WEAPONS = (os.path.join('..', '..', 'etc', 'weapons.json'),
-           os.path.join('..', '.', 'data', 'weapons.bzp'))
-JOBJ = os.path.join('..', '.', 'data', 'weapons.json')
-BZOBJ = os.path.join('..', '.', 'data', 'weapons.bzp')
+}
 
 
 def split_path(string):
@@ -25,7 +31,7 @@ def split_path(string):
     return path, no_ext_f
 
 
-def pack_json(source=JOBJ, dest=BZOBJ):
+def pack_json(source, dest):
     """..."""
     with open(source) as f:
         bin_data = bz2.compress(pickle.dumps(json.load(f)))
@@ -33,24 +39,41 @@ def pack_json(source=JOBJ, dest=BZOBJ):
         f.write(bin_data)
 
 
-def unpack_json(fname=BZOBJ):
+def unpack_json(fname):
     """..."""
     with open(fname, 'rb') as f:
         data = pickle.loads(bz2.decompress(f.read()))
     return data
 
 
-def write_json(data, obj=JOBJ):
+def write_json(data, obj):
     """..."""
     with open(obj, 'w') as outfile:
         json.dump(data, outfile, indent=4)
 
 
+def zshelf_open(filename, flag='c'):
+    """..."""
+    return DbfilenameZShelf(filename, flag)
+
+
+def zshelf_unpack(data):
+    """Decompress and unpickle data."""
+    return pickle.loads(bz2.decompress(data))
+
+
+def zshelf_pack(data):
+    """Compress and pickled data."""
+    return bz2.compress(pickle.dumps(data))
+
+
 class ZShelf(shelve.Shelf):
+    """Simple shelf subclassing integrating bz2 handling.
+
+    It is used to compress/uncompress the saved pickles with bz2, generating
+    smaller saved game files.
     """
-    A simple subclassing of shelve.Shelf to compress/uncompress the saved
-    pickles with bz2, generating smaller saved game files.
-    """
+
     def __getitem__(self, key):
         """..."""
         try:
@@ -78,18 +101,7 @@ class DbfilenameZShelf(ZShelf):
         super().__init__(dbm.open(filename, flag))
 
 
-def zshelf_open(filename, flag='c'):
-    """..."""
-    return DbfilenameZShelf(filename, flag)
-
-def zshelf_unpack(data):
-    """Decompress and unpickle data."""
-    return pickle.loads(bz2.decompress(data))
-
-def zshelf_pack(data):
-    """Compress and pickled data."""
-    return bz2.compress(pickle.dumps(data))
-
-
 if __name__ == '__main__':
-    pass
+    obj = "descriptions"
+    pack_json(source=objects[obj]['source'],
+              dest=objects[obj]['dest'])

@@ -79,6 +79,116 @@ class BaseScene:
         return None
 
 
+class MultiLayer(BaseScene):
+    """..."""
+
+    def __init__(self, game, draw_all=False):
+        """..."""
+        super().__init__(game)
+
+        self.draw_all = draw_all
+        self.layers = []
+
+    def insert_layer(self, obj):
+        layer = obj(parent=self)
+        self.layers.append(layer)
+
+    def remove_layer(self, obj):
+        self.layers.remove(obj)
+
+    def on_update(self):
+        """..."""
+        if self.draw_all:
+            for layer in self.layers:
+                layer.on_update()
+        else:
+            self.layers[-1].on_update()
+
+    def post_update(self):
+        """..."""
+        if self.draw_all:
+            for layer in self.layers:
+                layer.post_update()
+        else:
+            self.layers[-1].post_update()
+
+
+    def on_key_press(self, event):
+        """..."""
+        self.layers[-1].on_key_press(event)
+
+
+class Layer(BaseScene):
+    """..."""
+    bottom_color = (15, 15, 31)
+    top_color = (0, 0, 0)
+
+    def __init__(self, parent):
+        """..."""
+        self.parent = parent
+
+    @property
+    def game(self):
+        """..."""
+        return self.parent.game
+
+    @property
+    def gfx(self):
+        """..."""
+        return self.parent.game.gfx
+
+    def remove(self):
+        """..."""
+        self.parent.remove_layer(self)
+
+    def create_solid_surface(self, color=(0, 0, 0)):
+        """..."""
+        if getattr(self, 'width', None) is None:
+            if getattr(self, 'screen', None) is None:
+                self.screen = pygame.display.get_surface()
+            self.height = self.screen.get_height()
+            self.width = self.screen.get_width()
+
+        self.surface = pygame.Surface((self.width, self.height))
+        self.surface.fill(color)
+
+    def create_gradient(self):
+        """..."""
+        bottom_color = self.bottom_color
+        top_color = self.top_color
+
+        if getattr(self, 'width', None) is None:
+            if getattr(self, 'screen', None) is None:
+                self.screen = pygame.display.get_surface()
+            self.height = self.screen.get_height()
+            self.width = self.screen.get_width()
+
+        self.surface = pygame.Surface((self.width, self.height))
+
+        ar = pygame.PixelArray(self.surface)
+
+        # Do some easy gradient effect.
+        for y in range(self.height):
+
+            r = int((bottom_color[0] - top_color[0]) *
+                    y / self.height +
+                    top_color[0])
+            g = int((bottom_color[1] - top_color[1]) *
+                    y / self.height +
+                    top_color[1])
+            b = int((bottom_color[2] - top_color[2]) *
+                    y / self.height +
+                    top_color[2])
+
+            ar[:, y] = (r, g, b)
+        del ar
+
+    def flip_surface(self):
+        """..."""
+        ar = pygame.PixelArray(self.surface)
+        ar[:] = ar[:, ::-1]
+        del ar
+
 class Game:
     """The game engine.
 
@@ -172,7 +282,6 @@ class Game:
             pygame.display.flip()
 
             self.current_scene.post_update()
-            # self.LOCK.release()
 
     def draw_fps(self):
         """Draw the fps display."""

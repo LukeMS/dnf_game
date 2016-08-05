@@ -32,9 +32,10 @@ class GameObject:
     # this is a generic object: the player, a monster, an item, the stairs...
     # it's always represented by a character on screen.
 
-    def __init__(self, scene, x, y, id, color, name=None, blocks=True,
-                 combat=None, ai=None, item=None, active=True,
-                 dng_feat=None, equipment=None, test=False, **kwargs):
+    def __init__(
+            self, scene, x, y, id, color, name=None, blocks=True,
+            combat=None, ai=None, item=None, active=True,
+            dng_feat=None, equipment=None, test=False, **kwargs):
         """..."""
         if not test:
             super().__init__()
@@ -306,10 +307,11 @@ class Player(GameObject):
 
     def __init__(self, id=ord('@'), color=GAME_COLORS["yellow"], **kwargs):
         """..."""
-        race = kwargs['race'] if 'race' in kwargs else None
-        _class = kwargs['_class'] if '_class' in kwargs else None
+        if 'combat' not in kwargs:
+            race = kwargs['race'] if 'race' in kwargs else None
+            _class = kwargs['_class'] if '_class' in kwargs else None
 
-        kwargs['combat'] = creatures.Character(race=race, _class=_class)
+            kwargs['combat'] = creatures.Character(race=race, _class=_class)
 
         super().__init__(
             id=id, color=color, **kwargs)
@@ -355,6 +357,11 @@ class Player(GameObject):
 
         self.active = False
         return True
+
+    def move(self, pos=None):
+        status = super().move(pos)
+        self.scene.set_offset(self)
+        return status
 
 
 class DngFeature(GameObject):

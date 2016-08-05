@@ -131,10 +131,9 @@ def on_mouse_scroll(level, event):
     """Handle mouse scroll input for the level scene."""
     if level.game_state == 'playing':
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LCTRL]:
-            ctrl = True
-        else:
-            ctrl = False
+
+        ctrl = keys[pygame.K_LCTRL]
+
         if event.button == 4:
             if ctrl:
                 level.scroll((-1, 0))

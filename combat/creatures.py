@@ -5,8 +5,7 @@ import os
 import random
 
 if not os.path.isdir('combat'):
-    if os.path.isdir(os.path.join('..')):
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import combat.char_roll
 from combat.bestiary import Bestiary
@@ -196,11 +195,24 @@ class Creature:
         self.owner.update_hp()
 
     def change_gender(self, value=None):
+        """Change the gender of the creature.
+
+        If the current gender is None (such as in new creatures), the value
+        is randomly defined.
+        """
+
+        genders = ["male", "female"]
         if value is None:
             if self.race == 'changeling':
                 self.gender = "female"
+            elif self.gender == "male":
+                    self.gender = "female"
+            elif self.gender == "female":
+                    self.gender = "male"
             else:
-                self.gender = random.choice(["male", "female"])
+                self.gender = random.choice(genders)
+        elif value in genders:
+            self.gender = value
 
     def change_age(self, value=None):
         if value is None:  # make it random
@@ -345,8 +357,20 @@ class Character(Creature):
         self.change_height_weight()
 
     def change_class(self, _class=None):
+        """Change the class of the creature.
+
+        If the current class is None (such as in new creatures), the value
+        is randomly defined.
+        """
         if _class is None:
             self._class = random.choice(list(self.classes))
+        elif isinstance(_class, int):
+            classes = sorted(self.classes)
+            index = classes.index(
+                self._class)
+            index += _class
+            index = index % len(classes)
+            self._class = classes[index]
         else:
             if _class not in self.classes:
                 raise ValueError(_class)
@@ -363,6 +387,14 @@ class Character(Creature):
     def change_alignment(self, value=None):
         if value is None:
             self.alignment = random.choice(self.alignments)
+        elif isinstance(value, int):
+            alignments = self.alignments
+            index = alignments.index(
+                self.alignment)
+            index += value
+            index = index % len(alignments)
+            self.alignment = alignments[index]
+
 
     def change_name(self, value=None):
         if value is None:
@@ -375,6 +407,7 @@ class Character(Creature):
                     self.name = self.first_name[0] + ' ' + self.surname[0]
                 else:
                     self.name = self.first_name[0]
+                self.name = self.name.rstrip()
                 self.fancy_name = self.name
 
     def set_hit_points(self):

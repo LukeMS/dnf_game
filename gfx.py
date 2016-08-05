@@ -48,7 +48,7 @@ class PygameGFX:
         dest = pygame.Rect(x * TILE_W, y * TILE_H, TILE_W, TILE_H)
 
         # the size of your rect
-        surface = pygame.Surface((32, 32))
+        surface = pygame.Surface((TILE_W, TILE_H))
 
         # alpha level
         surface.set_alpha(191)

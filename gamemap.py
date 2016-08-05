@@ -8,8 +8,8 @@ from pathfinder import AStarSearch, GreedySearch
 from rnd_utils import RoomItems, rnd_cr_per_level  # , ItemTypes, MonsterTypes
 from combat.bestiary import Bestiary
 
-from constants import MAP_COLS, MAP_ROWS, MAX_ROOM_MONSTERS
-from constants import EXPLORE_RADIUS, FOV_RADIUS, SCREEN_ROWS, SCREEN_COLS
+from constants import MAX_ROOM_MONSTERS
+from constants import FOV_RADIUS, SCREEN_ROWS, SCREEN_COLS
 
 
 class Map:
@@ -66,17 +66,17 @@ class MapMgr:
 
     @property
     def width(self):
-        return MAP_COLS
+        return self._scene.width
 
     @property
     def height(self):
-        return MAP_ROWS
+        return self._scene.height
 
     def get_cell_at_pos(self, pos):
         return self.grid[pos]
 
     def get_area(self, pos, radius):
-        return Area.get(self.grid, pos, radius)
+        return Area.get(self.grid, pos, radius, self.width, self.height)
 
     def get_neighbors(self, pos):
         lst = []
@@ -355,8 +355,13 @@ class MapMgr:
                     self._scene.add_obj(self.player, 'creatures',
                                         self.player.pos)
                 else:
-                    self.player = sprite.Player(
-                        scene=self._scene, x=x, y=y)
+                    if self._scene.create_char is not None:
+                        self.player = sprite.Player(
+                            scene=self._scene, x=x, y=y,
+                            combat=self._scene.create_char)
+                    else:
+                        self.player = sprite.Player(
+                            scene=self._scene, x=x, y=y)
 
                 x, y = self.new_xy(room, [self.player.pos])
                 template = "stair_down"
@@ -375,13 +380,13 @@ class MapMgr:
 
     def set_fov(self):
         self._scene.set_offset(self.player)
-        for y in range(SCREEN_ROWS):
-            for x in range(SCREEN_COLS):
-                pos = self._scene.offset + (x, y)
-                self.grid[pos].visible = False
+        offset = self._scene.offset
+
+        [setattr(self.grid[offset + (x, y)], "visible", False)
+         for x in range(SCREEN_COLS) for y in range(SCREEN_ROWS)]
 
         fov.fieldOfView(self.player.x, self.player.y,
-                        MAP_COLS, MAP_ROWS, FOV_RADIUS,
+                        self._scene.width, self._scene.height, FOV_RADIUS,
                         self.func_visible, self.blocks_sight)
 
     def func_visible(self, x, y):
@@ -396,7 +401,7 @@ class MapMgr:
 class Area:
 
     @classmethod
-    def get(cls, grid, pos, radius):
+    def get(cls, grid, pos, radius, map_width, map_height):
         cls.grid = grid
 
         x, y = pos
@@ -404,7 +409,7 @@ class Area:
         cls.area = []
 
         fov.fieldOfView(
-            x, y, MAP_COLS, MAP_ROWS,
+            x, y, map_width, map_height,
             radius, cls.func_visit, cls.func_blocked
         )
 

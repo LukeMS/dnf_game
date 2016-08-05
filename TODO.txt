@@ -1,0 +1,9 @@
+- Use proper start/end setting points to place stairs;
+- Create cheat shortcut to go up/down for testing;
+- CREATE: Battle mode (single room map);
+- Battle mode: enable selection of cr/char or creature;
+- level.py: Convert game_states non-exclusive reusable layers.
+
+Done:
+- Main Menu: create entries for Description and Battle Mode;
+- Character creation: deliver the character to the game;

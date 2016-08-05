@@ -1,27 +1,26 @@
 """Dungeon generator.
 
-- split the grid of 66x66 in 5-9 rows and 5-9 cols of
-SECTOR_SIZExSECTOR_SIZE sections;
-- for each section:
-    > define room size:
-        w= rnd(min_size, max_size)
-        h= rnd(min_size, max_size)
-    > define NW corner:
-        x = rnd(section.x0, section.x1 - w)
-        y = rnd(section.y0, section.y1 - h)
-    > validate room;
-    > place room if valid.
-- pick a random room and define it as start and place up stairs.
-- choose an unconnected random room and try to connect to it by digging a
-hall that do not overlaps or touches other rooms (a* pathfinding). Use reduced
-movement cost for hall tiles (to avoid redundant halls).
-- repeat previous step until all are connected.
-- make the last room used as end and place down stairs.
+    - split the grid of 66x66 in 5-9 rows and 5-9 cols of
+    SECTOR_SIZExSECTOR_SIZE sections;
+    - for each section:
+        > define room size:
+            w= rnd(min_size, max_size)
+            h= rnd(min_size, max_size)
+        > define NW corner:
+            x = rnd(section.x0, section.x1 - w)
+            y = rnd(section.y0, section.y1 - h)
+        > validate room;
+        > place room if valid.
+    - pick a random room and define it as start and place up stairs.
+    - choose an unconnected random room and try to connect to it by digging a
+    hall that do not overlaps or touches other rooms (a* pathfinding). Use reduced
+    movement cost for hall tiles (to avoid redundant halls).
+    - repeat previous step until all are connected.
+    - make the last room used as end and place down stairs.
 """
 
 
 import random
-import math
 
 from map_gen import rnd_gen
 from tile import Tile
@@ -31,20 +30,28 @@ from constants import ROOM_MIN_SIZE, ROOM_MAX_SIZE
 
 import heapq
 
+
+SECTOR_SIZE = 16
+
+
 class PriorityQueue:
+    """..."""
+
     def __init__(self):
+        """..."""
         self.elements = []
 
     def empty(self):
+        """..."""
         return len(self.elements) == 0
 
     def put(self, item, priority):
+        """..."""
         heapq.heappush(self.elements, (priority, item))
 
     def get(self):
+        """..."""
         return heapq.heappop(self.elements)[1]
-
-SECTOR_SIZE = 16
 
 
 class SectorRect(rnd_gen.RoomRect):
@@ -72,11 +79,12 @@ class RndMap(rnd_gen.RndMap):
         """
         sectors_wide = random.randint(4, 6)
         sectors_high = random.randint(3, 5)
-        for x in range(sectors_wide):
-            for y in range(sectors_high):
-                self.sectors[(x, y)] = SectorRect(
-                    x=x * SECTOR_SIZE, y=y * SECTOR_SIZE,
-                    w=SECTOR_SIZE, h=SECTOR_SIZE)
+
+        self.sectors = {
+            (x, y): SectorRect(x=x * SECTOR_SIZE, y=y * SECTOR_SIZE,
+                               w=SECTOR_SIZE, h=SECTOR_SIZE)
+            for x in range(sectors_wide)
+            for y in range(sectors_high)}
 
         map_width = sectors_wide * SECTOR_SIZE
         map_height = sectors_high * SECTOR_SIZE
@@ -156,17 +164,18 @@ class RndMap(rnd_gen.RndMap):
                 room_tiles = reg_convex_poly_room(sides, r, 360)
                 # x, y = room.center - [r, r]
                 x, y = room.left, room.top
+
                 for r_pos, tile in room_tiles.items():
                     if tile == ".":
                         pos = (r_pos[0] + x, r_pos[1] + y)
                         self.map[pos] = Tile(pos, 'floor')
             else:
-                for x in range(room.x1, room.x2 + 1):
-                    for y in range(room.y1, room.y2 + 1):
-                        self.map[x, y] = Tile((x, y), 'floor')
+                [self.map.__setitem__((x, y), Tile((x, y), 'floor'))
+                 for x in range(room.x1, room.x2 + 1)
+                 for y in range(room.y1, room.y2 + 1)]
 
-        self.map[start.random_point(self.map)].id = ord("<")
-        self.map[end.random_point(self.map)].id = ord(">")
+        # self.map[start.random_point(self.map)].id = ord("<")
+        # self.map[end.random_point(self.map)].id = ord(">")
 
         return start, end
 
@@ -207,19 +216,17 @@ class RndMap(rnd_gen.RndMap):
 
             previous = room
 
-        [setattr(self.map[pos], "id", ord("."))
-            for hall in self.halls
-            for pos in hall
-            if self.map[pos].id == ord("/")]
+        [self.map.__setitem__(pos, Tile(pos, 'floor'))
+         for hall in self.halls
+         for pos in hall
+         if self.map[pos].id != ord("#")]
 
     def make_map(self, *args, **kwargs):
         """..."""
         self.width, self.height = self.create_sectors()
         # fill the map with walls
-        self.map = {}
-        for y in range(self.height):
-            for x in range(self.width):
-                self.map[x, y] = Tile((x, y), 'wall')
+        self.map = {(x, y): Tile((x, y), 'wall')
+                    for x in range(self.width) for y in range(self.height)}
 
         self.start, self.end = self.create_rooms()
 
@@ -242,7 +249,15 @@ class RndMap(rnd_gen.RndMap):
 
         self.create_halls()
 
-        return self.map, self.rooms, self.halls
+        return self.map, self.rooms, self.halls, self.width, self.height
+
+    def __enter__(self):
+        """..."""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """..."""
+        del self
 
 
 def heuristic(a, b):
@@ -318,7 +333,9 @@ def a_star_search(grid, start, goal, width, height):
 
     return reconstruct_path(came_from, start, goal)
 
+
 def img_preview(m):
+    """..."""
     import PIL.Image
 
     table = {

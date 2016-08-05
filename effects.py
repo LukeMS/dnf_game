@@ -62,10 +62,8 @@ def cast_fireball(who, target):
     for pos in area:
         for creature in level_dict['grid'][pos]['creatures']:
             if creature.combat:
-                msg_log.add(
-                    'The ' + creature.name + ' gets burned for ' +
-                    str(FIREBALL_DAMAGE) + ' hit points.',
-                    GAME_COLORS["orange"])
+                msg_log.add("The {} gets burned for {} hit points.".format(
+                    creature.name, FIREBALL_DAMAGE), GAME_COLORS["orange"])
                 creature.combat.receive_dmg(FIREBALL_DAMAGE, source=who)
 
     who.scene.tile_fx.add(

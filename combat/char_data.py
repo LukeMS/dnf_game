@@ -9,14 +9,53 @@ data = {
 
     # playable races
     "races": [
-        'human',
         'dwarf',
         'elf',
         'gnome',
         'half-elf',
         'half-orc',
-        'halfling'
+        'halfling',
+        'human'
     ],
+    # will be playable after implementation
+    "__races__possible": [
+        "aasimar",
+        "catfolk",
+        "changeling",
+        "dhampir",
+        "drow",
+        "duergar",
+        "dwarf",
+        "elf",
+        "fetchling",
+        "gillman",
+        "gnome",
+        "goblin",
+        "grippli",
+        "half-elf",
+        "half-orc",
+        "halfling",
+        "hobgoblin",
+        "human",
+        "ifrit",
+        "kitsune",
+        "kobold",
+        "merfolk",
+        "nagaji",
+        "orc",
+        "oread",
+        "ratfolk",
+        "samsaran",
+        "strix",
+        "suli",
+        "svirfneblin",
+        "sylph",
+        "tengu",
+        "tiefling",
+        "undine",
+        "vanara",
+        "vishkanya",
+        "wayang"],
 
     "race_mod": {
         'human': {},
@@ -385,13 +424,18 @@ data = {
         'intelligence', 'wisdom', 'charisma'
     ],
 
-    "classes": {
+    # playable classes
+    "classes": [
+        "barbarian", "cleric", "fighter", "monk", "paladin", "ranger",
+        "rogue", "wizard"],
+    # will be playable after implementation
+    "__classes__possible": [
         "alchemist", "antipaladin", "arcanist", "barbarian", "bard",
         "bloodrager", "brawler", "cavalier", "cleric", "druid", "fighter",
         "hunter", "inquisitor", "investigator", "magus", "monk", "ninja",
         "oracle", "paladin", "ranger", "rogue", "samurai", "shaman", "skald",
         "slayer", "sorcerer", "summoner", "swashbuckler", "warpriest",
-        "witch", "wizard"},
+        "witch", "wizard"],
 
     "alignments": RangedDictionary({
         ("alchemist", "arcanist", "bard",

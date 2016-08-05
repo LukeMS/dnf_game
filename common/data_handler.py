@@ -1,15 +1,22 @@
 """Helper functions to open and handle bz2 compressed json file's content."""
 
 import os
+import sys
+
+if not os.path.isdir('combat'):
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from common import packer
 
 from data import specific_weapons
 
-STD_WEAPONS = os.path.join('data', 'weapons.bzp')
+
+STD_WEAPONS = os.path.join(
+    os.path.dirname(__file__), '..', 'data', 'weapons.bzp')
 SPEC_WEAPONS = specific_weapons.SPECIFIC
 
-STD_ARMORS = os.path.join('data', 'armors.bzp')
+STD_ARMORS = os.path.join(
+    os.path.dirname(__file__), '..', 'data', 'armors.bzp')
 SPEC_ARMORS = {}
 
 

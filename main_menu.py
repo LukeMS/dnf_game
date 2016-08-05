@@ -6,6 +6,8 @@ import pygame
 import game
 import gui
 import level
+import char_creation
+import descriptions
 
 
 class MainMenu(game.BaseScene):
@@ -30,9 +32,12 @@ class MainMenu(game.BaseScene):
         """..."""
         self._menu = [
             {
-                "text": "New Game",
+                "text": "Start a new journey",
                 "kwargs": {
-                    "scene": level.LevelScene
+                    "scene": char_creation.Create,
+                    "target": {
+                        "scene": level.LevelScene
+                    }
                 }
             },
             {
@@ -40,6 +45,12 @@ class MainMenu(game.BaseScene):
                 "kwargs": {
                     "scene": level.LevelScene,
                     'new': False
+                }
+            },
+            {
+                "text": "Read the Tomes of Understanding",
+                "kwargs": {
+                    "scene": descriptions.Main
                 }
             },
             {
