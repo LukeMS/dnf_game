@@ -124,7 +124,6 @@ def on_mouse_press(level, event):
             level.gfx.inventory.clean_inventory()
             level.player.action()
 
-    level.on_update()
     level.handle_turn()
 
 

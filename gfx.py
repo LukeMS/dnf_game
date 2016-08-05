@@ -8,6 +8,7 @@ import gui
 
 
 class PygameGFX:
+
     def __init__(self, game):
         self.game = game
         self.screen = game.screen

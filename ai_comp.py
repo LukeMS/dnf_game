@@ -116,4 +116,8 @@ class Basic(Ai):
 
         # close enough, attack! (if the player is still alive.)
         elif target.combat.hit_points_current > 0:
-            monster.combat.attack(target)
+            try:
+                monster.combat.attack(target)
+            except Exception as e:
+                print(monster.combat.name)
+                raise e

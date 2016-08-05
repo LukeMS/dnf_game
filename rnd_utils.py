@@ -13,6 +13,7 @@ def bubble_sort(_items):
                 items[j], items[j + 1] = items[j + 1], items[j]  # Swap!
     return items
 
+
 def insertion_sort(_list):
     """..."""
     for i in range(1, len(_list)):

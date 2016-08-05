@@ -36,6 +36,7 @@ class Map:
 
 class MapMgr:
     """Handles data operations with maps."""
+
     def __init__(self, scene):
         self._scene = scene
 
@@ -106,7 +107,8 @@ class MapMgr:
                 cell = self.grid[x, y]
                 cell.max_var = check_func(cell.id)
                 # TODO: use perlin noise instead of rnd
-                cell.tile_variation = random.randrange(0, cell.max_var)
+                if cell.max_var:
+                    cell.tile_variation = random.randrange(0, cell.max_var)
 
     def set_tiling_index(self, pos=None):
         if pos is None:
@@ -128,7 +130,7 @@ class MapMgr:
             s += 2
 
         # isBelowSame
-        if (y + 1 > max_y) or self.has_same_id((x, y), (x, y + 1)):
+        if (y + 1 >= max_y) or self.has_same_id((x, y), (x, y + 1)):
             s += 4
 
         # isRightSame
@@ -263,7 +265,8 @@ class MapMgr:
 
         return False
 
-    def distance(self, pos1, pos2):
+    @staticmethod
+    def distance(pos1, pos2):
         if isinstance(pos1, tuple):
             x1, y1 = pos1
         else:
@@ -391,6 +394,7 @@ class MapMgr:
 
 
 class Area:
+
     @classmethod
     def get(cls, grid, pos, radius):
         cls.grid = grid
@@ -413,3 +417,93 @@ class Area:
     @classmethod
     def func_blocked(cls, x, y):
         return cls.grid[x, y].block_mov
+
+
+def reg_convex_poly_room(sides, radius, rotation):
+    """Create a room that is in the shape of a regular convex polygon with
+    arbitrary sides, size and rotation.
+
+    by Quintin Steiner - 22.10.2015
+    (translated to python)
+
+    Steps:
+    Draw walls by picking pairs of points around a circle and linearly
+    interpolating between them. The number of pairs should equal the number of
+    sides of the shape. You will need to use trig for this.
+    Create a floor by filling the shape using some sort of fill algorithm.
+
+    You can then create a doughnut shaped room by subtracting a smaller
+    generated room from the center of a larger generated room. You should keep
+    the walls of the smaller generated room though.
+
+    Source: http://www.we-edit.de/gamedev/question
+    /generating-39specially39-shaped-rooms-for-a-dungeon-110089.html
+    """
+
+    # convert the rotation degrees to radians.
+    rotation *= math.pi / 180.0
+
+    # make an array size that is sure to fit the room.
+    room_size = math.ceil(radius * 2) + 1
+
+    room = {}
+    for i in range(room_size):
+        for j in range(room_size):
+            room[i, j] = None
+
+    # first we must create the walls of the room.
+    rchange = (math.pi * 2.0) / sides
+
+    r = 0
+    while r < math.pi * 2:
+        # for (double r = 0; r < Math.PI * 2; r += rchange)
+        # define first point.
+        p1_x = radius + math.cos(r + rotation) * radius
+        p1_y = radius + math.sin(r + rotation) * radius
+
+        # define second point (rotated 1 iteration further).
+        p2_x = radius + math.cos(r + rotation + rchange) * radius
+        p2_y = radius + math.sin(r + rotation + rchange) * radius
+
+        # get distance between the two points.
+        l = math.sqrt(math.pow(p2_x - p1_x, 2) + math.pow(p2_y - p1_y, 2))
+
+        # linearly interpolate between the two points and place walls
+        # between them.
+        i = 0
+        # for (double i = 0; i < 1; i += 1.0 / l)
+        while i < 1:
+            place_x = round((1 - i) * p1_x + i * p2_x)
+            place_y = round((1 - i) * p1_y + i * p2_y)
+
+            room[place_x, place_y] = '#'
+
+            i += 1.0 / l
+
+        r += rchange
+
+    # now we have to fill the room with a floor.
+    # this is done using something similar to a scanline algorithm.
+    # for (int scan = 0; scan < roomSize; scan++)
+    for scan in range(room_size):
+        left_x = -1
+        right_x = -1
+        space_detected = False
+
+        # for (int i = 0; i < roomSize; i++)
+        for i in range(room_size):
+            if (room[i, scan] == '#'):
+                if not space_detected:
+                    left_x = i
+                else:
+                    right_x = i
+                    break
+            elif left_x != -1:
+                space_detected = True
+
+        if (right_x != -1):
+            # for (int i = left_x + 1; i < right_x; i++)
+            for i in range(left_x + 1, right_x):
+                room[i, scan] = '.'
+
+    return room

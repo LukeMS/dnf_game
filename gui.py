@@ -6,6 +6,7 @@ from pygame.compat import xrange_
 
 
 class Choice:
+
     def __init__(self, gfx):
         self.gfx = gfx
         self.screen = self.gfx.screen
@@ -133,6 +134,7 @@ class Choice:
 
 
 class Msg:
+
     def __init__(self, gfx):
         self.gfx = gfx
         self.screen = self.gfx.screen
@@ -169,6 +171,7 @@ class Msg:
 
 
 class Menu:
+
     def __init__(self, gfx, title, items=None):
         self.gfx = gfx
         self.screen = self.gfx.screen
@@ -281,6 +284,7 @@ class Menu:
 
 
 class Inventory:
+
     def __init__(self, gfx):
         self.gfx = gfx
         self.screen = self.gfx.screen
@@ -406,7 +410,7 @@ class Inventory:
             txt_obj.top = self.main_rect.top + (self.main_item_h * row) + 12
 
             txt_shd_sfc = self.main_font.render(text, True,
-                GAME_COLORS["black"])
+                                                GAME_COLORS["black"])
             txt_shd_obj = txt_shd_sfc.get_rect()
             txt_shd_obj.x, txt_shd_obj.y = (
                 txt_obj.x + 2, txt_obj.y + 2)

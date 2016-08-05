@@ -51,23 +51,13 @@ class RoomRect(Rect):
 
     def valid(self, width, height):
         """..."""
-        x1 = self.x
-        if not 1 <= x1 < width - 1:
+        if (1 <= self.x1 < width - 1) and \
+                (1 <= self.x2 < width - 1) and \
+                (1 <= self.y1 < height - 1) and \
+                (1 <= self.y2 < height - 1):
+            return True
+        else:
             return False
-
-        x2 = self.x + self.w
-        if not 1 <= x2 < width - 1:
-            return False
-
-        y1 = self.y
-        if not 1 <= y1 < height - 1:
-            return False
-
-        y2 = self.y + self.h
-        if not 1 <= y2 < height - 1:
-            return False
-
-        return True
 
 
 class RndMap:

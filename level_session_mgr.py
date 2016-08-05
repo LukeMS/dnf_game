@@ -6,7 +6,7 @@ from constants import SCREEN_ROWS, MAP_ROWS, SCREEN_COLS, MAP_COLS
 import sprite
 import gamemap
 import tile_fx
-import rnd_gen
+from map_gen import rnd_gen
 from common import packer
 
 

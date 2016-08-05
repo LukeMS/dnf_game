@@ -90,6 +90,7 @@ class Images(Resources):
             cls.cache[name] = img
         return img
 
+
 class Tilesets(Images):
     """..."""
 
@@ -104,10 +105,10 @@ class Tilesets(Images):
 
         tiles = {}
         for k in cls._names.keys():
-            if k.startswith('_id'):
+            if k.startswith('_tile'):
                 k_fields = k.split('$')
 
-                id = int(k_fields[0].replace('_id', ''))
+                id = int(k_fields[0].replace('_tile', ''))
                 size = int(k_fields[2].replace('px', ''))
                 theme = k_fields[1]
                 var = int(k_fields[3].replace('v', ''))

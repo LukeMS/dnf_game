@@ -203,7 +203,7 @@ class LevelScene(BaseScene):
                         if creature.visible:
 
                             self.gfx.draw(
-                                ord(creature.name[0]),
+                                ord(creature.combat.name[0]),
                                 (creature.x, creature.y),
                                 color=creature.color)
 
@@ -213,8 +213,8 @@ class LevelScene(BaseScene):
                         creature.active = False
 
                 if not self.player.active:
-                    self.on_update()
                     self.new_turn()
+        self.on_update()
 
     def update_pos(self, pos, scr_pos):
         """Logic for redrawing specific positions of the screen."""
@@ -251,8 +251,8 @@ class LevelScene(BaseScene):
                         draw(obj.id, (x, y), obj.color)
 
                 for creature in tile['creatures']:
-                    draw(creature.id, (x, y),
-                         color=creature.color)
+                    draw(ord(creature.combat.name[0]),
+                         (x, y), color=creature.color)
 
     def update_tiles(self):
         """..."""

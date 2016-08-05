@@ -62,7 +62,7 @@ class PlayerDummy(sprite.Player):
 class MapTest(level.LevelScene):
     """..."""
 
-    def __init__(self, game):
+    def __init__(self, game, grid=None, map_cols=None, map_rows=None):
         """..."""
         gamemap.MapMgr.place_objects = MapMgrDummy.place_objects
         gamemap.MapMgr.set_fov = MapMgrDummy.set_fov
@@ -70,10 +70,15 @@ class MapTest(level.LevelScene):
 
         super().__init__(game, new=True)
 
-        grid = self.levels[self.current_level]['grid']
+        self.levels[self.current_level]['grid'] = self.grid = grid
 
-        # self.screenshot('map-default.png')
+        self.map_mgr.set_tile_variation(
+            check_func=self.gfx.tileset_mgr.get_tile_maximum_variation)
+        self.map_mgr.set_tiling_index()
 
+        self.screenshot('map-default.png', map_cols, map_rows)
+
+        """
         m = worm.main(map_width=MAP_COLS, map_lenght=MAP_ROWS)
         print("worm:{}={}x, {}={}y?".format(
             len(m[0]), MAP_COLS,
@@ -89,24 +94,27 @@ class MapTest(level.LevelScene):
         self.map_mgr.set_tiling_index()
 
         self.screenshot('map-worm.png')
+        """
 
         exit()
-
 
     def _on_key_press(self, event):
         """..."""
         if event.key == pygame.K_ESCAPE:
             self.quit()
 
-    def screenshot(self, fname):
+    def screenshot(self, fname, map_cols=None, map_rows=None):
         """..."""
+        map_cols = map_cols or MAP_COLS
+        map_rows = map_rows or MAP_ROWS
+
+        canvas = pygame.Surface((TILE_W * map_cols, TILE_H * map_rows))
+
         grid = self.levels[self.current_level]['grid']
 
-        canvas = pygame.Surface((TILE_W * MAP_COLS, TILE_H * MAP_ROWS))
-
-        for x in range(0, MAP_COLS - 1):
-            for y in range(0, MAP_ROWS - 1):
-                tile = grid[(x, y)]["feature"]
+        for x in range(0, map_cols):
+            for y in range(0, map_rows):
+                tile = grid[(x, y)]
                 id = tile.id
                 color = tile.color
                 tiling_index = tile.tiling_index

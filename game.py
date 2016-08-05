@@ -99,7 +99,7 @@ class Game:
         os.environ['SDL_VIDEO_CENTERED'] = '1'
         self.screen = pygame.display.set_mode(
             (width, height),
-            pygame.NOFRAME|pygame.HWSURFACE|pygame.DOUBLEBUF)
+            pygame.NOFRAME | pygame.HWSURFACE | pygame.DOUBLEBUF)
 
         self.gfx = gfx.PygameGFX(game=self)
 

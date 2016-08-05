@@ -72,6 +72,26 @@ class Tile:
         """..."""
         return self.rect.y
 
+    @property
+    def left(self):
+        """..."""
+        return self.rect.left
+
+    @property
+    def right(self):
+        """..."""
+        return self.rect.right
+
+    @property
+    def top(self):
+        """..."""
+        return self.rect.top
+
+    @property
+    def bottom(self):
+        """..."""
+        return self.rect.bottom
+
     def __floordiv__(self, n):
         """..."""
         try:
