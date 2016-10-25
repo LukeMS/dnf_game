@@ -6,7 +6,7 @@ from game import BaseScene
 from game_types import Position
 import main_menu
 
-import level_input
+from common import debug_status
 import level_session_mgr
 import sprite
 import resources
@@ -15,12 +15,13 @@ from constants import GAME_COLORS, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_COLS, \
     SCREEN_ROWS, TILE_W, TILE_H
 
 
-class LevelScene(BaseScene):
+class Level(BaseScene):
     """The standard play scene for the game."""
 
-    def __init__(self, game, new=True, character=None, mode='default'):
+    def __init__(self, parent, new=True, character=None, mode='default'):
         """..."""
-        self.game = game
+        self.parent = parent
+        self.game = parent.game
         self.create_char = character
         self.mode = mode
 
@@ -32,10 +33,12 @@ class LevelScene(BaseScene):
         self.gfx.msg_log.clear()
         self.ignore_regular_update = True
 
+        self.session_mgr = level_session_mgr.SessionMgr(self)
+
         if new:
-            level_session_mgr.new_game(self)
+            self.session_mgr.new_game()
         else:
-            level_session_mgr.load_game(self)
+            self.session_mgr.load_game()
 
         self.alive = True
 
@@ -185,17 +188,26 @@ class LevelScene(BaseScene):
 
         Adjustments are made to better show map edges.
         """
-        x = object.x - SCREEN_COLS // 2
-        y = object.y - SCREEN_ROWS // 2
+        if self.width < SCREEN_COLS:
+            x = object.x // 2 - (SCREEN_COLS - self.width) // 2
+        else:
+            x = object.x - SCREEN_COLS // 2
+            x = min(self.max_x - SCREEN_COLS, x)
+            x = max(1, x)
 
-        x = min(self.max_x - SCREEN_COLS, x)
-        x = max(1, x)
-
-        y = min(self.max_y - SCREEN_ROWS, y)
-        y = max(1, y)
+        if self.height < SCREEN_ROWS:
+            y = object.y // 2 - (SCREEN_ROWS - self.height) // 2
+        else:
+            y = object.y - SCREEN_ROWS // 2
+            y = min(self.max_y - SCREEN_ROWS, y)
+            y = max(1, y)
 
         self.offset = Position((x, y))
-        print("Player {}=={}, offset {}=={}, SCREEN_COLS {}, SCREEN_ROWS {}".format(self.player.pos, object.pos, self.offset, (x, y), SCREEN_COLS, SCREEN_ROWS))
+        print(
+            ("Player {}=={}, offset {}=={}"
+             ", SCREEN_COLS {}, SCREEN_ROWS {}").format(
+                self.player.pos, object.pos, self.offset, (x, y),
+                SCREEN_COLS, SCREEN_ROWS))
 
     def scroll(self, rel):
         """Scroll map using relative coordinates."""
@@ -250,7 +262,10 @@ class LevelScene(BaseScene):
         """Logic for redrawing specific positions of the screen."""
         x, y = scr_pos
         grid = self.levels[self.current_level]['grid']
-        tile = grid[pos]
+        try:
+            tile = grid[pos]
+        except KeyError:
+            return
         draw = self.gfx.draw
 
         if tile["feature"].visible or tile["feature"].explored:
@@ -295,12 +310,7 @@ class LevelScene(BaseScene):
         """..."""
         if self.alive:
             self.gfx.draw_hud()
-
-            if self.game_state == 'inventory':
-                self.gfx.inventory.draw()
-            elif self.game_state == 'choice':
-                self.gfx.choice.draw()
-            elif self.game_state == 'dead':
+            if self.game_state == 'dead':
                 self.gfx.msg.draw("The End?")
         elif self.game_state == 'saving':
             self.gfx.msg.draw("Saving your game (Don't panic!)")
@@ -317,36 +327,120 @@ class LevelScene(BaseScene):
 
         self.game.draw_fps()
 
-        game.display.flip()
+    def cursor_pos(self):
+        """Get the absolute screen position of the cursor."""
+        return pygame.mouse.get_pos()
 
-    def choice(self, title, items, callback):
-        """..."""
-        self.gfx.choice.set_list(title, items, callback)
-        self.game_state = 'choice'
+    def cursor_rel_pos(self, pos=None):
+        """Get the relative position of the cursor on the grid tiles."""
+        if pos is None:
+            pos = pygame.mouse.get_pos()
+        rel_pos = (
+            (pos[0] // TILE_W) + self.offset[0],
+            (pos[1] // TILE_H) + self.offset[1])
+        return rel_pos
 
     def quit(self, save=True):
         """..."""
         self.alive = False
         if save:
-            level_session_mgr.save_game(self)
+            self.session_mgr.save_game()
         self.game.enable_fps()
         self.game.set_scene(scene=main_menu.MainMenu)
 
     def on_key_press(self, event):
-        """Input is handled by level_input."""
-        level_input.on_key_press(self, event)
+        """Handle key presses input for the level."""
+        if self.game_state == 'playing' and self.player.active:
+            if event.key == pygame.K_ESCAPE:
+                self.quit()
+
+            elif event.key in [pygame.K_KP7]:
+                self.player.action(-1, -1)
+            elif event.key in [pygame.K_UP, pygame.K_KP8]:
+                self.player.action(0, -1)
+            elif event.key in [pygame.K_KP9]:
+                self.player.action(1, -1)
+            elif event.key in [pygame.K_RIGHT, pygame.K_KP6]:
+                self.player.action(1, 0)
+            elif event.key in [pygame.K_KP3]:
+                self.player.action(1, 1)
+            elif event.key in [pygame.K_DOWN, pygame.K_KP2]:
+                self.player.action(0, 1)
+            elif event.key in [pygame.K_KP1]:
+                self.player.action(-1, 1)
+            elif event.key in [pygame.K_LEFT, pygame.K_KP4]:
+                self.player.action(-1, 0)
+            elif event.key in [pygame.K_SPACE, pygame.K_KP5]:
+                self.player.action()  # skip a turn
+
+            elif event.key == pygame.K_g:
+                if not self.player.action(action='get'):
+                    pos = self.player.pos
+                    scr_pos = self.player.pos - self.offset
+                    self.update_pos(pos, scr_pos)
+                    self.on_update()
+                    return
+
+            elif event.key == pygame.K_u:
+                if not self.player.action(action='use'):
+                    pos = self.player.pos
+                    scr_pos = self.player.pos - self.offset
+                    self.update_pos(pos, scr_pos)
+                    return
+
+            elif event.key == pygame.K_k:
+                self.player.combat.receive_dmg(999999, "user")
+                # TODO: fix, causing crashing error
+            elif event.key == pygame.K_e:
+                self.player.gain_xp(23000)
+                # TODO: fix, causing crashing error
+            elif event.key == pygame.K_s:
+                # TODO: use in-game ui
+                debug_status.view(creature=self.player.combat)
+                return
+
+        elif self.game_state == 'dead':
+            if event.key in [pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_SPACE]:
+                self.quit(save=False)
+
+        self.handle_turn()
 
     def on_mouse_press(self, event):
-        """..."""
-        level_input.on_mouse_press(self, event)
+        """Handle mouse press input for the level."""
+        pos = event.pos
+        rel_pos = self.cursor_rel_pos(pos=pos)
+
+        if self.game_state == 'playing' or self.game_state == 'dead':
+            if event.button == 1:  # left button
+                target = self.cursor.move(pos, rel_pos)
+                combat = getattr(target, 'combat', None)
+                debug_status.view(creature=combat or target)
+                return
+
+        self.handle_turn()
 
     def on_mouse_scroll(self, event):
-        """..."""
-        level_input.on_mouse_scroll(self, event)
+        """Handle mouse scroll input for the level."""
+        if self.game_state == 'playing':
+            keys = pygame.key.get_pressed()
+
+            ctrl = keys[pygame.K_LCTRL]
+
+            if event.button == 4:
+                if ctrl:
+                    self.scroll((-1, 0))
+                else:
+                    self.scroll((0, -1))
+            elif event.button == 5:
+                if ctrl:
+                    self.scroll((1, 0))
+                else:
+                    self.scroll((0, 1))
+        self.on_update()
 
     def new_level(self, level=0):
         """..."""
-        level_session_mgr.new_level(self, level)
+        self.session_mgr.new_level(level)
 
     def screenshot(self, fname=None, map_cols=None, map_rows=None):
         """..."""

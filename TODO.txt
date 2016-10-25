@@ -1,9 +1,17 @@
-- Use proper start/end setting points to place stairs;
-- Create cheat shortcut to go up/down for testing;
-- CREATE: Battle mode (single room map);
+Improvements:
+- Make it possible for maps to have custom item/creature placement;
+- Finish door implementation (tile or object?);
 - Battle mode: enable selection of cr/char or creature;
-- level.py: Convert game_states non-exclusive reusable layers.
+- Create cheat shortcut to go up/down for testing;
+- Use proper start/end setting points to place stairs;
+-- Replace tkinter for internal debug viewer;
+Fixes:
+- Unequip interpreter error;
+- event.key == pygame.K_k level_input;
+
 
 Done:
+- CREATE: Battle mode (single room map);
+- level.py: Convert game_states non-exclusive reusable layers;
 - Main Menu: create entries for Description and Battle Mode;
 - Character creation: deliver the character to the game;

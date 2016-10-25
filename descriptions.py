@@ -19,7 +19,6 @@ class Navigator(game.Layer):
 
         self.db = parent.db
 
-        self.screen = parent.screen
         self.width = rect.width
         self.height = rect.height
         self.x = rect.x
@@ -177,8 +176,6 @@ class Description(game.Layer):
 
         self.content = ""
 
-        self.screen = parent.screen
-
         self.width = rect.width
         self.height = rect.height
         self.x = rect.x
@@ -236,11 +233,6 @@ class Main(game.MultiLayer):
 
     def create_layers(self):
         """..."""
-        self.screen = pygame.display.get_surface()
-
-        self.height = self.screen.get_height()
-        self.width = self.screen.get_width()
-
         nav_rect = pygame.Rect(0,  # left
                                0,  # top
                                self.width,  # width

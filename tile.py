@@ -26,21 +26,62 @@ class Tile:
             "id": ord("#"),
             "color": (161, 161, 161)
         },
+        "door_closed": {
+            "block_mov": True,
+            "block_sight": True,
+            "id": ord("="),
+            "color": (161, 161, 161)
+        },
+        "door_locked": {
+            "block_mov": True,
+            "block_sight": True,
+            "id": ord("="),
+            "color": (161, 161, 161)
+        },
+        "door_open": {
+            "id": 92,  # ord("\\")
+            "color": (161, 161, 161)
+        },
         "water": {
             "id": ord("="),
             "color": GAME_COLORS["blue"]
+        },
+
+        "mountain": {
+            "id": ord("A"),
+            "color": GAME_COLORS["light_chartreuse"]
+        },
+        "hill": {
+            "id": ord("n"),
+            "color": GAME_COLORS["dark_chartreuse"]
+        },
+        "land": {
+            "id": ord("."),
+            "color": GAME_COLORS["darker_green"]
+        },
+        "coast": {
+            "id": ord("´"),
+            "color": GAME_COLORS["darker_amber"]
+        },
+        "shallow_water": {
+            "id": ord("~"),
+            "color": GAME_COLORS["dark_blue"]
+        },
+        "deep_water": {
+            "id": ord("¬"),
+            "color": GAME_COLORS["darkest_blue"]
         }
     }
 
     def __init__(self, pos, template, block_mov=None, block_sight=None,
-                 id=None, color=None):
+                 id=None, color=None, room=None):
         """..."""
         self.name = template
 
         component = dict(self._base)
         component.update(self.templates[template])
-        if block_mov is not None:
-            component["block_mov"] = block_mov
+
+        component["block_mov"] = block_mov or component["block_mov"]
         component["block_sight"] = block_sight or component["block_sight"]
         component["id"] = id or component["id"]
         component["color"] = color or component["color"]
@@ -48,6 +89,7 @@ class Tile:
         for key, value in component.items():
             setattr(self, key, value)
 
+        self.room = room
         self.visible = False
         self.explored = False
         self.tiling_index = 0

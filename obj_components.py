@@ -106,7 +106,7 @@ class Item(Component):
         # action is to equip/unequip
         if self.owner.equipment:
             self.owner.equipment.toggle_equip()
-            return
+            return 'equipped'
 
         # just call the "use_function" if it is defined
         if self.use_function is None:
@@ -201,7 +201,8 @@ class Equipment(Component):
         if not self.is_equipped:
             return
         self.is_equipped = False
-        self.owner.scene.gfx.msg_log.add(
+
+        self.owner.item.possessor.scene.gfx.msg_log.add(
             'Unequipped ' + self.owner.name + ' from ' +
             self.slot + '.', GAME_COLORS["light_yellow"])
         self.slot = None

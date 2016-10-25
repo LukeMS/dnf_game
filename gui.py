@@ -5,12 +5,30 @@ from constants import GAME_COLORS
 from pygame.compat import xrange_
 
 
-class Choice:
+class GuiBase:
+    """..."""
 
     def __init__(self, gfx):
+        """..."""
         self.gfx = gfx
-        self.screen = self.gfx.screen
-        self.fonts = self.gfx.fonts
+
+    @property
+    def screen(self):
+        """..."""
+        return self.gfx.screen
+
+    @property
+    def fonts(self):
+        """..."""
+        return self.gfx.fonts
+
+
+class Choice(GuiBase):
+    """..."""
+
+    def __init__(self, gfx):
+        """..."""
+        super().__init__(gfx)
         self.title_color = (223, 0, 0)
 
         self.unselected_color = (192, 192, 192)
@@ -133,12 +151,12 @@ class Choice:
         return None
 
 
-class Msg:
+class Msg(GuiBase):
+    """..."""
 
     def __init__(self, gfx):
-        self.gfx = gfx
-        self.screen = self.gfx.screen
-        self.fonts = self.gfx.fonts
+        """..."""
+        super().__init__(gfx)
         self.color = (223, 0, 0)
         self.screen_size = self.screen.get_size()
         self.head_font_size = self.screen_size[1] // 18
@@ -170,12 +188,12 @@ class Msg:
         return None
 
 
-class Menu:
+class Menu(GuiBase):
+    """..."""
 
     def __init__(self, gfx, title, items=None):
-        self.gfx = gfx
-        self.screen = self.gfx.screen
-        self.fonts = self.gfx.fonts
+        """..."""
+        super().__init__(gfx)
         self._title = title
         self._items = items
         self.color = (223, 0, 0)
@@ -268,6 +286,31 @@ class Menu:
 
             self.item_render = item_render
 
+    @property
+    def body_rect(self):
+        """..."""
+
+        if getattr(self, '_rect', None) is None:
+            _rect = [[None] * 2] * 2
+            for ((txt_sfc, txt_obj),
+                 (txt_shd_sfc, txt_shd_obj)) in self.item_render:
+                topleft0 = txt_obj.topleft
+                topleft1 = txt_shd_obj.topleft
+                topleft = (min(topleft0[0], topleft1[0]),
+                           min(topleft0[1], topleft1[1]))
+                _rect[0] = (min(_rect[0][0] or topleft[0], topleft[0]),
+                            min(_rect[0][1] or topleft[1], topleft[1]))
+
+                bottomright0 = txt_obj.bottomright
+                bottomright1 = txt_shd_obj.bottomright
+                bottomright = (max(bottomright0[0], bottomright1[0]),
+                               max(bottomright0[1], bottomright1[1]))
+                _rect[1] = (max(_rect[1][0] or bottomright[0], bottomright[0]),
+                            max(_rect[1][1] or bottomright[1], bottomright[1]))
+            self._rect = tuple(_rect)
+
+        return self._rect
+
     def draw(self):
         self.screen.blit(self.head_title_shadow_sfc,
                          self.head_title_shadow_obj)
@@ -283,12 +326,12 @@ class Menu:
         return None
 
 
-class Inventory:
+class Inventory(GuiBase):
+    """..."""
 
     def __init__(self, gfx):
-        self.gfx = gfx
-        self.screen = self.gfx.screen
-        self.fonts = self.gfx.fonts
+        """..."""
+        super().__init__(gfx)
         self.offset = 0
         self.create_head()
         self.create_main()
@@ -464,7 +507,9 @@ class Inventory:
         return None
 
 
-class Bar:
+class Bar(GuiBase):
+    """..."""
+
     x = 16
     y = 16
     height = 26
@@ -480,6 +525,8 @@ class Bar:
     ]
 
     def __init__(self, name, value, maximum, gfx):
+        """..."""
+        super().__init__(gfx)
         self.name = name
         self.value = value
         self.maximum = maximum
@@ -563,12 +610,12 @@ class Bar:
         return None
 
 
-class MsgLog:
+class MsgLog(GuiBase):
+    """..."""
 
     def __init__(self, gfx):
-        self.gfx = gfx
-        self.screen = self.gfx.screen
-        self.fonts = self.gfx.fonts
+        """..."""
+        super().__init__(gfx)
         self.font = self.fonts.load('caladea-regular.ttf', 20)
 
         self.line_height = self.font.get_height()
@@ -603,12 +650,12 @@ class MsgLog:
         return None
 
 
-class Hud:
+class Hud(GuiBase):
+    """..."""
 
     def __init__(self, gfx):
-        self.gfx = gfx
-        self.screen = self.gfx.screen
-        self.fonts = self.gfx.fonts
+        """..."""
+        super().__init__(gfx)
 
         self.text = " "
         self.font = self.fonts.load('caladea-bold.ttf', 14)

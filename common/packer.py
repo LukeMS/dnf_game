@@ -39,6 +39,20 @@ def pack_json(source, dest):
         f.write(bin_data)
 
 
+def save_dict(data, fname):
+    """Save a dictionary data to a bz2-compressed pickle file."""
+    bin_data = bz2.compress(pickle.dumps(data))
+    with open(fname, "wb") as f:
+        f.write(bin_data)
+
+
+def load_dict(fname):
+    """Load a dictionary from a bz2-compressed pickle file."""
+    with open(fname, 'rb') as f:
+        data = pickle.loads(bz2.decompress(f.read()))
+    return data
+
+
 def unpack_json(fname):
     """..."""
     with open(fname, 'rb') as f:

@@ -36,7 +36,7 @@ SECTOR_SIZE = 16
 
 
 class RoomRect(Rect):
-    """A rectangle on the map. used to characterize a room."""
+    """A rectangle on the map representing a room."""
 
     def __init__(self, x, y, w, h):
         """..."""
@@ -85,8 +85,32 @@ class RoomRect(Rect):
         else:
             return False
 
+
+class RoomIrregular(RoomRect):
+    """A rectangle on the map representing a room."""
+
+    def __init__(self, tiles):
+        """..."""
+        self.tiles = tiles
+
+        x = min(tile[0] for tile in self.tiles)
+        w = max(tile[0] for tile in self.tiles) - x
+        y = min(tile[1] for tile in self.tiles)
+        h = max(tile[1] for tile in self.tiles) - y
+
+        super().__init__(x, y, w, h)
+
+    def random_point(self, _map, templates=["floor"]):
+        """..."""
+        while True:
+            (x, y) = random.choice(self.tiles)
+            if _map[x, y].name in templates:
+                return x, y
+
+
 class SectorRect(RoomRect):
     """..."""
+
 
 class Map:
     """..."""
@@ -181,15 +205,15 @@ class Map:
         x, y = place.random_point(map=self.map)
         return x, y
 
+
 class RndMap(Map):
     """..."""
 
-    def __init__(self):
+    def __init__(self, visualize=False):
         """..."""
-        self.map = {}
+        super().__init__()
         self.sectors = {}
-        self.rooms = []
-        self.halls = []
+        self.visualize = visualize
 
     def create_sectors(self):
         """Create n SECTOR_SIZExSECTOR_SIZE sectors.
@@ -294,21 +318,13 @@ class RndMap(Map):
                  for x in range(room.x1, room.x2 + 1)
                  for y in range(room.y1, room.y2 + 1)]
 
+            if self.visualize:
+                self.print()
+
         # _map[start.random_point(_map)].id = ord("<")
         # _map[end.random_point(_map)].id = ord(">")
 
         return start, end
-
-    def print(self):
-        """..."""
-        _map = self.map
-        h = self.height
-        w = self.width
-
-        for y in range(h):
-            for x in range(w):
-                print(chr(_map[(x, y)].id), end="")
-            print()
 
     def create_halls(self):
         """..."""
@@ -320,8 +336,14 @@ class RndMap(Map):
                                  target.center, room.center,
                                  w, h)
 
-            [_map[pos].__setattr__('id', 47)
-             for pos in path if _map[pos].id == 35]
+            if self.visualize:
+                for pos in path:
+                    if _map[pos].id == 35:
+                        _map[pos].id = 47
+                self.print()
+            else:
+                [_map[pos].__setattr__('id', 47)
+                 for pos in path if _map[pos].id == 35]
 
             return path
 
@@ -384,7 +406,31 @@ class RndMap(Map):
 
         self.create_halls()
 
+        print("Done creating.")
+
         return _map, self.rooms, self.halls, w, h
+
+    def print(self):
+        """..."""
+        _map = self.map
+        h = self.height
+        w = self.width
+        self.terminal.draw(_map, w, h)
+
+    def test(self):
+        from pygame_manager import manager
+        from terminal import TerminalGrid
+
+        scene = manager.Manager(scene=TerminalGrid, framerate=10,
+                                width=1024, height=768, show_fps=False)
+        scene.current_scene.text = [' ']
+
+        self.visualize = True
+
+        self.terminal = scene.current_scene
+        self.make_map()
+        while scene.alive:
+            scene.on_event()
 
     def __enter__(self):
         """..."""
@@ -393,6 +439,162 @@ class RndMap(Map):
     def __exit__(self, exc_type, exc_val, exc_tb):
         """..."""
         del self
+
+
+class RndMapChamber(RndMap):
+    """..."""
+
+    def make_map(self, *args, **kwargs):
+        """..."""
+        _map, self.rooms, self.halls, w, h = super().make_map()
+
+        print("self.doors", self.doors)
+        self.create_doors()
+
+        return _map, self.rooms, self.halls, w, h
+
+    def create_halls(self):
+        """..."""
+        def dig_hall(target):
+            # 47 == ord("/")
+            # 46 == ord(".")
+            # 35 == ord("#")
+            # 61 == ord("=")
+
+            path = a_star_search(_map, target.center, room.center, w, h)
+
+            # if not a room, != ord(".")
+            path = [pos for pos in path if _map[pos].id != 46]
+
+            # set it to hall, = ord("/")
+            [_map[pos].__setattr__('id', 47)
+             for pos in path if _map[pos].id == 35]
+
+            if self.visualize:
+                self.print()
+
+            return path
+
+        def pick_a_room(who, ignore):
+            rooms = self.rooms
+            random.shuffle(rooms)
+
+            for room in rooms:
+                if room != who and room == ignore:
+                    return room
+
+        _map = self.map
+        halls = self.halls
+        rooms = self.rooms
+        doors = self.doors = {}
+        w = self.width
+        h = self.height
+
+        previous = self.start
+        for room in rooms[1:]:
+            target = previous
+            hall = dig_hall(target=target)
+            halls.append(hall)
+            doors[hall[0]] = room
+            doors[hall[-1]] = target
+
+            if not random.randrange(5):
+                # dig an extra hall
+                print("extra")
+                target = pick_a_room(room, previous)
+                hall = dig_hall(target=target)
+                halls.append(hall)
+                doors[hall[0]] = room
+                doors[hall[-1]] = target
+
+            previous = room
+
+        [_map.__setitem__(pos, Tile(pos, 'floor'))
+         for hall in halls
+         for pos in hall
+         if _map[pos].id != ord("#")]
+
+    def create_doors(self):
+        """..."""
+        def door_tile(pos, room):
+            if self.visualize:
+                self.print()
+            print("Creating doors at", pos, room)
+            return Tile(pos, random.choice(
+                ["door_closed", "door_locked", "door_open"]), room=room)
+
+        _map = self.map
+        doors = self.doors
+
+        [_map.__setitem__(pos, door_tile(pos, room))
+         for pos, room in doors.items()
+         if _map[pos].name == 'floor']
+
+        print()
+
+        if self.visualize:
+            self.print()
+
+
+class AsciiMap(Map):
+    """Create a map from a ascii table."""
+
+    _conversion = {
+        '#': 'wall',
+        '.': 'floor',
+    }
+
+    def __init__(self):
+        """Initialization."""
+        super().__init__()
+
+    def make_map(self, *args, **kwargs):
+        """Create a map in game-usable format.
+
+        Parameters:
+            None (ascii-maps have specific sizes)
+        """
+        conversion = self._conversion
+        template = self._template
+
+        height = self.height = len(template)
+        width = self.width = len(template[0])
+
+        assert(all([len(template[i]) == width
+                    for i in range(1, len(template))]))
+
+        self.map = {(x, y): Tile((x, y), conversion[template[y][x]])
+                    for x in range(width) for y in range(height)}
+
+        self.create_rooms()
+
+        return self.map, self.rooms, self.halls, width, height
+
+    def create_rooms(self):
+        """Convert open spaces to room structures."""
+        pass
+
+
+class Pit(AsciiMap):
+    """Small 9x9 level with 9x9 diamond room at its center."""
+
+    _template = ["###########",
+                 "#####.#####",
+                 "####...####",
+                 "###.....###",
+                 "##.......##",
+                 "#.........#",
+                 "##.......##",
+                 "###.....###",
+                 "####...####",
+                 "#####.#####",
+                 "###########"]
+
+    def create_rooms(self):
+        """Convert open spaces to room structures."""
+        tiles = [(x, y) for (x, y), tile in self.map.items()
+                 if tile.name == 'floor']
+        self.rooms.append(RoomIrregular(tiles))
 
 
 def heuristic(a, b):
@@ -495,17 +697,19 @@ def img_preview(m):
 
     import matplotlib.pyplot as plt
     plt.imshow(img)
+
     plt.axis('off')
     mng = plt.get_current_fig_manager()
     mng.full_screen_toggle()
     plt.show()
 
-
 if __name__ == '__main__':
     import random_seed
     random = random_seed.get_seeded(__file__)
-    m = RndMap()
-    m.make_map()
+
+    m = RndMapChamber()
+    m.test()
+
     exit()
 
     f = __file__.replace(".py", "")
@@ -521,5 +725,3 @@ if __name__ == '__main__':
 
     # 'time', 'cumulative', 'ncalls'
     p.sort_stats('cumulative').print_stats()
-
-    img_preview(m)

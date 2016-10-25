@@ -4,8 +4,9 @@ import pygame
 """..."""
 
 import game
+from game import Window
 import gui
-import level
+import level_main
 import char_creation
 import descriptions
 
@@ -15,7 +16,7 @@ class MainMenu(game.BaseScene):
 
     def __init__(self, game):
         """..."""
-        super().__init__(game)
+        super().__init__(game=game)
         self.selection = 0
 
         self.create_items()
@@ -24,8 +25,16 @@ class MainMenu(game.BaseScene):
             gfx=self.game.gfx, title="Caves & Lizards Roguelike",
             items=[item["text"] for item in self._menu])
 
+        ((x, y), (x1, y1)) = self.gui.body_rect
+        w = x1 - x
+        h = y1 - y
+        self.body_frame = Window(self, x, y, w, h)
+        self.body_frame.set_margin(16)
+
     def on_update(self):
         """..."""
+        #self.screen.fill((0, 255, 0))
+        self.body_frame.on_update()
         self.gui.draw()
 
     def create_items(self):
@@ -36,19 +45,27 @@ class MainMenu(game.BaseScene):
                 "kwargs": {
                     "scene": char_creation.Create,
                     "target": {
-                        "scene": level.LevelScene
+                        "scene": level_main.Main
                     }
+                }
+            },
+            {
+                "text": "Quick Battle",
+                "kwargs": {
+                    "scene": level_main.Main,
+                    'new': True,
+                    'mode': 'pit',
                 }
             },
             {
                 "text": "Load Game",
                 "kwargs": {
-                    "scene": level.LevelScene,
+                    "scene": level_main.Main,
                     'new': False
                 }
             },
             {
-                "text": "Read the Tomes of Understanding",
+                "text": "Tomes of Understanding",
                 "kwargs": {
                     "scene": descriptions.Main
                 }

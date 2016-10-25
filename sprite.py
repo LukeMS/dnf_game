@@ -53,7 +53,7 @@ class GameObject:
             ]
         # unpack the arguments and store them in the instance
         for arg in args:
-            value = eval(arg)
+            value = locals()[arg]
 
             # component initialization
             if hasattr(value, 'owner'):  # if it is a component
@@ -213,15 +213,15 @@ class GameObject:
             self.scene.gfx.msg_log.add(
                 'Your battle skills grow stronger! You reached level ' +
                 str(self.combat.level) + '!', GAME_COLORS["cyan"])
-            self.scene.choice(
+            self.scene.parent.choice(
                 title='Level up! Choose a stat to raise:',
                 items=[
-                    'Constitution, +10 HP (current: {})'.format(
-                        self.combat.max_hp),
-                    'Strength, +1 attack (current: {})'.format(
-                        self.combat.base_power),
-                    'Agility, +1 defense (current: {})'.format(
-                        self.combat.base_defense)
+                    'Strength (current: {})'.format(
+                        self.combat._base_att[0]),
+                    'Dexterity (current: {})'.format(
+                        self.combat._base_att[1]),
+                    'Constitution (current: {})'.format(
+                        self.combat._base_att[2])
                 ],
                 callback=self.increase_stat
             )
@@ -240,34 +240,26 @@ class GameObject:
 
         # see if the creature's experience is enough to level-up
         """CHANGE XP CALC. """
-        level = self.combat.level
-        xp = self.combat.xp
-        if xp >= char_roll.level_adv[level][0]:
-            # it is! level up
-            self.combat.level += 1
+        while True:
+            if self.combat.xp >= char_roll.level_adv[self.combat.level][0]:
+                # it is! level up
+                self.combat.level += 1
 
-            if not self.combat.level % 4:
-                gain_ability()
+                if not self.combat.level % 4:
+                    gain_ability()
 
-            if self.combat.level % 2:
-                gain_feat()
+                if self.combat.level % 2:
+                    gain_feat()
+                continue
+            break
 
     def increase_stat(self, choice):
         """..."""
         id, desc = choice
 
-        if id == 0:
-            self.combat.base_max_hp += 10
-            self.update_hp()
+        self.combat._base_att[id] += 1
+        self.update_hp()
 
-        elif id == 1:
-            self.combat.base_power += 1
-
-        elif id == 2:
-            self.combat.base_defense += 1
-
-        else:
-            raise AttributeError
         self.scene.gfx.msg_log.add(
             desc.replace("current", "previous"),
             GAME_COLORS["cyan"])

@@ -30,10 +30,6 @@ class Create(game.MultiLayer):
 
     def create_layers(self):
         """..."""
-        self.screen = pygame.display.get_surface()
-
-        self.height = self.screen.get_height()
-        self.width = self.screen.get_width()
 
         stats_rect = pygame.Rect(0,  # left
                                  0,  # top
@@ -93,7 +89,6 @@ class Stats(game.Layer):
         super().__init__(parent)
         self.character = combat.creatures.Character()
 
-        self.screen = parent.screen
         self.width = rect.width
         self.height = rect.height
         self.x = rect.x
@@ -377,8 +372,6 @@ class Description(game.Layer):
     def __init__(self, parent, rect):
         """..."""
         super().__init__(parent)
-
-        self.screen = parent.screen
 
         self.width = rect.width
         self.height = rect.height
