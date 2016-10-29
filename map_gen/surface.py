@@ -4,10 +4,10 @@ import sys
 if not os.path.isdir('map_gen'):
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+from game_types import TileFeature, MapHeader
 import map_gen.rnd_gen
-import mylib.heightmaps.creative02 as particle_map_02
+# import mylib.heightmaps.creative02 as particle_map_02
 from common import packer
-from tile import Tile
 
 
 def pack_map(_heightmaps, fname):
@@ -29,23 +29,22 @@ def unpack_map(fname):
     height = data['height']
     width = data['width']
 
-    return grid, height, width
+    return grid, width, height
 
 
-class Surface001(map_gen.rnd_gen.RndMapChamber):
+class Surface001(map_gen.rnd_gen.RndMap2):
     """..."""
 
     def make_map(self, *args, **kwargs):
         """..."""
         # _heightmaps = particle_map_02.ParticleDeposition(256, 128)
         # pack_map(_heightmaps, 'creative02')
-        self._heightmap, self.height, self.width = unpack_map('creative02')
+        self._heightmap, cols, rows = unpack_map('creative02')
 
-        self.terminal.print = self.print
-        self.terminal.map_w = self.width
-        self.terminal.map_h = self.height
+        self.header = MapHeader(name="surface0", level=0, split=0, cr=0,
+                                mode='external')
+        map_gen.rnd_gen.MapCreatorBase.make_map(self, cols=cols, rows=rows)
         self.create_tiles()
-        self.terminal.map = self.map
         self.print()
 
     def create_tiles(self):
@@ -65,29 +64,19 @@ class Surface001(map_gen.rnd_gen.RndMapChamber):
             else:
                 desc = "deep_water"
 
-            return Tile(pos, desc)
+            return TileFeature(pos, desc)
 
-        width = self.width
-        height = self.height
-        self.map = {(x, y): get_tile((x, y))
-                    for x in range(width) for y in range(height)}
+        _map = self.map
+        [tile.set_feature(get_tile(pos))
+         for pos, tile in _map.items()]
 
     def test(self):
         """..."""
-        from pygame_manager import manager
-        from terminal import SurfaceTiledGrid
+        from manager import Game
+        from terminal import SurfaceGrid
 
-        scene = manager.Manager(scene=SurfaceTiledGrid, framerate=10,
-                                width=None, height=None, show_fps=False)
-        scene.current_scene.text = [' ']
-        scene.wrap = False
-
-        self.visualize = True
-
-        self.terminal = scene.current_scene
-        self.make_map()
-        while scene.alive:
-            scene.on_event()
+        Game(width=1024, height=768, show_fps=False,
+             scene=SurfaceGrid, scene_args={'map_gen': self})
 
 
 if __name__ == '__main__':

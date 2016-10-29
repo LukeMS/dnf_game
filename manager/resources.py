@@ -8,11 +8,25 @@ import weakref
 
 from constants import TILESET, TILE_W, TILE_H
 
+BASE_PATH = os.path.join(os.path.dirname(__file__), "..", "resources")
+
 
 class Resources(object):
     """..."""
 
     _names = {}
+
+    def __new__(cls, **kwargs):
+        """Prevent creation of more then one instance."""
+        if not hasattr(cls, '_instance'):
+            print("Starting", cls.__name__)
+            cls._instance = super().__new__(cls)
+        else:
+            e = NotImplementedError(
+                "Use {} ".format(cls.__name__) +
+                "as singleton class intead of creating new instances.")
+            raise e
+        return cls._instance
 
     @classmethod
     def __init__(cls, loader, path, types, weak_ref=True):
@@ -35,7 +49,7 @@ class Resources(object):
         return obj
 
     @classmethod
-    def load(cls, name):
+    def get(cls, name):
         """..."""
         return cls.__getattr__(name)
 
@@ -68,16 +82,8 @@ class Resources(object):
         return None
 
 
-class Images(Resources):
+class ImageBase(Resources):
     """..."""
-
-    @classmethod
-    def __init__(cls, path=".", types=['*.jpg', '*.png', '*.bmp']):
-        """..."""
-        super().__init__(
-            loader=pygame.image.load,
-            path=path,
-            types=types)
 
     @classmethod
     def __getattr__(cls, name):
@@ -85,22 +91,39 @@ class Images(Resources):
         try:
             img = cls.cache[name]
         except KeyError:
+            # print(name, name in cls._names)
             img = cls.loader(cls._names[name]).convert_alpha()
             cls.cache[name] = img
         return img
 
 
-class Tilesets(Images):
+class Images(ImageBase):
+    """..."""
+
+    @classmethod
+    def __init__(cls, path=BASE_PATH, types=['*.jpg', '*.png', '*.bmp']):
+        """..."""
+        super().__init__(
+            loader=pygame.image.load,
+            path=path,
+            types=types)
+
+
+class Tilesets(ImageBase):
     """..."""
 
     _tilesets = {}
 
     @classmethod
-    def __init__(cls, path=os.path.join("resources", "tilesets"),
-                 types=['*.jpg', '*.png', '*.bmp']):
+    def __init__(
+        cls, path=os.path.join(BASE_PATH, "tilesets"),
+        types=['*.jpg', '*.png', '*.bmp']
+    ):
         """..."""
         cls.loader = pygame.image.load
         cls._names = cls._index(path=path, types=types)
+
+        cls.cache = {}
 
         tiles = {}
         for k in cls._names.keys():
@@ -115,7 +138,7 @@ class Tilesets(Images):
                 tiles.setdefault(id, {})
                 tiles[id][size, theme] = {
                     'var': var,
-                    'img': cls.load(k)
+                    'img': cls.get(k)
                 }
         cls.tiles = tiles
 
@@ -160,7 +183,7 @@ class Tilesets(Images):
 
         if color not in cls._tilesets:
             if color is None:
-                cls._tilesets[color] = Images.load(TILESET)
+                cls._tilesets[color] = Images.get(TILESET)
             else:
                 tileset = cls.color_surface(cls._tilesets[None], color)
                 cls._tilesets[color] = tileset
@@ -187,8 +210,7 @@ class Fonts(Resources):
     """..."""
 
     @classmethod
-    def __init__(cls, path=os.path.join("resources", "fonts"),
-                 types=['*.ttf']):
+    def __init__(cls, path=os.path.join(BASE_PATH, "fonts"), types=['*.ttf']):
         """..."""
         super().__init__(
             loader=pygame.font.Font,

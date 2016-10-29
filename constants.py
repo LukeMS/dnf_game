@@ -1,7 +1,7 @@
 """Some constant values used by the game."""
 
 TILE_W = TILE_H = 32
-TILESET = "DejaVuSansMono-Bold{}.png".format(TILE_W)
+TILESET = "DejaVuSansMono-Bold32.png"
 
 SCREEN_WIDTH = 1024
 SCREEN_COLS = SCREEN_WIDTH // TILE_W

@@ -17,18 +17,19 @@ class TileFx:
         """..."""
         self._scene = scene
 
+    @property
     def data(self):
         """..."""
-        return self._scene.levels[self._scene.current_level]['tile_fx']
+        return self._scene.current_level.tile_fx
 
-    def add(self, coord, color, duration):
+    def add(self, *, coord, color, duration):
         """Used to store an effect on the container.
 
         coord: a list of tuple coordinates (x, y)
         color: a tuple of three values (r, g, b)
         duration: an integer, how many turns the effect should last.
         """
-        data = self.data()
+        data = self.data
 
         index = len(data)
         for i, fx in enumerate(data):
@@ -48,52 +49,65 @@ class TileFx:
 
         Remove it if the duration is less then one.
         """
-        data = self.data()
+        data = self.data
 
         for i in range(len(data) - 1, -1, -1):
             fx = data[i]
-            if fx['duration'] < 1:
+            duration = fx['duration']
+            if not duration:
                 data.pop(i)
             else:
-                fx['duration'] -= 1
+                if duration > 0:
+                    fx['duration'] -= 1
 
-    def get(self, coord, throwback=None):
+    def get(self, coord, default=None):
         """Return the color of the effect for a given coordinate.
 
-        It returns None as default if the coordinate doesn't have an effect
-        stored.
-        If you want it to return something else (overriding the default value),
-        pass it as throwback.
+        If the coordinate doesn't have an effect stored, a specified
+        default value (or None) is returned.
         """
-        data = self.data()
+        data = self.data
 
         pos = x, y = coord
         # print(pos)
         for fx in data:
             if pos in fx['coord']:
                 return fx['color']
-        return throwback
+        return default
+
+    def __str__(self):
+        return "\n".join(
+            ", ".join("{}:({})".format(k, v) for k, v in list(turn.items()))
+            for turn in self.data
+        )
 
 
-if __name__ == '_data__':
-    tile_fx = TileFx()
+if __name__ == '__main__':
 
-    tile_fx.add(
-        [(0, 2), (1, 4)],
-        'red', 1)
+    class CurrentLevel:
+        """..."""
 
-    tile_fx.add(
-        [(1, 3), (2, 5)],
-        'blue', 2)
+        def __init__(self):
+            """..."""
+            self.tile_fx = []
 
-    tile_fx.add(
-        [(0, 2), (3, 0)],
-        'yellow', 3)
+    class DummyScene:
+        """..."""
 
-    for i in range(40):
-        print("(0, 2): {}, (1, 3):{}, (3, 0): {}".format(
-            tile_fx.get((0, 2)),
-            tile_fx.get((1, 3)),
-            tile_fx.get((3, 0))
-        ))
+        def __init__(self):
+            """..."""
+            self.current_level = CurrentLevel()
+            self.tile_fx = TileFx(scene=self)
+
+    scene = DummyScene()
+    tile_fx = scene.tile_fx
+
+    tile_fx.add(coord=[(0, 2), (1, 4)], color='red', duration=1)
+    tile_fx.add(coord=[(1, 3), (2, 5)], color='blue', duration=2)
+    tile_fx.add(coord=[(0, 2), (3, 0)], color='yellow', duration=3)
+    tile_fx.add(coord=[(0, 2), (3, 0)], color='green', duration=-1)
+
+    for t in range(1, 5 + 1):
+        print("Turn:", t)
+        print(tile_fx, "\n")
         tile_fx.update()

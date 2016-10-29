@@ -3,40 +3,15 @@
 import math
 import random
 
-import fov
-
-from pathfinder import AStarSearch, GreedySearch
 from constants import FOV_RADIUS, SCREEN_ROWS, SCREEN_COLS
-
-
-class Map:
-
-    @classmethod
-    def __init__(cls, scene):
-        cls._scene = scene
-
-    @classmethod
-    def __setitem__(cls, key, value):
-        dic = cls._scene.levels[cls._scene.current_level]['grid']
-        dic[key]['feature'] = value
-
-    @classmethod
-    def __getitem__(cls, key):
-        dic = cls._scene.levels[cls._scene.current_level]['grid']
-        return dic[key]['feature'] if key in dic else None
-
-    @classmethod
-    def keys(cls):
-        dic = cls._scene.levels[cls._scene.current_level]['grid']
-        return dic.keys()
 
 
 class MapMgr:
     """Handles data operations with maps."""
 
     def __init__(self, scene):
-        self._scene = scene
         """..."""
+        self._scene = scene
 
     @property
     def grid(self):
@@ -60,22 +35,13 @@ class MapMgr:
 
     @property
     def player(self):
+        """..."""
         return self._scene.player
 
     @player.setter
     def player(self, value):
         """..."""
         self._scene.player = value
-
-    @property
-    def width(self):
-        """..."""
-        return self._scene.width
-
-    @property
-    def height(self):
-        """..."""
-        return self._scene.height
 
     def get_cell_at_pos(self, pos):
         """..."""
@@ -84,156 +50,6 @@ class MapMgr:
     def get_area(self, pos, radius):
         """..."""
         return Area.get(self.grid, pos, radius, self.width, self.height)
-
-    def get_neighbors(self, pos):
-        """..."""
-        lst = []
-        for x in [-1, 0, 1]:
-            for y in [-1, 0, 1]:
-                if x == 0 and y == 0:
-                    continue
-                n = pos + (x, y)
-                if self.valid_tile(n):
-                    lst.append(n)
-        return lst
-
-    def has_same_id(self, t1, t2, invalid_return_value=True):
-        """Compare the id value of two cells.
-
-        t1 = (x1, y1) # a tuple of coordinates
-        t2 = (x2, y2)
-        """
-        try:
-            status = self.grid[t1].id == self.grid[t2].id
-            return status
-        except KeyError:
-            return invalid_return_value
-
-    def set_tile_variation(self, check_func, pos=None):
-        if pos is None:
-            for x, y in self.grid.keys():
-                cell = self.grid[x, y]
-                cell.max_var = check_func(cell.id)
-                # TODO: use perlin noise instead of rnd
-                if cell.max_var:
-                    cell.tile_variation = random.randrange(0, cell.max_var)
-
-    def set_tiling_index(self, pos=None):
-        """..."""
-        if pos is None:
-            for x, y in self.grid.keys():
-                self.grid[x, y].tiling_index = self.get_tiling_index(x, y)
-
-    def get_tiling_index(self, x, y):
-        """Calculate the tile index based on its neighbours."""
-        s = 0
-        max_x = self.width - 1
-        max_y = self.height - 1
-
-        # isAboveSame
-        if (y - 1 < 0) or self.has_same_id((x, y), (x, y - 1)):
-            s += 1
-
-        # isLeftSame
-        if (x - 1 < 0) or self.has_same_id((x, y), (x - 1, y)):
-            s += 2
-
-        # isBelowSame
-        if (y + 1 >= max_y) or self.has_same_id((x, y), (x, y + 1)):
-            s += 4
-
-        # isRightSame
-        if (x + 1 > max_x) or self.has_same_id((x, y), (x + 1, y)):
-            s += 8
-
-        return s
-
-    def valid_tile(self, pos, goal=None):
-        """..."""
-        """
-        if goal is not None:
-            if self.distance(pos, goal) > 10:
-                return False
-        """
-
-        if not (pos is not None and
-                0 <= pos[0] < self.width and
-                0 <= pos[1] < self.height):
-            return False
-        else:
-            return not self.is_blocked(pos)
-
-    def is_blocked(self, pos, sprite=None):
-        """..."""
-        # first test the map tile
-        if self.grid[pos].block_mov:
-            return True
-
-        # now check for any blocking objects
-        for obj in self._scene.get_all_at_pos(
-                pos, _types=["creatures", "objects"]
-        ):
-            if obj.combat:
-                return True
-
-        return False
-
-    def a_path(self, start_pos, end_pos):
-        return AStarSearch.new_search(self, self.grid, start_pos, end_pos)
-
-    def greedy_path(self, start_pos, end_pos):
-        return GreedySearch.new_search(self, self.grid, start_pos, end_pos)
-
-    def set_fov(self):
-        """..."""
-        def func_visible(x, y):
-            grid[x, y].visible = True
-            # if self.distance(self.player.pos, (x, y)) <= EXPLORE_RADIUS:
-            grid[x, y].explored = True
-
-        def blocks_sight(x, y):
-            return grid[x, y].block_sight
-
-        grid = self.grid
-        w = self._scene.width
-        h = self._scene.height
-        self._scene.set_offset(self.player)
-        offset = self._scene.offset.x, self._scene.offset.y
-
-        if SCREEN_COLS > w:
-            offset = 0, offset[1]
-
-        if SCREEN_ROWS > h:
-            offset = offset[0], 0
-
-        [setattr(grid[offset[0] + x, offset[1] + y], "visible", False)
-         for x in range(min(w, SCREEN_COLS))
-         for y in range(min(h, SCREEN_ROWS))]
-
-        fov.fieldOfView(self.player.x, self.player.y,
-                        self._scene.width, self._scene.height, FOV_RADIUS,
-                        func_visible, blocks_sight)
-
-
-def get_area(cls, grid, pos, radius, map_width, map_height):
-    """..."""
-    def func_visit(cls, x, y):
-        area.append((x, y))
-
-    def func_blocked(cls, x, y):
-        return grid[x, y].block_mov
-
-    x, y = pos
-
-    area = []
-
-    fov.fieldOfView(
-        x, y, map_width, map_height,
-        radius, func_visit, func_blocked
-    )
-
-    return area
-
 
 def get_octant(pos, distance, octant=0):
     """..."""
@@ -324,30 +140,6 @@ def get_line(start, end):
     if swapped:
         points.reverse()
     return points
-
-
-def distance(pos1, pos2):
-    """..."""
-    if isinstance(pos1, tuple):
-        x1, y1 = pos1
-    else:
-        x1, y1 = pos1.x, pos1.y
-
-    if isinstance(pos2, tuple):
-        x2, y2 = pos2
-    else:
-        x2, y2 = pos2.x, pos2.y
-
-    dx = abs(x2 - x1)
-    dy = abs(y2 - y1)
-
-    min_d = min(dx, dy)
-    max_d = max(dx, dy)
-
-    diagonal_steps = min_d
-    straight_steps = max_d - min_d
-
-    return math.sqrt(2) * (diagonal_steps + straight_steps)
 
 
 def reg_convex_poly_room(sides, radius, rotation):

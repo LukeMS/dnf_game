@@ -4,20 +4,18 @@ import os
 
 import pygame
 
-from pygame_manager import manager
+from manager import base_scenes
 
 import resources
 
 
-class Terminal(manager.BaseScene):
+class Terminal(base_scenes.SceneBase):
     """..."""
 
-    def __init__(self, game, **kwargs):
+    def __init__(self, **kwargs):
         """..."""
-        super().__init__(game, **kwargs)
+        super().__init__()
 
-        path = os.path.join(os.path.dirname(__file__), "resources", "fonts")
-        self.fonts = resources.Fonts(path=path)
         self.font = self.fonts.load('Cousine-Bold.ttf', 14)
         self.w, self.h = w, h = self.font.size(' ')
         self.cols = (self.width - 8) // w
@@ -61,37 +59,38 @@ class Terminal(manager.BaseScene):
 class TerminalGrid(Terminal):
     """..."""
 
-    def __init__(self, game, **kwargs):
+    def __init__(self, *, map_gen):
         """..."""
-        super().__init__(game, **kwargs)
+        super().__init__()
 
-        self.ignore_regular_update = False
-        path = os.path.join(os.path.dirname(__file__), "resources", "fonts")
-        self.fonts = resources.Fonts(path=path)
         self.font = self.fonts.load('PressStart2P-Regular.ttf', 8)
         self.w, self.h = w, h = self.font.size(' ')
         self.cols = (self.width - 8) // w
         self.rows = (self.height - 8) // h
         self.text = '#' * self.cols
+        map_gen.terminal = self
+        self.map_gen = map_gen
+        map_gen.run_test()
 
-    def draw(self, grid, grid_w, grid_h):
+    def manual_update(self):
         """..."""
-        l = []
-        for y in range(grid_h):
-            row = "".join([chr(grid[x, y].id) for x in range(grid_w)])
-            row = row.replace("/", " ").replace(".", " ")
-            l.append(row)
-        self.text = l
+        self.screen.fill((0, 0, 0))
         self.on_update()
+        pygame.display.flip()
 
     def on_update(self):
         """..."""
-        self.screen.fill((0, 0, 0))
-        text = self.text
-        for i, t in enumerate(text):
-            display = self.font.render(t, True, (127, 255, 127))
-            self.screen.blit(display, (4, i * self.h))
-        pygame.display.flip()
+        _map = self.map_gen.map
+        for (x, y), tile_group in _map.items():
+            drawables = ([tile_group.feature] + tile_group.objects +
+                         tile_group.creatures)
+            for tile in drawables:
+                if not tile:
+                    continue
+                char = chr(tile.id)
+                color = tile.color
+                img = self.font.render(char, True, color)
+                self.screen.blit(img, (4 + self.w * x, y * self.h))
 
     def on_key_press(self, event):
         """..."""
@@ -102,38 +101,10 @@ class TerminalGrid(Terminal):
 class SurfaceGrid(TerminalGrid):
     """..."""
 
-    def __init__(self, game, **kwargs):
-        """..."""
-        super().__init__(game, **kwargs)
-
-        self.wrap = False
-        self.offset = 0, 0
-        self.scroll_k = 3
-
-    def draw(self, grid, grid_w, grid_h):
-        """..."""
-        def get_char(v):
-            if v > 0.7:
-                return "A"
-            elif v > 0.6:
-                return "n"
-            elif v > 0.4:
-                return "."
-            elif v > 0.28:
-                return "´"
-            elif v > 0.2:
-                return "~"
-            else:
-                return "¬"
-
-        x0, y0 = self.offset
-        x1 = min(x0 + self.cols, self.map_w)
-        y1 = min(y0 + self.rows, self.map_h)
-
-        self.text = [("".join([get_char(grid[self.get_pos(x, y)])
-                               for x in range(x0, x1)]))
-                     for y in range(y0, y1)]
-        self.on_update()
+    wrap = False
+    offset = 0, 0
+    scroll_k = 5
+    ignore_regular_update = True
 
     def get_pos(self, x, y):
         """Handle wrapping."""
@@ -142,16 +113,29 @@ class SurfaceGrid(TerminalGrid):
         else:
             return x, y
 
+    def on_update(self):
+        """..."""
+        _map = self.map_gen.map
+        for (x, y), tile in _map.items():
+            x2, y2 = x + self.offset[0], y + self.offset[1]
+            if x < self.offset[0] or y < self.offset[1]:
+                continue
+            char = chr(tile.feature.id)
+            color = tile.feature.color
+            img = self.font.render(char, True, color)
+            self.screen.blit(img, (4 + self.w * (x - self.offset[0]),
+                                   (y - self.offset[1]) * self.h))
+
     def scroll(self, x, y):
         """Adjust offset for screen scrolling."""
         offset = list(self.offset)
         offset[0] += x
         offset[1] += y
 
-        offset[0] = min(self.map_w - self.cols, offset[0])
+        offset[0] = min(self.map_gen.map.cols - self.cols, offset[0])
         offset[0] = max(0, offset[0])
 
-        offset[1] = min(self.map_h - self.rows, offset[1])
+        offset[1] = min(self.map_gen.map.rows - self.rows, offset[1])
         offset[1] = max(1, offset[1])
 
         self.offset = tuple(offset)
@@ -180,7 +164,7 @@ class SurfaceGrid(TerminalGrid):
             self.scroll(-1, 1)
         elif event.key in [pygame.K_LEFT, pygame.K_KP4]:
             self.scroll(-1, 0)
-        self.print()
+        self.manual_update()
 
     def on_mouse_scroll(self, event):
         """Handle mouse scroll input for the level."""
@@ -199,7 +183,7 @@ class SurfaceGrid(TerminalGrid):
                 self.scroll(k, 0)
             else:
                 self.scroll(0, k)
-        self.print()
+        self.manual_update()
 
 
 class SurfaceTiledGrid(TerminalGrid):

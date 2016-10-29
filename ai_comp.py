@@ -28,8 +28,8 @@ class Confused(Ai):
         if self.num_turns > 0:  # still confused...
             # move in a random direction, and decrease the number of turns
             # confused
-            if monster.scene.grid[monster.pos].visible:
-                monster.scene.gfx.msg_log.add(
+            if monster.visible:
+                monster.scene.msg_log.add(
                     (monster.name + " looks confused"), GAME_COLORS["pink"])
             if random.randint(1, 100) > 33:
                 monster.move_rnd()
@@ -43,7 +43,7 @@ class Confused(Ai):
             self.effect = False
             monster.ai = monster.default_ai
             monster.color = monster.default_color
-            monster.scene.gfx.msg_log.add(
+            monster.scene.msg_log.add(
                 'The ' + monster.name + ' is no longer confused!',
                 GAME_COLORS["yellow"])
 

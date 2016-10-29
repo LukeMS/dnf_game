@@ -5,24 +5,25 @@ import os
 import pygame
 from sftext.sftext import SFText
 
-import game
+# from game import SceneMultiLayer, Layer
+from manager.scenes import base_scenes
+from manager.windows import base_windows
 import combat.creatures
 import combat.char_roll
 from common import get_mod_case
 from common import packer
 
 
-class Create(game.MultiLayer):
+class Create(base_scenes.SceneMultiLayer):
     """..."""
 
-    def __init__(self, game, target):
+    def __init__(self, target=None):
         """Initialization.
 
         Parameters:
-            game: game.Game instance;
             target: scene to deliver the character to after creation;
         """
-        super().__init__(game, draw_all=True)
+        super().__init__(draw_all=True)
 
         self.target = target
 
@@ -31,10 +32,11 @@ class Create(game.MultiLayer):
     def create_layers(self):
         """..."""
 
-        stats_rect = pygame.Rect(0,  # left
-                                 0,  # top
-                                 int(self.width * 0.30),  # width
-                                 self.height)  # height
+        stats_rect = pygame.Rect(
+            0,  # left
+            0,  # top
+            int(self.width * 0.30),  # width
+            self.height)  # height
         self.stats_layer = Stats(parent=self, rect=stats_rect)
         self.insert_layer(self.stats_layer)
 
@@ -54,8 +56,11 @@ class Create(game.MultiLayer):
         if event.key == pygame.K_ESCAPE:
             self.quit()
         elif event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
-            self.game.set_scene(**self.target,
-                                character=self.stats_layer.character)
+            if self.target:
+                self.game.set_scene(
+                    **self.target, character=self.stats_layer.character)
+            else:
+                self.quit()
         elif event.key in [pygame.K_PAGEUP, pygame.K_PAGEDOWN,
                            pygame.K_HOME, pygame.K_END]:
             self.desc_layer.on_key_press(event)
@@ -79,14 +84,14 @@ class Create(game.MultiLayer):
         super().on_update()
 
 
-class Stats(game.Layer):
+class Stats(base_windows.Layer):
     """..."""
     bottom_color = (15, 15, 31)
     top_color = (0, 0, 0)
 
     def __init__(self, parent, rect):
         """..."""
-        super().__init__(parent)
+        super().__init__(parent=parent)
         self.character = combat.creatures.Character()
 
         self.width = rect.width
@@ -309,13 +314,15 @@ class Stats(game.Layer):
 
         mystyle = {'size': 18, 'color': (223, 223, 255)}
 
-        text = ''.join([t for t in ["\n",
-            name(), gender(), race(), _class(), alignment(), age(),
-            height(), weight(), ''.join(
-                [att(i) for i in range(len(self.att_names))])
-        ]])
+        text = ''.join(
+            [t for t in [
+                "\n",
+                name(), gender(), race(), _class(), alignment(), age(),
+                height(), weight(), ''.join(
+                    [att(i) for i in range(len(self.att_names))])]])
 
-        self.sftext = SFText(text=text, style=mystyle)
+        self.sftext = SFText(text=text, fonts=self.game.fonts,
+                             style=mystyle)
 
     def on_update(self):
         """..."""
@@ -363,7 +370,7 @@ class Stats(game.Layer):
         self.change_selection(0)
 
 
-class Description(game.Layer):
+class Description(base_windows.Layer):
     """..."""
 
     bottom_color = (31, 15, 15)
@@ -371,7 +378,7 @@ class Description(game.Layer):
 
     def __init__(self, parent, rect):
         """..."""
-        super().__init__(parent)
+        super().__init__(parent=parent)
 
         self.width = rect.width
         self.height = rect.height
@@ -399,7 +406,8 @@ class Description(game.Layer):
             old_text = None
 
         if old_text != text:
-            self.sftext = SFText(text=text, rect=self.rect)
+            self.sftext = SFText(text=text, fonts=self.game.fonts,
+                                 rect=self.rect)
 
     def on_update(self):
         """..."""
@@ -422,8 +430,9 @@ class Description(game.Layer):
         self.sftext.on_mouse_scroll(event)
 
 if __name__ == '__main__':
+    from manager import Game
     from constants import LIMIT_FPS, SCREEN_WIDTH, SCREEN_HEIGHT
 
-    game.Game(
-        scene=Create, framerate=LIMIT_FPS,
-        width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+    g = Game(framerate=LIMIT_FPS, width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+    g.set_scene(scene=Create)
+    g.execute()

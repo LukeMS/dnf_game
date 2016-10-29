@@ -27,12 +27,22 @@ if not os.path.isdir('map_gen'):
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from common import PriorityQueue
-from tile import Tile
 from gamemap import reg_convex_poly_room
+from game_types import Map, TileFeature, MapHeader
 
-from constants import MAX_ROOMS, ROOM_MIN_SIZE, ROOM_MAX_SIZE
+from constants import (MAX_ROOMS, ROOM_MIN_SIZE, ROOM_MAX_SIZE,
+                       MAP_COLS, MAP_ROWS)
 
 SECTOR_SIZE = 16
+
+
+def create_map(*, header):
+    """Utility method to create by mode/name."""
+    # print(dir(sys.modules[__name__]))
+    creator = getattr(sys.modules[__name__], header.mode)()
+    creator.header = header
+    _map = creator.make_map()
+    return _map
 
 
 class RoomRect(Rect):
@@ -42,14 +52,17 @@ class RoomRect(Rect):
         """..."""
         super().__init__(x, y, w, h)
 
-    def random_point(self, _map, templates=["floor"]):
+    def random_point(self, _map, templates=["floor"], ignore=[]):
         """..."""
-        while True:
-            x = random.randint(self.x1, self.x2)
-            y = random.randint(self.y1, self.y2)
-            if _map[x, y].name in templates:
-                break
-        return x, y
+        x_range = list(range(self.x1, self.x2 + 1))
+        y_range = list(range(self.y1, self.y2 + 1))
+        random.shuffle(x_range)
+        random.shuffle(y_range)
+        for x in x_range:
+            for y in y_range:
+                if _map[x, y].feature.name in templates and (
+                        (x, y) not in list(ignore)):
+                    return x, y
 
     @property
     def x1(self):
@@ -102,36 +115,62 @@ class RoomIrregular(RoomRect):
 
     def random_point(self, _map, templates=["floor"]):
         """..."""
-        while True:
-            (x, y) = random.choice(self.tiles)
-            if _map[x, y].name in templates:
-                return x, y
+        tiles = list(self.tiles)
+        random.shuffle(tiles)
+        for pos in tiles:
+            if _map[pos].feature.name in templates:
+                return pos
 
 
 class SectorRect(RoomRect):
     """..."""
 
 
-class Map:
+class MapCreatorBase(object):
     """..."""
 
-    def __init__(self):
+    @property
+    def cols(self):
         """..."""
-        self.map = {}
-        self.rooms = []
-        self.halls = []
+        return self.map.cols
 
-    def make_map(self, width, height):
+    @property
+    def rows(self):
         """..."""
-        self.map = {(x, y): Tile((x, y), 'wall')
-                    for x in range(width) for y in range(height)}
+        return self.map.rows
+
+    @property
+    def rooms(self):
+        """..."""
+        return self.map.rooms
+
+    @property
+    def halls(self):
+        """..."""
+        return self.map.rooms
+
+    def make_map(self, *, cols, rows):
+        """..."""
+        self.map = Map(header=self.header, cols=cols, rows=rows)
+
+
+class RndMap1(MapCreatorBase):
+    """..."""
+
+    def make_map(self, *, cols=MAP_COLS, rows=MAP_ROWS, **kwargs):
+        """..."""
+        super().make_map(cols=cols, rows=rows)
 
         num_rooms = 0
+        new_room = None
         for r in range(MAX_ROOMS):
             w = random.randint(ROOM_MIN_SIZE, ROOM_MAX_SIZE)
             h = random.randint(ROOM_MIN_SIZE, ROOM_MAX_SIZE)
-            x = random.randint(0, width - w - 1)
-            y = random.randint(0, height - h - 1)
+            x = random.randint(0, cols - w - 1)
+            y = random.randint(0, rows - h - 1)
+
+            # center coordinates of previous room
+            prev_x, prev_y = new_room.center if new_room else (None, None)
 
             new_room = RoomRect(x, y, w, h)
 
@@ -154,9 +193,6 @@ class Map:
                     # all rooms after the first:
                     # connect it to the previous room with a tunnel
 
-                    # center coordinates of previous room
-                    prev_x, prev_y = self.rooms[num_rooms - 1].center
-
                     # draw a coin (random number that is either 0 or 1)
                     if random.randint(0, 1) == 1:
                         # first move horizontally, then vertically
@@ -171,13 +207,13 @@ class Map:
                 self.rooms.append(new_room)
                 num_rooms += 1
 
-        return self.map, self.rooms, self.halls, width, height
+        return self.map
 
     def create_room(self, room):
-        """Go through the tiles in the rectangle and make them passable"""
+        """Dig the room tiles (make them passable)."""
         for x in range(room.x1 + 1, room.x2):
             for y in range(room.y1 + 1, room.y2):
-                self.map[x, y] = Tile((x, y), 'floor')
+                self.map[x, y].feature = TileFeature((x, y), 'floor')
         self.rooms.append(room)
 
     def create_h_tunnel(self, x1, x2, y):
@@ -185,7 +221,7 @@ class Map:
         min_x = min(x1, x2)
         max_x = max(x1, x2)
         for x in range(min_x, max_x + 1):
-            self.map[x, y] = Tile((x, y), 'floor')
+            self.map[x, y].feature = TileFeature((x, y), 'floor')
         self.halls.append(RoomRect(min_x, y, max_x - min_x, 0))
 
     def create_v_tunnel(self, y1, y2, x):
@@ -193,27 +229,71 @@ class Map:
         min_y = min(y1, y2)
         max_y = max(y1, y2) + 1
         for y in range(min_y, max_y + 1):
-            self.map[x, y] = Tile((x, y), 'floor')
+            self.map[x, y].feature = TileFeature((x, y), 'floor')
         self.halls.append(RoomRect(x, min_y, 0, max_y - min_y))
 
     def rnd_open_tile(self):
         """..."""
-        big_list = list(self.rooms)
-        big_list.extend(self.halls)
+        big_list = self.halls.union(self.rooms)
         place = random.choice(big_list)
 
         x, y = place.random_point(map=self.map)
         return x, y
 
 
-class RndMap(Map):
+class RndMap2(MapCreatorBase):
     """..."""
+
+    _rooms = list()
+    tile_cost = {
+        ord('/'): 0.8,
+        ord('#'): 18,
+        ord('.'): 32,
+        ord('<'): 48,
+        ord('>'): 48
+    }
 
     def __init__(self, visualize=False):
         """..."""
         super().__init__()
         self.sectors = {}
         self.visualize = visualize
+
+    @property
+    def rooms(self):
+        """..."""
+        return self._rooms
+
+    def make_map(self, *, cols=MAP_COLS, rows=MAP_ROWS, **kwargs):
+        """..."""
+        cols, rows = self.create_sectors()
+        super().make_map(cols=cols, rows=rows)
+
+        self.start, self.end = self.create_rooms()
+
+        for (x, y), pos in self.map.items():
+
+            pos.neighbors_4d = {
+                (i, j) for i, j in [
+                    (x, y - 1),  # up
+                    (x + 1, y),  # right
+                    (x, y + 1),  # down
+                    (x - 1, y)]  # left
+                if ((0 < i < cols) and (0 < j < rows))}
+
+            pos.neighbors_8d = {
+                (i, j)
+                for i in [x - 1, x, x + 1]
+                for j in [y - 1, y, y + 1]
+                if ((0 < i < cols) and (0 < j < rows))}
+
+        self.create_halls()
+
+        print("Done creating.")
+
+        self.map.rooms = self.rooms
+
+        return self.map
 
     def create_sectors(self):
         """Create n SECTOR_SIZExSECTOR_SIZE sectors.
@@ -295,7 +375,7 @@ class RndMap(Map):
         end_dist = 0
         print(start, start.center)
         for room in self.rooms[1:]:
-            dist = heuristic((start.center), (room.center))
+            dist = _map.heuristic((start.center), (room.center))
             if dist > end_dist:
                 end = room
                 end_dist = dist
@@ -312,9 +392,9 @@ class RndMap(Map):
                 for r_pos, tile in room_tiles.items():
                     if tile == ".":
                         pos = (r_pos[0] + x, r_pos[1] + y)
-                        _map[pos] = Tile(pos, 'floor')
+                        _map[pos].feature = TileFeature(pos, 'floor')
             else:
-                [_map.__setitem__((x, y), Tile((x, y), 'floor'))
+                [_map[x, y].set_feature(TileFeature((x, y), 'floor'))
                  for x in range(room.x1, room.x2 + 1)
                  for y in range(room.y1, room.y2 + 1)]
 
@@ -332,20 +412,20 @@ class RndMap(Map):
             # 47 == ord("/")
             # 35 == ord("#")
 
-            path = a_star_search(_map,
-                                 target.center, room.center,
-                                 w, h)
+            path = a_star_search(start=target.center, goal=room.center,
+                                 grid=_map, width=w, height=h,
+                                 cost_func=self.cost)
 
             if self.visualize:
                 for pos in path:
-                    if _map[pos].id == 35:
-                        _map[pos].id = 47
+                    if _map[pos].feature.id == 35:
+                        _map[pos].feature.id = 47
                 self.print()
             else:
-                [_map[pos].__setattr__('id', 47)
-                 for pos in path if _map[pos].id == 35]
+                [_map[pos].feature.__setattr__('id', 47)
+                 for pos in path if _map[pos].feature.id == 35]
 
-            return path
+            return tuple(path)
 
         def pick_a_room(who, ignore):
             rooms = self.rooms
@@ -358,8 +438,8 @@ class RndMap(Map):
         _map = self.map
         halls = self.halls
         rooms = self.rooms
-        w = self.width
-        h = self.height
+        w = self.cols
+        h = self.rows
 
         previous = self.start
 
@@ -372,65 +452,55 @@ class RndMap(Map):
 
             previous = room
 
-        [_map.__setitem__(pos, Tile(pos, 'floor'))
+        [_map[pos].set_feature(TileFeature(pos, 'floor'))
          for hall in halls
          for pos in hall
-         if _map[pos].id != ord("#")]
+         if _map[pos].feature.id != ord("#")]
 
-    def make_map(self, *args, **kwargs):
+    def cost(self, node):
         """..."""
-        w, h = self.width, self.height = self.create_sectors()
-        # fill the map with walls
-        self.map = {(x, y): Tile((x, y), 'wall')
-                    for x in range(w) for y in range(h)}
-
-        self.start, self.end = self.create_rooms()
-
         _map = self.map
+        tile_cost = self.tile_cost
+        s = 0
 
-        for (x, y), pos in _map.items():
+        # ord('#') == 35
 
-            pos.neighbors_4d = {
-                (i, j) for i, j in [
-                    (x, y - 1),  # up
-                    (x + 1, y),  # right
-                    (x, y + 1),  # down
-                    (x - 1, y)]  # left
-                if ((0 < i < w) and (0 < j < h))}
+        neighbors_4d = _map[node].neighbors_4d
 
-            pos.neighbors_8d = {
-                (i, j)
-                for i in [x - 1, x, x + 1]
-                for j in [y - 1, y, y + 1]
-                if ((0 < i < w) and (0 < j < h))}
+        for d in _map[node].neighbors_8d:
+            if d in neighbors_4d:
+                if _map[d].feature.id == 35:
+                    s -= 2
+            elif _map[d].feature.id != 35:
+                s += 6
 
-        self.create_halls()
-
-        print("Done creating.")
-
-        return _map, self.rooms, self.halls, w, h
+        return max(tile_cost[_map[node].feature.id] + s, 0)
 
     def print(self):
         """..."""
-        _map = self.map
-        h = self.height
-        w = self.width
-        self.terminal.draw(_map, w, h)
+        self.terminal.text = self.map.__str__()
+        self.terminal.game.on_event()
+        self.terminal.manual_update()
 
     def test(self):
-        from pygame_manager import manager
+        """..."""
+        from manager import Game
         from terminal import TerminalGrid
 
-        scene = manager.Manager(scene=TerminalGrid, framerate=10,
-                                width=1024, height=768, show_fps=False)
-        scene.current_scene.text = [' ']
+        game = Game(scene=TerminalGrid, framerate=10,
+                    width=1024, height=768, show_fps=False,
+                    scene_args={
+                        'map_gen': self
+                    })
 
+    def run_test(self):
+        """..."""
         self.visualize = True
 
-        self.terminal = scene.current_scene
+        print("Test ready: make_map()")
         self.make_map()
-        while scene.alive:
-            scene.on_event()
+        while self.terminal.game.alive:
+            self.terminal.on_event()
 
     def __enter__(self):
         """..."""
@@ -441,17 +511,13 @@ class RndMap(Map):
         del self
 
 
-class RndMapChamber(RndMap):
+class RndMap2a(RndMap2):
     """..."""
 
-    def make_map(self, *args, **kwargs):
+    def make_map(self, *, cols=MAP_COLS, rows=MAP_ROWS, **kwargs):
         """..."""
-        _map, self.rooms, self.halls, w, h = super().make_map()
-
-        print("self.doors", self.doors)
-        self.create_doors()
-
-        return _map, self.rooms, self.halls, w, h
+        super().make_map()
+        return self.map
 
     def create_halls(self):
         """..."""
@@ -461,19 +527,21 @@ class RndMapChamber(RndMap):
             # 35 == ord("#")
             # 61 == ord("=")
 
-            path = a_star_search(_map, target.center, room.center, w, h)
+            path = a_star_search(start=target.center, goal=room.center,
+                                 grid=_map, width=w, height=h,
+                                 cost_func=self.cost)
 
             # if not a room, != ord(".")
-            path = [pos for pos in path if _map[pos].id != 46]
+            path = [pos for pos in path if _map[pos].feature.id != 46]
 
             # set it to hall, = ord("/")
-            [_map[pos].__setattr__('id', 47)
-             for pos in path if _map[pos].id == 35]
+            [_map[pos].feature.__setattr__('id', 47)
+             for pos in path if _map[pos].feature.id == 35]
 
             if self.visualize:
                 self.print()
 
-            return path
+            return tuple(path)
 
         def pick_a_room(who, ignore):
             rooms = self.rooms
@@ -486,9 +554,9 @@ class RndMapChamber(RndMap):
         _map = self.map
         halls = self.halls
         rooms = self.rooms
-        doors = self.doors = {}
-        w = self.width
-        h = self.height
+        doors = _map.doors = dict()
+        w = self.cols
+        h = self.rows
 
         previous = self.start
         for room in rooms[1:]:
@@ -509,34 +577,13 @@ class RndMapChamber(RndMap):
 
             previous = room
 
-        [_map.__setitem__(pos, Tile(pos, 'floor'))
+        [_map[pos].set_feature(TileFeature(pos, 'floor'))
          for hall in halls
          for pos in hall
-         if _map[pos].id != ord("#")]
-
-    def create_doors(self):
-        """..."""
-        def door_tile(pos, room):
-            if self.visualize:
-                self.print()
-            print("Creating doors at", pos, room)
-            return Tile(pos, random.choice(
-                ["door_closed", "door_locked", "door_open"]), room=room)
-
-        _map = self.map
-        doors = self.doors
-
-        [_map.__setitem__(pos, door_tile(pos, room))
-         for pos, room in doors.items()
-         if _map[pos].name == 'floor']
-
-        print()
-
-        if self.visualize:
-            self.print()
+         if _map[pos].feature.id != ord("#")]
 
 
-class AsciiMap(Map):
+class AsciiMap(MapCreatorBase):
     """Create a map from a ascii table."""
 
     _conversion = {
@@ -548,7 +595,7 @@ class AsciiMap(Map):
         """Initialization."""
         super().__init__()
 
-    def make_map(self, *args, **kwargs):
+    def make_map(self, **kwargs):
         """Create a map in game-usable format.
 
         Parameters:
@@ -556,19 +603,22 @@ class AsciiMap(Map):
         """
         conversion = self._conversion
         template = self._template
+        rows = len(template)
+        cols = len(template[0])
+        super().make_map(cols=cols, rows=rows)
 
-        height = self.height = len(template)
-        width = self.width = len(template[0])
-
-        assert(all([len(template[i]) == width
+        """
+        assert(all([len(template[i]) == cols
                     for i in range(1, len(template))]))
+        """
 
-        self.map = {(x, y): Tile((x, y), conversion[template[y][x]])
-                    for x in range(width) for y in range(height)}
+        [self.map[x, y].set_feature(TileFeature((x, y),
+                                    conversion[template[y][x]]))
+         for (x, y) in self.map.keys()]
 
         self.create_rooms()
 
-        return self.map, self.rooms, self.halls, width, height
+        return self.map
 
     def create_rooms(self):
         """Convert open spaces to room structures."""
@@ -593,61 +643,38 @@ class Pit(AsciiMap):
     def create_rooms(self):
         """Convert open spaces to room structures."""
         tiles = [(x, y) for (x, y), tile in self.map.items()
-                 if tile.name == 'floor']
+                 if tile.feature.name == 'floor']
         self.rooms.append(RoomIrregular(tiles))
 
 
-def heuristic(a, b):
+"""Utiilities:"""
+
+
+def a_star_search(*, grid, start, goal, width, height, cost_func):
     """..."""
-    (x1, y1) = a
-    (x2, y2) = b
-    return abs(x1 - x2) + abs(y1 - y2)
-
-
-def a_star_search(grid, start, goal, width, height):
-    """..."""
-    def cost(node):
-        s = 0
-
-        # ord('#') == 35
-
-        neighbors_4d = grid[node].neighbors_4d
-
-        for d in grid[node].neighbors_8d:
-            if d in neighbors_4d:
-                if grid[d].id == 35:
-                    s -= 2
-            elif grid[d].id != 35:
-                s += 6
-
-        return max(tile_cost[grid[node].id] + s, 0)
-
     def reconstruct_path(came_from, start, goal):
         current = goal
-        path = [current]
+        reconstruct_path = [current]
         while current != start:
             current = came_from[current]
-            path.append(current)
-        path.reverse()
-        return path
+            reconstruct_path.append(current)
+        reconstruct_path.reverse()
+        return reconstruct_path
 
-    tile_cost = {
-        ord('/'): 0.8,
-        ord('#'): 18,
-        ord('.'): 32,
-        ord('<'): 48,
-        ord('>'): 48
-    }
+    def feature(pos):
+        return grid[pos].feature
 
     start = tuple(start)
     goal = tuple(goal)
 
     # set boundaries
     m = 5  # margin
-    min_x = max(min(grid[start].left - m, grid[goal].left - m), 1)
-    min_y = max(min(grid[start].top - m, grid[goal].top - m), 1)
-    max_x = min(max(grid[start].right + m, grid[goal].right + m), width - 2)
-    max_y = min(max(grid[start].bottom + m, grid[goal].bottom + m), height - 2)
+    min_x = max(min(feature(start).left - m, feature(goal).left - m), 1)
+    min_y = max(min(feature(start).top - m, feature(goal).top - m), 1)
+    max_x = min(max(feature(start).right + m, feature(goal).right + m),
+                width - 2)
+    max_y = min(max(feature(start).bottom + m, feature(goal).bottom + m),
+                height - 2)
 
     frontier = PriorityQueue()
     frontier.put(start, 0)
@@ -664,10 +691,10 @@ def a_star_search(grid, start, goal, width, height):
 
         for next in grid[current].neighbors_4d:
             if (min_x <= next[0] <= max_x) and (min_y <= next[1] <= max_y):
-                new_cost = cost_so_far[current] + cost(next)
+                new_cost = cost_so_far[current] + cost_func(next)
                 if next not in cost_so_far or new_cost < cost_so_far[next]:
                     cost_so_far[next] = new_cost
-                    priority = new_cost + heuristic(goal, next)
+                    priority = new_cost + grid.heuristic(goal, next)
                     frontier.put(next, priority)
                     came_from[next] = current
 
@@ -685,7 +712,7 @@ def img_preview(m):
         ord(">"): (255, 0, 0)
     }
     w, h = m.width, m.height
-    m = {k: table[v.id] for k, v in m.map.items()}
+    m = {k: table[v.feature.id] for k, v in m.map.items()}
 
     img = PIL.Image.new("RGB", (w, h))
 
@@ -704,12 +731,20 @@ def img_preview(m):
     plt.show()
 
 if __name__ == '__main__':
-    import random_seed
-    random = random_seed.get_seeded(__file__)
+    # import random_seed
+    # random = random_seed.get_seeded(__file__)
 
-    m = RndMapChamber()
-    m.test()
+    map_header = MapHeader(name="dungeon0", level=1, split=0, cr=0,
+                           mode='RndMap2a')
 
+    if True:
+        m = RndMap2()
+        m.header = map_header
+        m.test()
+
+    elif False:
+        m = create_map(header=map_header)
+        print(m)
     exit()
 
     f = __file__.replace(".py", "")

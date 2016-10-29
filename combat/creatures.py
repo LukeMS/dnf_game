@@ -96,7 +96,7 @@ class Creature:
             string = "but misses"
             msg_log.add(string)
 
-        msg_log = self.owner.scene.gfx.msg_log
+        msg_log = self.owner.scene.msg_log
 
         roll = combat.char_roll.roll
 

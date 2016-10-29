@@ -4,18 +4,19 @@ import os
 import pygame
 from sftext.sftext import SFText
 from common import packer
-import game
+from manager.scenes import base_scenes
+from manager.windows import base_windows
 
 WHITE = "{color (255, 255, 255)}"
 YELLOW = "{color (255, 255, 0)}"
 
 
-class Navigator(game.Layer):
+class Navigator(base_windows.Layer):
     """..."""
 
     def __init__(self, parent, rect, tab_y=10):
         """..."""
-        super().__init__(parent)
+        super().__init__(parent=parent)
 
         self.db = parent.db
 
@@ -74,7 +75,8 @@ class Navigator(game.Layer):
     def create_text(self, text):
         """..."""
         nav_style = "{size 18}" + WHITE
-        self.sftext = SFText(text=text, style=nav_style, rect=self.rect)
+        self.sftext = SFText(text=text, fonts=self.game.fonts,
+                             style=nav_style, rect=self.rect)
 
     def previous_item(self):
         """..."""
@@ -167,12 +169,12 @@ class Navigator(game.Layer):
             set_i(matches[0])
 
 
-class Description(game.Layer):
+class Description(base_windows.Layer):
     """..."""
 
     def __init__(self, parent, rect):
         """..."""
-        super().__init__(parent)
+        super().__init__(parent=parent)
 
         self.content = ""
 
@@ -199,7 +201,7 @@ class Description(game.Layer):
 
         self.rect.height = (self.screen.get_height() - self.rect.y)
 
-        self.sftext = SFText(text=self.content,
+        self.sftext = SFText(text=self.content, fonts=self.game.fonts,
                              rect=self.rect)
 
     def on_update(self):
@@ -219,12 +221,12 @@ class Description(game.Layer):
         self.sftext.on_mouse_scroll(event)
 
 
-class Main(game.MultiLayer):
+class Main(base_scenes.SceneMultiLayer):
     """..."""
 
-    def __init__(self, game):
+    def __init__(self):
         """..."""
-        super().__init__(game, draw_all=True)
+        super().__init__(draw_all=True)
 
         self.db = packer.unpack_json(os.path.join('data', 'descriptions.bzp'))
 
@@ -271,8 +273,9 @@ class Main(game.MultiLayer):
         super().on_update()
 
 if __name__ == '__main__':
+    from manager import Game
     from constants import LIMIT_FPS, SCREEN_WIDTH, SCREEN_HEIGHT
 
-    game.Game(
+    Game(
         scene=Main, framerate=LIMIT_FPS,
         width=SCREEN_WIDTH, height=SCREEN_HEIGHT)

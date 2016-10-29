@@ -3,39 +3,34 @@ import os
 import pygame
 """..."""
 
-import game
-from game import Window
-import gui
-import level_main
+from manager.scenes import base_scenes
+from manager.windows import base_windows
+import scene_map
 import char_creation
 import descriptions
 
 
-class MainMenu(game.BaseScene):
+class MainMenu(base_scenes.SceneBase):
     """..."""
 
-    def __init__(self, game):
+    def __init__(self):
         """..."""
-        super().__init__(game=game)
         self.selection = 0
 
         self.create_items()
 
-        self.gui = gui.Menu(
-            gfx=self.game.gfx, title="Caves & Lizards Roguelike",
+        self.menu_layer = base_windows.Menu(
+            parent=self,
+            title="Caves & Lizards Roguelike",
             items=[item["text"] for item in self._menu])
 
-        ((x, y), (x1, y1)) = self.gui.body_rect
-        w = x1 - x
-        h = y1 - y
-        self.body_frame = Window(self, x, y, w, h)
-        self.body_frame.set_margin(16)
+        self.menu_layer.add_item('New Item')
+        self.menu_layer.remove_item('New Item')
 
     def on_update(self):
         """..."""
-        #self.screen.fill((0, 255, 0))
-        self.body_frame.on_update()
-        self.gui.draw()
+        # self.body_frame.on_update()
+        self.menu_layer.draw()
 
     def create_items(self):
         """..."""
@@ -45,14 +40,14 @@ class MainMenu(game.BaseScene):
                 "kwargs": {
                     "scene": char_creation.Create,
                     "target": {
-                        "scene": level_main.Main
+                        "scene": scene_map.SceneMap
                     }
                 }
             },
             {
                 "text": "Quick Battle",
                 "kwargs": {
-                    "scene": level_main.Main,
+                    "scene": scene_map.SceneMap,
                     'new': True,
                     'mode': 'pit',
                 }
@@ -60,7 +55,7 @@ class MainMenu(game.BaseScene):
             {
                 "text": "Load Game",
                 "kwargs": {
-                    "scene": level_main.Main,
+                    "scene": scene_map.SceneMap,
                     'new': False
                 }
             },
@@ -89,7 +84,7 @@ class MainMenu(game.BaseScene):
         """..."""
         self.selection += value
         self.selection = self.selection % len(self._menu)
-        self.gui.select(self.selection)
+        self.menu_layer.select(self.selection)
 
     def on_key_press(self, event):
         """..."""
@@ -100,23 +95,17 @@ class MainMenu(game.BaseScene):
         elif event.key == pygame.K_DOWN:
             self.change_selection(+1)
         elif event.key == pygame.K_RETURN:
-            getattr(
-                self.game,
-                "set_scene"
-            )(**self._menu[self.selection]['kwargs'])
+            self.game.set_scene(**self._menu[self.selection]['kwargs'])
 
     def clear(self):
         """..."""
-        self.gui.clear()
-        del self.gui
-
-    def __getstate__(self):
-        """..."""
-        return None
+        self.menu_layer.clear()
+        del self.menu_layer
 
 
 if __name__ == '__main__':
+    from manager import Game
     from constants import LIMIT_FPS, SCREEN_WIDTH, SCREEN_HEIGHT
-    game.Game(
-        scene=MainMenu, framerate=LIMIT_FPS,
-        width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+
+    g = Game(scene=MainMenu,
+             framerate=LIMIT_FPS, width=SCREEN_WIDTH, height=SCREEN_HEIGHT)

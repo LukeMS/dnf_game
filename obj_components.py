@@ -35,6 +35,16 @@ class Component:
             from pprint import pprint
             pprint(component)
 
+    @property
+    def scene(self):
+        """..."""
+        return self.owner.scene
+
+    @property
+    def player(self):
+        """..."""
+        return self.scene.player
+
     @classmethod
     def test(cls):
         """..."""
@@ -63,17 +73,16 @@ class Item(Component):
 
     def pick_up(self, getter):
         """..."""
-        scene = self.owner.scene
-        msg_log = self.owner.scene.gfx.msg_log
+        msg_log = self.scene.msg_log
 
         # add to the player's inventory and remove from the map
         if len(getter.inventory) >= 26:
-            if getter == self.owner.scene.player:
-                self.owner.scene.gfx.msg_log.add(
+            if getter == self.player:
+                self.scene.msg_log.add(
                     'Your inventory is full, cannot pick up ' +
                     self.owner.name + '.', GAME_COLORS["yellow"])
         else:
-            scene.rem_obj(self.owner, 'objects', self.owner.pos)
+            self.scene.rem_obj(self.owner, 'objects', self.owner.pos)
 
             getter.inventory.append(self.owner)
             self.possessor = getter
@@ -84,19 +93,18 @@ class Item(Component):
 
     def drop(self, dropper):
         """Add to the map and remove from the player's inventory.
+
         Also, place  it at the player's coordinates.
-        If it is an equipment, unequip it first."""
-
-        scene = self.owner.scene
-
+        If it is an equipment, unequip it first.
+        """
         if self.owner.equipment:
             self.owner.equipment.unequip()
 
-        scene.add_obj(self.owner, 'objects', self.owner.pos)
+        self.scene.add_obj(self.owner, 'objects', self.owner.pos)
         dropper.inventory.remove(self.owner)
         self.possessor = None
 
-        self.owner.scene.gfx.msg_log.add(
+        self.scene.msg_log.add(
             'You dropped a ' + self.owner.name + '.', GAME_COLORS["yellow"])
         return 'dropped'
 
@@ -110,7 +118,7 @@ class Item(Component):
 
         # just call the "use_function" if it is defined
         if self.use_function is None:
-            self.owner.scene.gfx.msg_log.add(
+            self.scene.msg_log.add(
                 'The ' + self.owner.name + ' cannot be used.')
         else:
             if self.use_function(who=user, target=target) != 'cancelled':
@@ -140,7 +148,7 @@ class DngFeat(Component):
     def use(self, who):
         """..."""
         if self.use_function is None:
-            self.owner.scene.gfx.msg_log.add(
+            self.scene.msg_log.add(
                 'This ' + self.owner.name + ' cannot be used.')
         else:
             if self.direction:
@@ -202,7 +210,7 @@ class Equipment(Component):
             return
         self.is_equipped = False
 
-        self.owner.item.possessor.scene.gfx.msg_log.add(
+        self.scene.msg_log.add(
             'Unequipped ' + self.owner.name + ' from ' +
             self.slot + '.', GAME_COLORS["light_yellow"])
         self.slot = None
@@ -266,7 +274,7 @@ class Weapon(Equipment):
                 old_equipment.unequip()
 
         self.is_equipped = True
-        self.owner.scene.gfx.msg_log.add(
+        self.scene.msg_log.add(
             'Equipped ' + self.owner.name + ' on ' +
             self.slot + '.', GAME_COLORS["light_green"])
 
@@ -320,7 +328,7 @@ class Armor(Equipment):
             old_equipment.unequip()
 
         self.is_equipped = True
-        self.owner.scene.gfx.msg_log.add(
+        self.scene.msg_log.add(
             'Equipped ' + self.owner.name + ' on ' +
             self.slot + '.', GAME_COLORS["light_green"])
 

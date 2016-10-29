@@ -28,6 +28,7 @@ class Group(pygame.sprite.Group):
 
 class GameObject:
     """..."""
+
     # (pygame.sprite.Sprite)
     # this is a generic object: the player, a monster, an item, the stairs...
     # it's always represented by a character on screen.
@@ -35,7 +36,8 @@ class GameObject:
     def __init__(
             self, scene, x, y, id, color, name=None, blocks=True,
             combat=None, ai=None, item=None, active=True,
-            dng_feat=None, equipment=None, test=False, **kwargs):
+            dng_feat=None, equipment=None, test=False, **kwargs
+    ):
         """..."""
         if not test:
             super().__init__()
@@ -71,9 +73,14 @@ class GameObject:
         return tuple((self.x, self.y, TILE_W, TILE_H))
 
     @property
+    def current_level(self):
+        """..."""
+        return self.scene.current_level
+
+    @property
     def visible(self):
         """..."""
-        return self.scene.grid[self.pos].visible
+        return self.current_level[self.pos].feature.visible
 
     def __getstate__(self):
         """..."""
@@ -88,16 +95,11 @@ class GameObject:
         return (pygame.mouse.get_pressed()[0] and
                 self.rect.collidepoint(pygame.mouse.get_pos()))
 
-    # next to a visible tile
-    def set_next_to_vis(self):
+    @property
+    def next_to_vis(self):
         """..."""
-        for x in [-1, 0, 1]:
-            for y in [-1, 0, 1]:
-                n = self.pos + (x, y)
-                if self.scene.grid[n].visible:
-                    self.next_to_vis = True
-                    return
-        self.next_to_vis = False
+        return any(self.current_level[pos].feature.visible
+                   for pos in self.current_level.get_neighbors(self.pos))
 
     @property
     def pos(self):
@@ -146,9 +148,9 @@ class GameObject:
 
         status = None
 
-        if pos is not None and not self.scene.map_mgr.is_blocked(pos, self):
+        if pos and not self.current_level.is_blocked(pos, self) \
+                and not self.current_level.is_occupied(pos):
             self.pos = pos
-            self.set_next_to_vis()
             status = True
 
         if self.name != 'cursor':
@@ -159,7 +161,7 @@ class GameObject:
     def move_rnd(self):
         """..."""
         start_pos = self.pos
-        next_step = random.choice(self.scene.map_mgr.get_neighbors(start_pos))
+        next_step = random.choice(self.current_level.get_neighbors(start_pos))
         return self.move(next_step)
 
     def move_towards(self, target):
@@ -168,7 +170,7 @@ class GameObject:
         end_pos = target.pos
 
         try:
-            path = self.scene.map_mgr.a_path(
+            path = self.current_level.a_path(
                 start_pos, end_pos)
             next_step = Position(path[1])
             if self.move(next_step):
@@ -183,16 +185,13 @@ class GameObject:
         """..."""
         if pos2 is None:
             pos2 = self.pos
-        return self.scene.map_mgr.distance(pos1.pos, pos2)
+        return self.current_level.distance(pos1.pos, pos2)
 
     def update(self):
         """..."""
         self.scene.gfx.draw(
-            self.id,
-            (
-                self.rect.x - self.scene.offset[0],
-                self.rect.y - self.scene.offset[1]
-            ),
+            self.id, (self.rect.x - self.scene.offset[0],
+                      self.rect.y - self.scene.offset[1]),
             color=self.color)
 
     def gain_xp(self, value):
@@ -286,7 +285,7 @@ class NPC(GameObject):
 
     def update(self):
         """..."""
-        if self.scene.grid[self.pos].visible:
+        if self.visible:
             super().update()
 
     def update_hp(self):
@@ -299,7 +298,7 @@ class Player(GameObject):
 
     def __init__(self, id=ord('@'), color=GAME_COLORS["yellow"], **kwargs):
         """..."""
-        if 'combat' not in kwargs:
+        if 'combat' not in kwargs or kwargs['combat'] is None:
             race = kwargs['race'] if 'race' in kwargs else None
             _class = kwargs['_class'] if '_class' in kwargs else None
 
@@ -307,16 +306,22 @@ class Player(GameObject):
 
         super().__init__(
             id=id, color=color, **kwargs)
-        self.scene.add_obj(self, 'creatures', self.pos)
         self.inventory = []
-        self.scene.gfx.hp_bar.set_value(self.combat.hit_points_current,
-                                        self.combat.hit_points_total)
+
+    def set_starting_position(self, pos, header):
+        """..."""
+        try:
+            self.scene.rem_obj(self, 'creatures', self.pos)
+        except ValueError as v:
+            print(v, "while attempting to remove player.")
+        self.pos = pos
+        self.last_map = header
+        self.scene.add_obj(self, 'creatures', self.pos)
 
     def update_hp(self):
         """..."""
         # max_hp
-        self.scene.gfx.hp_bar.set_value(self.combat.hit_points_current,
-                                        self.combat.hit_points_total)
+        self.scene.hp_bar.refresh()
 
     def action(self, dx=0, dy=0, action='std', key=None):
         """..."""
@@ -325,19 +330,20 @@ class Player(GameObject):
             if any((dx, dy)):
                 # player is moving to/attacking a direction
                 # try to find an attackable object there
-                target = self.scene.get_obj('creatures', pos)
-
-                if target is not None and target.combat:
-                    self.combat.attack(target)
+                creatures = self.scene.get_obj('creatures', pos)
+                if creatures:
+                    target = random.choice(creatures)
+                    if target and target.combat:
+                        self.combat.attack(target)
                 else:
                     if self.move(pos):
-                        self.scene.map_mgr.set_fov()
+                        self.scene.set_fov()
         elif action is 'get':
-            target = self.scene.get_obj('objects', pos)
-            if target is not None and target.item:
-                if target.item.pick_up(getter=self):
-                    self.active = False
-                    return True
+            for target in self.current_level[pos].objects:
+                if target and target.item:
+                    if target.item.pick_up(getter=self):
+                        self.active = False
+                        return True
             return False
         elif action is 'use':
             target = self.scene.get_obj('objects', pos)
@@ -351,8 +357,14 @@ class Player(GameObject):
         return True
 
     def move(self, pos=None):
+        old_pos = self.pos
+        old_offset = self.scene.level_layer.offset
         status = super().move(pos)
         self.scene.set_offset(self)
+        new_pos = self.pos
+        new_offset = self.scene.level_layer.offset
+        print("Player moving: {}->{}, offset: {}->{}".format(
+            old_pos, new_pos, old_offset, new_offset))
         return status
 
 
@@ -409,7 +421,7 @@ class Item(GameObject):
 
     def update(self):
         """..."""
-        if self.scene.grid[self.pos].visible:
+        if self.visible:
             super().update()
 
     @classmethod
@@ -457,9 +469,11 @@ class Cursor(GameObject):
     def cursor_collision(self):
         """..."""
         for _type in ['creatures', 'objects', 'feature']:
-            target = self.scene.get_obj(_type, self.pos)
-            if target and target.visible:
-                return target
+            targets = self.scene.get_obj(_type, self.pos)
+            targets = [targets] if _type == 'feature' else targets
+            for target in targets:
+                if target and target.visible:
+                    return target
 
 if __name__ == '__main__':
     Item.test()

@@ -1,10 +1,11 @@
 Improvements:
+- Structure: replace dict of dict's for classes on scene_map.Main.levels;
 - Make it possible for maps to have custom item/creature placement;
 - Finish door implementation (tile or object?);
 - Battle mode: enable selection of cr/char or creature;
 - Create cheat shortcut to go up/down for testing;
 - Use proper start/end setting points to place stairs;
--- Replace tkinter for internal debug viewer;
+- Replace tkinter for internal debug viewer;
 Fixes:
 - Unequip interpreter error;
 - event.key == pygame.K_k level_input;
