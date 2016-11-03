@@ -86,7 +86,7 @@ class Game(object):
         """Main game loop."""
         self.alive = True
         # print("self.alive:", self.alive)
-        #i = 1
+        # i = 1
         while self.alive:
 
             self.on_event()
@@ -97,7 +97,7 @@ class Game(object):
             self.ms = self.clock.tick(self.framerate)
             # if not i % 100:
             #    print("iterations of Game.execute:", i)
-            #i += 1
+            # i += 1
         # print("self.alive:", self.alive)
 
     def on_event(self):
@@ -147,7 +147,7 @@ class Game(object):
             # Draw the screen
             pygame.display.flip()
 
-            #self._scene.post_update()
+            # self._scene.post_update()
 
     def draw_fps(self):
         """Draw the fps display."""

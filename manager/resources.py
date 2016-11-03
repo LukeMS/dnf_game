@@ -101,8 +101,9 @@ class Images(ImageBase):
     """..."""
 
     @classmethod
-    def __init__(cls, path=BASE_PATH, types=['*.jpg', '*.png', '*.bmp']):
+    def __init__(cls, path=BASE_PATH, types=None):
         """..."""
+        types = types if types else ['*.jpg', '*.png', '*.bmp']
         super().__init__(
             loader=pygame.image.load,
             path=path,
@@ -115,11 +116,9 @@ class Tilesets(ImageBase):
     _tilesets = {}
 
     @classmethod
-    def __init__(
-        cls, path=os.path.join(BASE_PATH, "tilesets"),
-        types=['*.jpg', '*.png', '*.bmp']
-    ):
+    def __init__(cls, path=os.path.join(BASE_PATH, "tilesets"), types=None):
         """..."""
+        types = types if types else ['*.jpg', '*.png', '*.bmp']
         cls.loader = pygame.image.load
         cls._names = cls._index(path=path, types=types)
 
@@ -210,8 +209,9 @@ class Fonts(Resources):
     """..."""
 
     @classmethod
-    def __init__(cls, path=os.path.join(BASE_PATH, "fonts"), types=['*.ttf']):
+    def __init__(cls, path=os.path.join(BASE_PATH, "fonts"), types=None):
         """..."""
+        types = types if types else ['*.ttf']
         super().__init__(
             loader=pygame.font.Font,
             path=path,

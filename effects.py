@@ -156,6 +156,7 @@ def monster_death(victim):
 
         victim.scene.add_obj(victim, 'objects', victim.pos)
 
+    """TODO: standardize death as method."""
     victim.blocks = False
     victim.combat = None
     victim.ai = None

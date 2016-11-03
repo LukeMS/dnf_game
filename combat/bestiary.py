@@ -132,7 +132,7 @@ class Bestiary:
         return d
 
     @classmethod
-    def get_filtered(cls, filter_list=[]):
+    def get_filtered(cls, filter_list=None):
         """
         filter_list: a list of 4 element tuples containing:
             [0] the key to be searched;
@@ -141,7 +141,7 @@ class Bestiary:
             [3] the condition: if True, the result will be valid
             if the function returns True.
         """
-
+        filter_list = filter_list if filter_list else []
         import re
 
         matches = []

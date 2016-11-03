@@ -5,6 +5,7 @@ import os
 import pygame
 
 from manager import base_scenes
+import scene_map
 
 import resources
 
@@ -59,10 +60,12 @@ class Terminal(base_scenes.SceneBase):
 class TerminalGrid(Terminal):
     """..."""
 
+    add_obj = scene_map.SceneMap.add_obj
+    rem_obj = scene_map.SceneMap.rem_obj
+
     def __init__(self, *, map_gen):
         """..."""
         super().__init__()
-
         self.font = self.fonts.load('PressStart2P-Regular.ttf', 8)
         self.w, self.h = w, h = self.font.size(' ')
         self.cols = (self.width - 8) // w
@@ -71,6 +74,11 @@ class TerminalGrid(Terminal):
         map_gen.terminal = self
         self.map_gen = map_gen
         map_gen.run_test()
+
+    @property
+    def current_level(self):
+        """..."""
+        return self.map_gen.map
 
     def manual_update(self):
         """..."""
@@ -82,9 +90,7 @@ class TerminalGrid(Terminal):
         """..."""
         _map = self.map_gen.map
         for (x, y), tile_group in _map.items():
-            drawables = ([tile_group.feature] + tile_group.objects +
-                         tile_group.creatures)
-            for tile in drawables:
+            for tile in tile_group.get_all():
                 if not tile:
                     continue
                 char = chr(tile.id)
@@ -117,7 +123,6 @@ class SurfaceGrid(TerminalGrid):
         """..."""
         _map = self.map_gen.map
         for (x, y), tile in _map.items():
-            x2, y2 = x + self.offset[0], y + self.offset[1]
             if x < self.offset[0] or y < self.offset[1]:
                 continue
             char = chr(tile.feature.id)

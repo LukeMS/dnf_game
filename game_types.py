@@ -6,8 +6,7 @@ import random
 from pygame import Rect
 import fov
 
-from pathfinder import AStarSearch, GreedySearch
-from common import packer
+from common import packer, PriorityQueue
 from constants import TILE_W, TILE_H, GAME_COLORS
 
 
@@ -129,29 +128,25 @@ class TileFeature:
 
     templates = {
         "floor": {
-            "color": (129, 106, 86)
+            "block_mov": False,
+            "block_sight": False,
+            "id": ord("."),
+            "color": (129, 106, 86),
+            "_rnd_gen_cost": 64
+        },
+        "hall": {
+            "block_mov": False,
+            "block_sight": False,
+            "id": ord("/"),
+            "color": (129, 106, 86),
+            "_rnd_gen_cost": 1
         },
         "wall": {
             "block_mov": True,
             "block_sight": True,
             "id": ord("#"),
-            "color": (161, 161, 161)
-        },
-        "door_closed": {
-            "block_mov": True,
-            "block_sight": True,
-            "id": ord("="),
-            "color": (161, 161, 161)
-        },
-        "door_locked": {
-            "block_mov": True,
-            "block_sight": True,
-            "id": ord("="),
-            "color": (161, 161, 161)
-        },
-        "door_open": {
-            "id": 92,  # ord("\\")
-            "color": (161, 161, 161)
+            "color": (161, 161, 161),
+            "_rnd_gen_cost": 8
         },
         "water": {
             "id": ord("="),
@@ -159,11 +154,11 @@ class TileFeature:
         },
 
         "mountain": {
-            "id": ord("A"),
+            "id": ord("M"),
             "color": GAME_COLORS["light_chartreuse"]
         },
         "hill": {
-            "id": ord("n"),
+            "id": ord("h"),
             "color": GAME_COLORS["dark_chartreuse"]
         },
         "land": {
@@ -171,7 +166,7 @@ class TileFeature:
             "color": GAME_COLORS["darker_green"]
         },
         "coast": {
-            "id": ord("´"),
+            "id": ord("c"),
             "color": GAME_COLORS["darker_amber"]
         },
         "shallow_water": {
@@ -181,24 +176,101 @@ class TileFeature:
         "deep_water": {
             "id": ord("¬"),
             "color": GAME_COLORS["darkest_blue"]
+        },
+
+        "arctic_shallow_water": {
+            "id": ord("~"),
+            "color": GAME_COLORS["sky"]
+        },
+        "arctic_deep_water": {
+            "id": ord("¬"),
+            "color": GAME_COLORS["dark_sky"]
+        },
+        "arctic coast": {
+            "id": ord("c"),
+            "color": (248, 243, 223)
+            # GAME_COLORS["lightest_amber"]  # (255, 255, 255)
+        },
+        "arctic land": {
+            "id": ord("."),
+            "color": (248, 248, 255)  # (255, 255, 255)
+        },
+        "arctic hill": {
+            "id": ord("h"),
+            "color": (245, 245, 245)  # (255, 255, 255)
+        },
+        "arctic mountain": {
+            "id": ord("M"),
+            "color": (245, 245, 245)  # (255, 255, 255)
+        },
+
+        "temperate desert": {
+            "id": ord("d"),
+            "color": (240, 220, 7)
+        },
+        "subtropical desert": {
+            "id": ord("d"),
+            "color": (250, 150, 24)
+        },
+        "tropical desert": {
+            "id": ord("d"),
+            "color": (255, 65, 12)
+        },
+
+        "boreal grassland": {
+            "id": ord("."),
+            "color": GAME_COLORS["dark_sea"]
+        },
+        "grassland": {
+            "id": ord("."),
+            "color": GAME_COLORS["darker_green"]
+        },
+        "savana": {
+            "id": ord("."),
+            "color": GAME_COLORS["darker_yellow"]  # (153, 219, 33)
+        },
+
+        "woodland": {
+            "id": ord("w"),
+            "color": GAME_COLORS["dark_turquoise"]  # (0, 255, 255)
+        },
+        "boreal forest": {
+            "id": ord("B"),
+            "color": GAME_COLORS["dark_sea"]  # (5, 100, 33)
+        },
+        "temperate deciduous forest": {
+            "id": ord("D"),
+            "color": GAME_COLORS["dark_chartreuse"]  # (47, 186, 74)
+        },
+        "temperate rain forest": {
+            "id": ord("T"),
+            "color": GAME_COLORS["dark_green"]  # (7, 250, 160)
+        },
+        "tropical rain forest": {
+            "id": ord("R"),
+            "color": GAME_COLORS["darker_green"]  # (8, 250, 50)
+        },
+
+        # removed
+        "tundra": {
+            "id": ord(","),
+            "color": (87, 235, 249)
+        },
+        "tropical seasonal forest": {
+            "id": ord("S"),
+            "color": (153, 219, 33)
         }
     }
 
-    def __init__(self, pos, template="wall", block_mov=None, block_sight=None,
-                 id=None, color=None, room=None):
+    def __init__(
+        self, *, pos, template="wall", block_mov=None, block_sight=None,
+        id=None, color=None, room=None
+    ):
         """..."""
         self.name = template
 
-        component = dict(self._base)
-        component.update(self.templates[template])
-
-        component["block_mov"] = block_mov or component["block_mov"]
-        component["block_sight"] = block_sight or component["block_sight"]
-        component["id"] = id or component["id"]
-        component["color"] = color or component["color"]
-
-        for key, value in component.items():
-            setattr(self, key, value)
+        self.__dict__.update(self._base)
+        self.__dict__.update(self.templates.__getitem__(template))
 
         self.room = room
         self.visible = False
@@ -209,6 +281,15 @@ class TileFeature:
 
         x, y = pos
         self.rect = Rect(x, y, TILE_W, TILE_H)
+
+    def change_feature(self, *, pos=None, template=None):
+        """..."""
+        if pos:
+            x, y = pos
+            self.rect = Rect(x, y, TILE_W, TILE_H)
+        if template:
+            self.name = template
+            self.__dict__.update(self.templates.__getitem__(template))
 
     @property
     def pos(self):
@@ -262,13 +343,38 @@ class TileGroup(object):
 
     def __init__(self, feature=None, objects=None, creatures=None):
         """..."""
-        self.feature = feature
-        self.objects = objects if objects else []
-        self.creatures = creatures if creatures else []
+        self._feature = feature
+        self._objects = objects if objects else []
+        self._creatures = creatures if creatures else []
+
+    @property
+    def pos(self):
+        """..."""
+        return self.feature.pos
+
+    @property
+    def feature(self):
+        """..."""
+        return self._feature
+
+    @feature.setter
+    def feature(self, value):
+        """..."""
+        self._feature = value
 
     def set_feature(self, value):
         """..."""
-        self.feature = value
+        self.__setattr__("_feature", value)
+
+    @property
+    def objects(self):
+        """..."""
+        return self._objects
+
+    @property
+    def creatures(self):
+        """..."""
+        return self._creatures
 
     def add_objects(self, value):
         """..."""
@@ -292,6 +398,17 @@ class TileGroup(object):
             return self.creatures
         elif _type.startswith('object'):
             return self.objects
+
+    def get_all(self):
+        """..."""
+        return [self.feature] + self.objects + self.creatures
+
+    def __str__(self):
+        """..."""
+        return ("{name}(pos:{pos}; feature:{feature}; "
+                "objects:{objects}; creatures:{creatures})").format(
+            name=self.__class__.__name__, pos=self.pos, feature=self.feature,
+            objects=self.objects, creatures=self.creatures)
 
 
 class MapHeader(object):
@@ -327,10 +444,9 @@ class MapContainer(object):
     them.
     """
 
-    _maps = dict()
-
     def __init__(self):
         """..."""
+        self._maps = dict()
         self.current = None
 
     def add(self, _map):
@@ -386,12 +502,11 @@ class Map(object):
         self.tile_fx = list()
         self._start = None
         if not grid:
-            self.grid = {(x, y): TileGroup(feature=TileFeature((x, y), tile))
-                         for x in range(cols) for y in range(rows)}
+            self.grid = {(x, y): TileGroup(feature=TileFeature(
+                pos=(x, y), template=tile))
+                for x in range(cols) for y in range(rows)}
         else:
             self.grid = grid
-            for item in grid.values():
-                assert(isinstance(item, TileGroup))
 
     def get_access(self, header):
         """..."""
@@ -498,6 +613,97 @@ class Map(object):
         return s
 
     @staticmethod
+    def get_line(start, end):
+        """Bresenham Line Algorithm.
+
+        Produces a list of tuples from start and end
+
+        >>> points1 = get_line((0, 0), (3, 4))
+        >>> points2 = get_line((3, 4), (0, 0))
+        >>> assert(set(points1) == set(points2))
+        >>> print points1
+        [(0, 0), (1, 1), (1, 2), (2, 3), (3, 4)]
+        >>> print points2
+        [(3, 4), (2, 3), (1, 2), (1, 1), (0, 0)]
+        """
+        # Setup initial conditions
+        x1, y1 = start
+        x2, y2 = end
+        dx = x2 - x1
+        dy = y2 - y1
+
+        # Determine how steep the line is
+        is_steep = abs(dy) > abs(dx)
+
+        # Rotate line
+        if is_steep:
+            x1, y1 = y1, x1
+            x2, y2 = y2, x2
+
+        # Swap start and end points if necessary and store swap state
+        swapped = False
+        if x1 > x2:
+            x1, x2 = x2, x1
+            y1, y2 = y2, y1
+            swapped = True
+
+        # Recalculate differentials
+        dx = x2 - x1
+        dy = y2 - y1
+
+        # Calculate error
+        error = int(dx / 2.0)
+        ystep = 1 if y1 < y2 else -1
+
+        # Iterate over bounding box generating points between start and end
+        y = y1
+        points = []
+        for x in range(x1, x2 + 1):
+            coord = (y, x) if is_steep else (x, y)
+            points.append(coord)
+            error -= abs(dy)
+            if error < 0:
+                y += ystep
+                error += dx
+
+        # Reverse the list if the coordinates were swapped
+        if swapped:
+            points.reverse()
+        return points
+
+    @staticmethod
+    def get_octant(pos, distance, octant=0):
+        """..."""
+        def op(x, y, c, r):
+            if octant == 0:
+                return (x + c, y - r)
+            elif octant == 1:
+                return (x + r, y - c)
+            elif octant == 2:
+                return (x + r, y + c)
+            elif octant == 3:
+                return (x + c, y + r)
+            elif octant == 4:
+                return (x - c, y + r)
+            elif octant == 5:
+                return (x - r, y + c)
+            elif octant == 6:
+                return (x - r, y - c)
+            elif octant == 7:
+                return (x - c, y - r)
+
+        octant = octant % 8
+
+        x0, y0 = pos
+        lst = []
+        for row in range(1, distance):
+            for col in range(0, row):
+                x1, y1 = op(x0, y0, col, row)
+                lst.append((x1, y1))
+
+        return lst
+
+    @staticmethod
     def distance(pos1, pos2):
         """..."""
         if isinstance(pos1, tuple):
@@ -548,6 +754,12 @@ class Map(object):
         """..."""
         return True if self.grid[pos].creatures else False
 
+    def blocks_sight(self, x, y):
+        """..."""
+        return any(item.block_sight
+                   for item in self.grid[x, y].get_all()
+                   if item)
+
     def get_neighbors(self, pos):
         """..."""
         lst = []
@@ -592,22 +804,144 @@ class Map(object):
                         radius, func_visit, func_blocked)
         return area
 
-    def a_path(self, start_pos, end_pos):
+    def cost(self, node):
         """..."""
-        """TODO:
-        Make variant methods (such as neighbours) work as  single methods
-        with map state ("creation", "non creation") based behaviour."""
-        return AStarSearch.new_search(self, self.grid, start_pos, end_pos)
+        return 1
 
-    def greedy_path(self, start_pos, end_pos):
+    def reconstruct_path(self, came_from, start, goal):
         """..."""
-        return GreedySearch.new_search(self, self.grid, start_pos, end_pos)
+        current = goal
+        reconstruct_path = [current]
+        while current != start:
+            current = came_from[current]
+            reconstruct_path.append(current)
+        reconstruct_path.reverse()
+        return reconstruct_path
+
+    def greedy_pathfinder(self, start, goal, mode="8d"):
+        """..."""
+        grid = self.grid
+        frontier = PriorityQueue()
+        frontier.put(start, 0)
+        came_from = {}
+        came_from[start] = None
+
+        while not frontier.empty():
+            current = frontier.get()
+
+            if current == goal:
+                break
+
+            neighbors = grid[current].neighbors_8d if mode == "8d" \
+                else grid[current].neighbors_4d
+            for next in neighbors:
+                if next not in came_from:
+                    priority = self.heuristic(goal, next)
+                    frontier.put(next, priority)
+                    came_from[next] = current
+        return self.reconstruct_path(came_from, start, goal)
+
+    def a_star_pathfinder(self, start, goal, mode="8d"):
+        """..."""
+        grid = self.grid
+        frontier = PriorityQueue()
+        came_from = {}
+        cost_so_far = {}
+
+        frontier.put(start, 0)
+        came_from[start] = None
+        cost_so_far[start] = 0
+
+        while not frontier.empty():
+            current = frontier.get()
+
+            neighbors = grid[current].neighbors_8d if mode == "8d" \
+                else grid[current].neighbors_4d
+            for next in neighbors:
+                new_cost = cost_so_far[current] + self.cost(next)
+                if next not in cost_so_far or new_cost < cost_so_far[next]:
+                    cost_so_far[next] = new_cost
+                    priority = new_cost + self.heuristic(goal, next)
+                    frontier.put(next, priority)
+                    came_from[next] = current
+
+            if current == goal:
+                break
+
+        return self.reconstruct_path(came_from, start, goal)
+
+    def b_star_pathfinder(self, *, start, goal, cost_func):
+        """..."""
+        def feature(pos):
+            return grid.__getitem__(pos).feature
+
+        def boundaries():
+            _start_feat = feature(start)
+            _goal_feat = feature(goal)
+
+            left = min(_start_feat.left, _goal_feat.left)
+            min_x = max(left - m, 0)
+
+            top = min(_start_feat.top, _goal_feat.top)
+            min_y = max(top - m, 0)
+
+            right = max(_start_feat.right, _goal_feat.right)
+            max_x = min(right + m, self.cols - 1)
+
+            bottom = max(_start_feat.bottom, _goal_feat.bottom)
+            max_y = min(bottom + m, self.rows - 1)
+
+            return min_x, min_y, max_x, max_y
+            return min_x, min_y, max_x, max_y
+
+        def inside_boundaries(pos):
+            return (min_x < pos[0] < max_x) and (min_y < pos[1] < max_y)
+
+        grid = self.grid
+        heuristic = self.heuristic
+        reconstruct_path = self.reconstruct_path
+        start = tuple(start)
+        goal = tuple(goal)
+
+        # set boundaries
+        m = 5  # margin
+        min_x, min_y, max_x, max_y = boundaries()
+
+        frontier = PriorityQueue()
+        frontier.put(start, 0)
+        came_from = {}
+        cost_so_far = {}
+        came_from[start] = None
+        cost_so_far[start] = 0
+
+        while not frontier.empty():
+            current = frontier.get()
+
+            if current == goal:
+                break
+
+            for nxt in grid.__getitem__(current).neighbors_4d:
+                if inside_boundaries(nxt):
+                    new_cost = (cost_so_far.__getitem__(current) +
+                                cost_func(nxt))
+                    if nxt not in cost_so_far or new_cost < cost_so_far[nxt]:
+                        cost_so_far.__setitem__(nxt, new_cost)
+                        priority = new_cost + heuristic(goal, nxt)
+                        frontier.put(nxt, priority)
+                        came_from.__setitem__(nxt, current)
+
+        return reconstruct_path(came_from, start, goal)
 
     def __str__(self):
         """..."""
+        cols = self.cols
+        rows = self.rows
+        grid = self.grid
+
         return "\n".join(
-            "".join(chr(self.grid[x, y].feature.id) for x in range(self.cols))
-            for y in range(self.rows))
+            "".join(chr(grid.__getitem__((x, y)).feature.id)
+                    for x in range(cols))
+            for y in range(rows))
 
     def __getitem__(self, key):
         """Act as a interface for grid attribute __getitem__."""

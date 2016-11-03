@@ -1,3 +1,5 @@
+"""..."""
+
 import pygame
 
 from constants import TILE_W, TILE_H

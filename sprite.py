@@ -34,9 +34,9 @@ class GameObject:
     # it's always represented by a character on screen.
 
     def __init__(
-            self, scene, x, y, id, color, name=None, blocks=True,
-            combat=None, ai=None, item=None, active=True,
-            dng_feat=None, equipment=None, test=False, **kwargs
+        self, *, scene, x, y, id, color, name=None, active=True,
+        block_mov=False, block_sight=False, ai=None, item=None, combat=None,
+        dng_feat=None, equipment=None, test=False, **kwargs
     ):
         """..."""
         if not test:
@@ -46,13 +46,12 @@ class GameObject:
             self.rect = pygame.Rect(x, y, TILE_W, TILE_H)
         #
         if test:
-            args = ["id", "color", "name", "blocks", "combat", "ai", "item",
-                    "equipment", "dng_feat", "active"]
+            args = ["id", "color", "name", "block_mov", "block_sight", "ai",
+                    "combat", "item", "equipment", "dng_feat", "active"]
         else:
-            args = [
-                "scene", "x", "y", "id", "color", "name", "blocks",
-                "combat", "ai", "item", "equipment", "dng_feat", "active"
-            ]
+            args = ["scene", "x", "y", "id", "color", "name", "block_mov",
+                    "block_sight", "combat", "ai", "item", "equipment",
+                    "dng_feat", "active"]
         # unpack the arguments and store them in the instance
         for arg in args:
             value = locals()[arg]
@@ -170,7 +169,7 @@ class GameObject:
         end_pos = target.pos
 
         try:
-            path = self.current_level.a_path(
+            path = self.current_level.a_star_pathfinder(
                 start_pos, end_pos)
             next_step = Position(path[1])
             if self.move(next_step):
@@ -357,10 +356,13 @@ class Player(GameObject):
         return True
 
     def move(self, pos=None):
+        """..."""
         old_pos = self.pos
         old_offset = self.scene.level_layer.offset
         status = super().move(pos)
         self.scene.set_offset(self)
+        """
+        """
         new_pos = self.pos
         new_offset = self.scene.level_layer.offset
         print("Player moving: {}->{}, offset: {}->{}".format(
@@ -370,17 +372,36 @@ class Player(GameObject):
 
 class DngFeature(GameObject):
     """..."""
+
     templates = {
         'stair_up': {
-            'id': "<",
+            'id': ord("<"),
             'color': GAME_COLORS["gray"],
-            'blocks': False
+            "block_mov": False,
+            "block_sight": False
         },
         'stair_down': {
-            'id': ">",
+            'id': ord(">"),
             'color': GAME_COLORS["gray"],
-            'blocks': False
-        }
+            "block_mov": False,
+            "block_sight": False
+        },
+        "door_closed": {
+            "id": ord("="),
+            "color": (161, 161, 161),
+            "block_mov": True,
+            "block_sight": True
+        },
+        "door_locked": {
+            "id": ord("¬"),
+            "color": (161, 161, 161),
+            "block_mov": True,
+            "block_sight": True
+        },
+        "door_open": {
+            "id": ord("\\"),  # 92
+            "color": (161, 161, 161)
+        },
     }
 
     def __init__(self, template, **kwargs):
@@ -391,7 +412,7 @@ class DngFeature(GameObject):
             new_obj['dng_feat'] = obj_components.DngFeat(template)
         super().__init__(
             **new_obj, name=str(template).capitalize())
-        self.scene.add_obj(self, 'objects', self.pos)
+        self.scene.add_obj(obj=self, _type='objects', pos=self.pos)
 
 
 class Item(GameObject):

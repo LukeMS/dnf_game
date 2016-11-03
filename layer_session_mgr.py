@@ -50,7 +50,7 @@ class SessionMgr(object):
         self.scene.maps = MapContainer()
         self.scene.tile_fx = tile_fx.TileFx(scene=self.scene)
         map_header = MapHeader(name="dungeon0", level=1, split=0, cr=0,
-                               mode='RndMap2a')
+                               mode='RndMap2')
         self.new_level(map_header)
         self.scene.cursor = sprite.Cursor(scene=self.scene)
 
@@ -75,17 +75,13 @@ class SessionMgr(object):
             # going to a new level - or the first one
             # set the level number so that dynamic @properties will use it
 
-            _map = rnd_gen.create_map(header=header)
-            # grid, rooms, halls, w, h = ???
-
-            scene.maps.add(_map)
+            scene.maps.add(rnd_gen.create_map(header=header))
             scene.maps.set_current(header)
-            populate_level.populate(scene=scene, _map=_map)
-
+            current_level = scene.current_level
+            populate_level.populate(scene=scene, _map=current_level)
             check_func = self.game.tilesets.get_tile_maximum_variation
-            _map.set_tile_variation(check_func=check_func)
-            _map.set_tiling_index()
-            scene.maps.backup()
+            current_level.set_tile_variation(check_func=check_func)
+            current_level.set_tiling_index()
 
         scene.player.set_starting_position(pos=scene.current_level._start,
                                            header=scene.current_level.header)

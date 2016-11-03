@@ -18,6 +18,7 @@ rnd_armor_material = RangedDictionary({
 def get_equipment(string):
     pattern = ""
 
-def calculate_hoard(total, specifics=[]):
+def calculate_hoard(total, specifics=None):
+    specifics = specifics if specifics else []
     for specific in specifics:
 

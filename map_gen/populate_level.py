@@ -40,16 +40,27 @@ def place_doors(*, scene, _map):
     Chances of specific door features (locked, stuck, secret) or materials
     are base on a fixed chance and map modifiers.
     """
-    def door_tile(pos, room):
-        print("Creating doors at", pos, room)
-        return TileFeature(pos, random.choice(
-            ["door_closed", "door_locked", "door_open"]), room=room)
+    def door_feature(pos, room):
+        x, y = pos
+        template = random.choice(["door_closed", "door_locked", "door_open"])
+        sprite.DngFeature(template=template, scene=scene, x=x, y=y)
 
     doors = _map.doors
+    [door_feature(pos, room)
+        for pos, room in doors.items()
+        if _map[pos].feature.name == 'floor']
 
-    [_map[pos].add_objects(door_tile(pos, room))
-     for pos, room in doors.items()
-     if _map[pos].feature.name == 'floor']
+    return
+    """
+    for pos, room in doors.items():
+        if _map[pos].feature.name == 'floor':
+            template = random.choice(["door_closed", "door_locked",
+                                      "door_open"])
+            door = TileFeature(pos=pos, template=template, room=room)
+            scene.add_obj(door, "objects", pos)
+            # _map[pos].add_objects(door)
+            print(_map[pos])
+    """
 
 
 def populate(*, scene, _map):
@@ -97,9 +108,7 @@ def populate(*, scene, _map):
 
         elif room_n == 0:
             x, y = room.random_point(_map)
-            template = "stair_down"
-            sprite.DngFeature(template=template, scene=scene,
-                              x=x, y=y)
+            sprite.DngFeature(template="stair_down", scene=scene, x=x, y=y)
             # TODO: implement pre-creation of headers linking on map creation.
             scene.current_level._start = x, y
 

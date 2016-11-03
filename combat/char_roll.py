@@ -139,7 +139,8 @@ def unit_conversion(value, from_unit, to_unit=False, round_=2):
             return value * weight[from_unit] / weight[to_unit]
 
 
-def height_weight(race, gender, modifiers=[0] * 6, debug=False):
+def height_weight(race, gender, modifiers=None, debug=False):
+    modifiers = modifiers if modifiers else [0] * 6
 
     if debug:
         for race in hw_dict.keys():

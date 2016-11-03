@@ -196,18 +196,15 @@ class SceneMap(scene_map_base.SceneMapBase):
             # if self.distance(self.player.pos, (x, y)) <= EXPLORE_RADIUS:
             self.current_level[x, y].feature.explored = True
 
-        def blocks_sight(x, y):
-            return self.current_level[x, y].feature.block_sight
-
         cols, rows = self.current_level.cols, self.current_level.rows
 
-        print("cols:", cols, ", rows:", rows)
+        # print("cols:", cols, ", rows:", rows)
         [self.current_level[x, y].feature.__setattr__("visible", False)
          for (x, y) in self.tiles_on_screen()]
 
         fov.fieldOfView(self.player.x, self.player.y,
                         cols, rows, FOV_RADIUS,
-                        func_visible, blocks_sight)
+                        func_visible, self.current_level.blocks_sight)
 
     def rem_obj(self, obj, _type, pos):
         """..."""
@@ -245,9 +242,10 @@ class SceneMap(scene_map_base.SceneMapBase):
             return tile.objects
 
     def get_all_at_pos(
-            self, pos, _types=["creatures", "objects", "feature"]
+            self, pos, _types=None
     ):
         """..."""
+        _types = _types if _types else ["creatures", "objects", "feature"]
         grid = self.levels[self.current_level]['grid']
 
         objects = []
@@ -294,7 +292,7 @@ class SceneMap(scene_map_base.SceneMapBase):
 
         y = max(0, y)
         y = min(self.max_y - self.rows, y)
-        print("pos val")
+        # print("pos val")
 
         return Position((x, y))
 

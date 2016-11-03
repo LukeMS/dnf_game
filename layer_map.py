@@ -8,7 +8,6 @@ from game_types import Position
 
 from common import debug_status
 
-import sprite
 import resources
 
 from constants import SCREEN_COLS, SCREEN_ROWS, TILE_W, TILE_H
@@ -67,31 +66,32 @@ class LayerMap(base_windows.Layer):
 
     def on_key_press(self, event):
         """Handle key presses input for the level."""
-        print("layer_map.on_key_press")
-        if event.key == pygame.K_ESCAPE:
+        key = event.key
+        # print("layer_map.on_key_press", key)
+        if key == pygame.K_ESCAPE:
             self.quit()
 
         if self.player.active:
-            if event.key in [pygame.K_KP7]:
+            if key in [pygame.K_KP7]:
                 self.player.action(-1, -1)
-            elif event.key in [pygame.K_UP, pygame.K_KP8]:
+            elif key in [pygame.K_UP, pygame.K_KP8]:
                 self.player.action(0, -1)
-            elif event.key in [pygame.K_KP9]:
+            elif key in [pygame.K_KP9]:
                 self.player.action(1, -1)
-            elif event.key in [pygame.K_RIGHT, pygame.K_KP6]:
+            elif key in [pygame.K_RIGHT, pygame.K_KP6]:
                 self.player.action(1, 0)
-            elif event.key in [pygame.K_KP3]:
+            elif key in [pygame.K_KP3]:
                 self.player.action(1, 1)
-            elif event.key in [pygame.K_DOWN, pygame.K_KP2]:
+            elif key in [pygame.K_DOWN, pygame.K_KP2]:
                 self.player.action(0, 1)
-            elif event.key in [pygame.K_KP1]:
+            elif key in [pygame.K_KP1]:
                 self.player.action(-1, 1)
-            elif event.key in [pygame.K_LEFT, pygame.K_KP4]:
+            elif key in [pygame.K_LEFT, pygame.K_KP4]:
                 self.player.action(-1, 0)
-            elif event.key in [pygame.K_SPACE, pygame.K_KP5]:
+            elif key in [pygame.K_SPACE, pygame.K_KP5]:
                 self.player.action()  # skip a turn
 
-            elif event.key == pygame.K_g:
+            elif key == pygame.K_g:
                 if not self.player.action(action='get'):
                     pos = self.player.pos
                     scr_pos = self.player.pos - self.offset
@@ -99,23 +99,26 @@ class LayerMap(base_windows.Layer):
                     self.parent.on_update()
                     return
 
-            elif event.key == pygame.K_u:
+            elif key == pygame.K_u:
                 if not self.player.action(action='use'):
                     pos = self.player.pos
                     scr_pos = self.player.pos - self.offset
                     self.update_pos(pos, scr_pos)
                     return
 
-            elif event.key == pygame.K_k:
+            elif key == pygame.K_k:
                 self.player.combat.receive_dmg(999999, "user")
                 # TODO: fix, causing crashing error
-            elif event.key == pygame.K_e:
+            elif key == pygame.K_e:
                 self.player.gain_xp(23000)
                 # TODO: fix, causing crashing error
-            elif event.key == pygame.K_s:
+            elif key == pygame.K_s:
                 # TODO: use in-game ui
                 debug_status.view(creature=self.player.combat)
                 return
+            elif key == pygame.K_z:
+                # print("debug_status.input called")
+                debug_status.input(game=self.game)
 
         self.parent.handle_turn()
 
@@ -126,8 +129,10 @@ class LayerMap(base_windows.Layer):
 
         if event.button == 1:  # left button
             target = self.parent.cursor.move(pos, rel_pos)
-            combat = getattr(target, 'combat', None)
-            debug_status.view(creature=combat or target)
+            debug = getattr(target, 'combat', None)
+            debug = target.combat if hasattr(target, 'combat') \
+                else self.parent.current_level[rel_pos]
+            debug_status.view(creature=debug)
             return
 
         self.handle_turn()
@@ -190,6 +195,28 @@ class LayerMap(base_windows.Layer):
 
     def update_pos(self, pos, scr_pos):
         """Logic for redrawing specific positions of the screen."""
+        def draw_feature():
+            draw(tile.feature.id, (x, y),
+                 color=tile.feature.color,
+                 tiling_index=tile.feature.tiling_index,
+                 tile_variation=tile.feature.tile_variation)
+
+        def draw_objects():
+            objects = tile.objects
+            if len(objects) > 1:
+                draw(ord("&"), (x, y), (168, 168, 0))
+            else:
+                [draw(obj.id, (x, y), obj.color) for obj in objects if obj]
+
+        def draw_creatures():
+            [draw(ord(creature.combat.name[0]), (x, y), creature.color)
+             for creature in tile.creatures if creature]
+
+        def draw_tile_fx():
+            fx_color = tile_fx.get(coord=pos)
+            if fx_color:
+                draw(ord(','), (x, y), color=fx_color)
+
         x, y = scr_pos
         # try:
         tile = self.parent.current_level[pos]
@@ -198,32 +225,14 @@ class LayerMap(base_windows.Layer):
         # return
         draw = self.parent.draw_tile
 
-        if tile.feature.visible or tile.feature.explored:
-            draw(tile.feature.id, (x, y),
-                 color=tile.feature.color,
-                 tiling_index=tile.feature.tiling_index,
-                 tile_variation=tile.feature.tile_variation)
-            fx_color = tile_fx.get(coord=pos)
-            if fx_color:
-                draw(ord(','), (x, y), color=fx_color)
-
-            for obj in tile.objects:
-                if isinstance(obj, sprite.DngFeature):
-                    draw(obj.id, (x, y), obj.color)
-
-            if not tile.feature.visible:
-                self.parent.draw_fog((x, y))
+        if tile.feature.explored:
+            draw_feature()
+            if tile.feature.visible:
+                draw_objects()
+                draw_creatures()
+                draw_tile_fx()
             else:
-                if len(tile.objects) > 1:
-                    draw(ord("&"), (x, y), (168, 168, 0))
-                else:
-                    if tile.objects:
-                        obj = tile.objects[0]
-                        draw(obj.id, (x, y), obj.color)
-
-                for creature in tile.creatures:
-                    draw(ord(creature.combat.name[0]),
-                         (x, y), color=creature.color)
+                self.parent.draw_fog((x, y))
 
     def screenshot(self, fname=None, map_cols=None, map_rows=None):
         """..."""

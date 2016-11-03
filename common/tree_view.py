@@ -15,7 +15,8 @@ def recursive_adjustments(obj):
     return obj
 
 
-def parse_node(att, obj=None, expand=[]):
+def parse_node(att, obj=None, expand=None):
+    expand = expand if expand else []
     if obj is not None:
         v = getattr(obj, att, None)
         t = getattr(type(obj), att, None)
@@ -44,8 +45,13 @@ def parse_node(att, obj=None, expand=[]):
     else:
         return v
 
+
 class Tree(dict):
-    def __init__(self, obj, expand=[]):
+    """..."""
+
+    def __init__(self, obj, expand=None):
+        """..."""
+        expand = expand if expand else []
         keys = set(dir(type(obj)) + dir(obj))
         for att in sorted(list(keys)):
             node = parse_node(att, obj, expand)
@@ -53,25 +59,33 @@ class Tree(dict):
                 self.update({att: node})
 
 
-def tree_view(obj, expand=[]):
+def tree_view(obj, expand=None):
+    """..."""
+    expand = expand if expand else []
     if isinstance(obj, dict):
         _obj = type('dummy', (object,), obj)
     else:
         _obj = obj
+
     dic = Tree(_obj, expand)
     recursive_adjustments(dic)
     tk_tree_view(dic)
 
 if __name__ == '__main__':
+
     class Node:
+        """..."""
+
         dic = {"a": 0}
 
         @property
         def prop_1(self):
+            """..."""
             return 1
 
-
     class Sample:
+        """..."""
+
         children = {
             "c1": Node(),
             "c2": Node()
