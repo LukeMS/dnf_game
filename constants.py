@@ -1,18 +1,22 @@
 """Some constant values used by the game."""
 
 TILE_W = TILE_H = 32
-TILESET = "DejaVuSansMono-Bold32.png"
+BASE_TILESET = "DejaVuSansMono-Bold{}.png".format(TILE_W)
 
-SCREEN_WIDTH = 1024
-SCREEN_COLS = SCREEN_WIDTH // TILE_W
+# Screen width
+SCR_W = 1024
+# Number of screen columns (each with tile width)
+SCR_COLS = SCR_W // TILE_W
 
-SCREEN_HEIGHT = 768
-SCREEN_ROWS = SCREEN_HEIGHT // TILE_H
+# Screen height
+SCR_H = 768
+# Number of screen rows (each with tile height)
+SCR_ROWS = SCR_H // TILE_H
 
 MAP_COLS = 40 * 2
 MAP_ROWS = 24 * 2
 
-LIMIT_FPS = 30
+FPS = 30
 
 DEBUG = False
 

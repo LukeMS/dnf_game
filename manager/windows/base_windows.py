@@ -1,22 +1,32 @@
 """..."""
+
 import os
+import sys
 
-import pygame
-from pygame.compat import xrange_
+import sdl2
 
+if __name__ == '__main__':
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from game_types import Rect
+import manager
 from manager.scenes import base_scenes
 from constants import GAME_COLORS
 
 
-class Layer(base_scenes.SceneBase):
+class Layer(manager.EntityBase):
     """..."""
 
-    bottom_color = (15, 15, 31)
-    top_color = (0, 0, 0)
+    def __new__(cls, parent, **kwargs):
+        """Create a new instance of a scene.
 
-    def __init__(self, *, parent):
-        """..."""
-        self.parent = parent
+        A reference to the manager is stored before returning it.
+        """
+        if not isinstance(parent, base_scenes.SceneBase):
+            raise TypeError("parent must be a Scene")
+        layer = object.__new__(cls)
+        layer.parent = parent
+        layer.manager = parent.manager
+        return layer
 
     @property
     def cols(self):
@@ -38,50 +48,14 @@ class Layer(base_scenes.SceneBase):
 
     def on_update(self):
         """..."""
-        # print("{}.on_update called".format(self.__class__.__name__))
         self.draw()
 
     def create_solid_surface(self, color=(0, 0, 0)):
         """..."""
-        self.surface = pygame.Surface((self.width, self.height))
-        self.surface.fill(color)
-
-    def create_gradient(self):
-        """..."""
-        bottom_color = self.bottom_color
-        top_color = self.top_color
-
-        if getattr(self, 'width', None) is None:
-            if getattr(self, 'screen', None) is None:
-                self.screen = pygame.display.get_surface()
-            self.height = self.screen.get_height()
-            self.width = self.screen.get_width()
-
-        self.surface = pygame.Surface((self.width, self.height))
-
-        ar = pygame.PixelArray(self.surface)
-
-        # Do some easy gradient effect.
-        for y in range(self.height):
-
-            r = int((bottom_color[0] - top_color[0]) *
-                    y / self.height +
-                    top_color[0])
-            g = int((bottom_color[1] - top_color[1]) *
-                    y / self.height +
-                    top_color[1])
-            b = int((bottom_color[2] - top_color[2]) *
-                    y / self.height +
-                    top_color[2])
-
-            ar[:, y] = (r, g, b)
-        del ar
-
-    def flip_surface(self):
-        """..."""
-        ar = pygame.PixelArray(self.surface)
-        ar[:] = ar[:, ::-1]
-        del ar
+        factory = self.manager.factory
+        self.surface = factory.from_color(color=color,
+                                          size=(self.width, self.height))
+        self.surface.position = self.x, self.y
 
     def __getstate__(self):
         """..."""
@@ -159,7 +133,7 @@ class Window(Layer):
 
         size = self.tile_size
 
-        dest = pygame.Rect(x * size + self.x, y * size + self.y, size, size)
+        dest = Rect(x * size + self.x, y * size + self.y, size, size)
 
         src_area = tile_pos[0] * size, tile_pos[1] * size, size, size
 
@@ -489,11 +463,11 @@ class Choice(Layer):
 
     def on_key_press(self, event):
         """..."""
-        if event.key == pygame.K_UP:
+        if event.key.keysym.sym == sdl2.SDLK_UP:
             self.gfx.choice.change_selection(-1)
-        elif event.key == pygame.K_DOWN:
+        elif event.key.keysym.sym == sdl2.SDLK_DOWN:
             self.gfx.choice.change_selection(+1)
-        elif event.key == pygame.K_RETURN:
+        elif event.key.keysym.sym == sdl2.SDLK_RETURN:
             self.gfx.choice.confirm()
             self.active = False
             self.gfx.choice.clear()
@@ -615,7 +589,7 @@ class Inventory(Layer):
         """..."""
         parent = self.parent
 
-        if event.key == pygame.K_ESCAPE or event.key == pygame.K_i:
+        if event.key.keysym.sym == sdl2.SDLK_ESCAPE or event.key.keysym.sym == sdl2.SDLK_i:
             self.clean_inventory()
             parent.state = "playing"
             parent.on_update()

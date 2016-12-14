@@ -1,0 +1,30 @@
+Tue Dec 13 16:13:00 2016    test_rect_collidedictall.tmp
+
+         4616008 function calls in 18.247 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000   18.247   18.247 {built-in method builtins.exec}
+        1    0.016    0.016   18.247   18.247 <string>:1(<module>)
+        1    0.006    0.006   18.231   18.231 C:\Users\Lucas\Documents\Python\rect_test\test_rect_collidedictall.py:17(main)
+   399000    7.115    0.000   16.999    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:667(colliderect)
+        1    0.000    0.000    9.172    9.172 C:\Users\Lucas\Documents\Python\rect_test\test_rect_collidedictall.py:22(collidedictall2)
+        1    0.002    0.002    9.172    9.172 C:\Users\Lucas\Documents\Python\rect_test\test_rect_collidedictall.py:23(<listcomp>)
+      500    0.642    0.001    9.170    0.018 C:\Users\Lucas\Documents\Python\rect_test\rect.py:768(collidedictall2)
+        1    0.000    0.000    9.052    9.052 C:\Users\Lucas\Documents\Python\rect_test\test_rect_collidedictall.py:19(collidedictall)
+        1    0.002    0.002    9.052    9.052 C:\Users\Lucas\Documents\Python\rect_test\test_rect_collidedictall.py:20(<listcomp>)
+      500    0.005    0.000    9.050    0.018 C:\Users\Lucas\Documents\Python\rect_test\rect.py:745(collidedictall)
+      500    0.441    0.001    9.044    0.018 C:\Users\Lucas\Documents\Python\rect_test\rect.py:764(<listcomp>)
+   678000    2.646    0.000    3.854    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:216(right)
+   566000    2.175    0.000    3.154    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:225(bottom)
+   678000    1.248    0.000    1.248    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:180(left)
+   678000    1.207    0.000    1.207    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:198(width)
+   566000    0.990    0.000    0.990    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:189(top)
+   566000    0.979    0.000    0.979    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:207(height)
+   399000    0.638    0.000    0.638    0.000 {built-in method builtins.isinstance}
+    83500    0.132    0.000    0.132    0.000 {method 'append' of 'list' objects}
+     1000    0.002    0.000    0.002    0.000 {method 'items' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+

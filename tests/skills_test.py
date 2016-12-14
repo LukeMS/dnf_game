@@ -3,19 +3,19 @@ import os
 import sys
 import unittest
 
-try:
-    import combat
-except ImportError:
+if __name__ == '__main__':
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-    import combat
+
+import combat
 
 import sprite
-import obj_components
 
 
 class TestCharacter(unittest.TestCase):
+    """..."""
 
     def setUp(self):
+        """..."""
         def dummy(*args, **kwargs):
             pass
 
@@ -30,25 +30,23 @@ class TestCharacter(unittest.TestCase):
                 return Cell()
 
         class Scene():
-            add_obj = dummy
-            rem_obj = dummy
-
-            grid = Grid()
-
-            gfx = Dummy()
-
-            gfx.msg_log = Dummy()
-            gfx.msg_log.add = print
-
-            gfx.hp_bar = Dummy()
-            gfx.hp_bar.set_value = dummy
+            def __init__(self, *args, **kwargs):
+                self.msg_log = Dummy()
+                self.msg_log.add = print
+                self.add_obj = dummy
+                self.rem_obj = dummy
+                self.gfx = gfx = Dummy()
+                gfx.hp_bar = Dummy()
+                gfx.hp_bar.set_value = dummy
 
         self.scene = Scene()
 
     def tearDown(self):
+        """..."""
         pass
 
     def test_dwarf_rogue(self):
+        """..."""
         player = sprite.Player(
             scene=self.scene, x=0, y=0,
             _class="rogue", race="dwarf")

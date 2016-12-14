@@ -3,12 +3,10 @@ import os
 import sys
 import unittest
 
-try:
-    import combat
-except ImportError:
+if __name__ == '__main__':
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-    import combat
 
+import combat
 import sprite
 
 

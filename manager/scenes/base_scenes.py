@@ -1,25 +1,16 @@
 """..."""
 
-from abc import ABCMeta, abstractmethod
+import sdl2
 
-import pygame
+if __name__ == '__main__':
+    import os
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
 import manager
 
 
-class EntityBase(metaclass=ABCMeta):
-
-    @property
-    def game(self):
-        """..."""
-        return manager.Game._instance
-
-    @property
-    def screen(self):
-        """..."""
-        return self.game.screen
-
-
-class SceneBase(EntityBase):
+class SceneBase(object):
     """Basic scene of the game.
 
     New Scenes should be subclasses of SceneBase.
@@ -29,39 +20,40 @@ class SceneBase(EntityBase):
     # Useful for cases where the scene needs to handle itself.
     ignore_regular_update = False
 
-    @abstractmethod
-    def __init__(self):
-        """Implemented by subclasses."""
+    def __new__(cls, _manager, **kwargs):
+        """Create a new instance of a scene.
+
+        A reference to the manager is stored before returning it.
+        """
+        if not isinstance(_manager, manager.Manager):
+            raise TypeError("_manager must be a Manager")
+        scene = object.__new__(cls)
+        scene.manager = _manager
+        return scene
+
+    def __init__(self, **kwargs):
+        """..."""
         pass
 
     @property
     def fonts(self):
         """..."""
-        return self.game.fonts
+        return self.manager.fonts
+
+    @property
+    def factory(self):
+        """..."""
+        return self.manager.factory
 
     @property
     def width(self):
         """..."""
-        if not hasattr(self, '_width'):
-            self._width = self.screen.get_width()
-        return self._width
-
-    @width.setter
-    def width(self, value):
-        """..."""
-        self._width = value
+        return self.manager.width
 
     @property
     def height(self):
         """..."""
-        if not hasattr(self, '_height'):
-            self._height = self.screen.get_height()
-        return self._height
-
-    @height.setter
-    def height(self, value):
-        """..."""
-        self._height = value
+        return self.manager.height
 
     def start(self):
         """..."""
@@ -72,11 +64,9 @@ class SceneBase(EntityBase):
         pass
 
     def on_update(self):
-        """Contain base scene logic.
+        """Logic for graphics.
 
-        It is called from Game at every cycle.
-
-        Should be overwritten on subclasses.
+        Manager calls on_update on the active scene at every cycle.
         """
         pass
 
@@ -87,19 +77,19 @@ class SceneBase(EntityBase):
     def on_event(self, event):
         """Called when a specific event is detected in the loop.
 
-        Deliver those events to their specific handlers.
+        Each event is delivered to their specific method.
         """
-        if event.type == pygame.KEYDOWN:
-            # print('key pressed')
+        # print("SceneBase.on_event")
+        if event.type == sdl2.SDL_KEYDOWN:
             self.on_key_press(event)
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button <= 3:
-                self.on_mouse_press(event)
-            else:
+        elif event.type == sdl2.SDL_MOUSEWHEEL:
+                # event.wheel.y
                 self.on_mouse_scroll(event)
+        elif event.type == sdl2.SDL_MOUSEBUTTONDOWN:
+            self.on_mouse_press(event)
 
     def on_mouse_press(self, event):
-        """Called when mouse buttons 1 or 2 are pressed."""
+        """Called when mouse buttons pressed."""
         pass
 
     def on_mouse_scroll(self, event):
@@ -108,7 +98,9 @@ class SceneBase(EntityBase):
 
     def on_key_press(self, event):
         """Called on keyboard input."""
-        pass
+        # print("SceneBase.on_key_press")
+        if event.key.keysym.sym == sdl2.SDLK_ESCAPE:
+            self.quit()
 
     def on_key_held(self):
         """..."""
@@ -116,7 +108,8 @@ class SceneBase(EntityBase):
 
     def quit(self):
         """..."""
-        self.game.alive = False
+        # print("SceneBase.quit")
+        self.manager.alive = False
 
     def __getstate__(self):
         """..."""
@@ -132,9 +125,11 @@ class SceneMultiLayer(SceneBase):
         self.layers = []
 
     def insert_layer(self, obj):
+        """..."""
         self.layers.append(obj)
 
     def remove_layer(self, obj):
+        """..."""
         self.layers.remove(obj)
 
     def on_update(self):
@@ -159,5 +154,3 @@ class SceneMultiLayer(SceneBase):
         """..."""
         if self.layers:
             self.layers[-1].on_key_press(event)
-
-

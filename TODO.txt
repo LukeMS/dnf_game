@@ -1,4 +1,8 @@
 Improvements:
+- Structure: replace dict of dict's for classes on sftext/sftext.style;
+- Structure: replace self.x for x when many calls are made on sftext;
+- Make use of sdlttf TTF_SetFontStyle for bold, italic, underline and
+strikethrough;
 - Structure: replace dict of dict's for classes on scene_map.Main.levels;
 - Make it possible for maps to have custom item/creature placement;
 - Finish door implementation (tile or object?);

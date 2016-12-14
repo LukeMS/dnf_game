@@ -1,0 +1,26 @@
+Tue Dec 13 16:27:36 2016    test_collidelistall.tmp
+
+         5312004 function calls in 21.390 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000   21.390   21.390 {built-in method builtins.exec}
+        1    0.000    0.000   21.390   21.390 <string>:1(<module>)
+        1    0.005    0.005   21.390   21.390 C:\Users\Lucas\Documents\Python\rect_test\test_collidelistall.py:56(main)
+   400000    8.019    0.000   20.101    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:667(colliderect)
+      500    0.649    0.001   10.898    0.022 C:\Users\Lucas\Documents\Python\rect_test\test_collidelistall.py:26(collidelistall2)
+      500    0.005    0.000   10.487    0.021 C:\Users\Lucas\Documents\Python\rect_test\test_collidelistall.py:9(collidelistall)
+      500    0.520    0.001   10.482    0.021 C:\Users\Lucas\Documents\Python\rect_test\test_collidelistall.py:23(<listcomp>)
+   800000    3.211    0.000    4.641    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:216(right)
+   680000    2.756    0.000    4.015    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:225(bottom)
+   800000    1.473    0.000    1.473    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:180(left)
+   800000    1.430    0.000    1.430    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:198(width)
+   680000    1.305    0.000    1.305    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:189(top)
+   680000    1.259    0.000    1.259    0.000 C:\Users\Lucas\Documents\Python\rect_test\rect.py:207(height)
+   400000    0.649    0.000    0.649    0.000 {built-in method builtins.isinstance}
+    70000    0.109    0.000    0.109    0.000 {method 'append' of 'list' objects}
+      500    0.001    0.000    0.001    0.000 {built-in method builtins.len}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+

@@ -1,13 +1,18 @@
 """..."""
 
 import math
+import os
 import random
+import sys
 
-from pygame import Rect
+if __name__ == '__main__':
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import fov
-
+import rect
 from common import packer, PriorityQueue
 from constants import TILE_W, TILE_H, GAME_COLORS
+
+Rect = rect.Rect
 
 
 class CustomSet(set):
@@ -20,8 +25,6 @@ class CustomSet(set):
 
 class Position:
     """..."""
-
-    # pygame.Rect
 
     def __init__(self, pos):
         """..."""

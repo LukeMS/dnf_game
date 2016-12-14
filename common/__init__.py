@@ -32,7 +32,7 @@ def get_mod_case(event):
 
     Adapted from: http://inventwithpython.com/extra/gorillas.py
     """
-    s = chr(event.key)
+    s = chr(event.key.keysym.sym)
     mod = event.mod
     if (bool(mod & pygame.KMOD_RSHIFT or mod & pygame.KMOD_LSHIFT) ^
             bool(mod & pygame.KMOD_CAPS)):

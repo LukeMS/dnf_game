@@ -5,3 +5,5 @@ from .skills_test import *
 from .specific_weapons_test import *
 from .common_weapons_test import *
 from .beast_test import *
+from .pysdl2_text_test import *
+from .pysdl2_tiles_test import *

@@ -6,7 +6,7 @@ import random
 import pygame
 from constants import TILE_W, TILE_H, GAME_COLORS
 
-from game_types import Position
+from game_types import Position, Rect
 import obj_components
 import ai_comp
 
@@ -43,7 +43,7 @@ class GameObject:
             super().__init__()
 
         # some preliminar preparation
-            self.rect = pygame.Rect(x, y, TILE_W, TILE_H)
+            self.rect = Rect(x, y, TILE_W, TILE_H)
         #
         if test:
             args = ["id", "color", "name", "block_mov", "block_sight", "ai",

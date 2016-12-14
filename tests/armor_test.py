@@ -3,50 +3,42 @@ import os
 import sys
 import unittest
 
-try:
-    import combat
-except ImportError:
+if __name__ == '__main__':
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-    import combat
-
-import obj_components
-
-# from specific_weapons import WEAPONS
-
 import sprite
 
 
 class TestArmor(unittest.TestCase):
+    """..."""
 
     def setUp(self):
+        """..."""
         def dummy(*args, **kwargs):
             pass
 
         class Dummy:
-            pass
+            add = print
 
         class Scene():
-            add_obj = dummy
-            rem_obj = dummy
-
-            gfx = Dummy()
-
-            gfx.msg_log = Dummy()
-            gfx.msg_log.add = print
-
-            gfx.hp_bar = Dummy()
-            gfx.hp_bar.set_value = dummy
+            def __init__(self, *args, **kwargs):
+                self.msg_log = Dummy()
+                self.add_obj = dummy
+                self.rem_obj = dummy
+                self.gfx = gfx = Dummy()
+                gfx.hp_bar = Dummy()
+                gfx.hp_bar.set_value = dummy
 
         self.scene = Scene()
         self.player = sprite.Player(scene=self.scene, x=0, y=0,
                                     _class="fighter",
                                     race="human")
 
-
     def tearDown(self):
+        """..."""
         pass
 
     def test_studded_leather_noproficiency_penalty(self):
+        """..."""
         player = self.player
 
         armor = sprite.Item("studded leather",

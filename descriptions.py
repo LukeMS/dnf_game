@@ -1,7 +1,12 @@
 """..."""
 import os
+import sys
 
-import pygame
+import sdl2
+
+if __name__ == '__main__':
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from game_types import Rect
 from sftext.sftext import SFText
 from common import packer
 from manager.scenes import base_scenes
@@ -16,8 +21,6 @@ class Navigator(base_windows.Layer):
 
     def __init__(self, parent, rect, tab_y=10):
         """..."""
-        super().__init__(parent=parent)
-
         self.db = parent.db
 
         self.width = rect.width
@@ -74,9 +77,10 @@ class Navigator(base_windows.Layer):
 
     def create_text(self, text):
         """..."""
+        manager = self.manager
         nav_style = "{size 18}" + WHITE
-        self.sftext = SFText(text=text, fonts=self.game.fonts,
-                             style=nav_style, rect=self.rect)
+        self.sftext = SFText(text=text, style=nav_style, rect=self.rect,
+                             fonts=manager.fonts, manager=manager)
 
     def previous_item(self):
         """..."""
@@ -126,24 +130,23 @@ class Navigator(base_windows.Layer):
 
     def on_update(self):
         """..."""
-        screen = self.screen
-        surface = self.surface
-
-        screen.blit(surface, (self.x, self.y))
+        self.manager.spriterenderer.render(sprites=self.surface)
         self.sftext.on_update()
 
     def on_key_press(self, event):
         """..."""
-        if event.key == pygame.K_LEFT:
+        sym = event.key.keysym.sym
+        if sym == sdl2.SDLK_LEFT:
             self.previous_item()
-        elif event.key == pygame.K_RIGHT:
+        elif sym == sdl2.SDLK_RIGHT:
             self.next_item()
-        elif event.key == pygame.K_BACKSPACE:
+        elif sym == sdl2.SDLK_BACKSPACE:
             self.go_up()
-        elif event.key == pygame.K_RETURN:
+        elif sym == sdl2.SDLK_RETURN:
             self.go_down()
-        elif event.key >= 32 and event.key < 128:
-            self.search(pygame.key.name(event.key))
+        else:
+            if 97 <= sym <= 122:
+                self.search(chr(sym))
 
     def search(self, _s):
         """Search for a key that matches the imput."""
@@ -196,20 +199,20 @@ class Description(base_windows.Layer):
         except AttributeError:
             tab = 6
 
+        manager = self.manager
+
         y = header_size + tab if header_size else self.y
         self.rect.y = y
 
-        self.rect.height = (self.screen.get_height() - self.rect.y)
+        # DEPRE -> rect.height adjusted at initialization.
+        # self.rect.height = (self.screen.get_height() - self.rect.y)
 
-        self.sftext = SFText(text=self.content, fonts=self.game.fonts,
-                             rect=self.rect)
+        self.sftext = SFText(text=self.content, rect=self.rect,
+                             fonts=manager.fonts, manager=manager)
 
     def on_update(self):
         """..."""
-        screen = self.screen
-        surface = self.surface
-
-        screen.blit(surface, (self.x, self.y))
+        self.manager.spriterenderer.render(sprites=self.surface)
         self.sftext.on_update()
 
     def on_key_press(self, event):
@@ -224,7 +227,7 @@ class Description(base_windows.Layer):
 class Main(base_scenes.SceneMultiLayer):
     """..."""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """..."""
         super().__init__(draw_all=True)
 
@@ -235,17 +238,17 @@ class Main(base_scenes.SceneMultiLayer):
 
     def create_layers(self):
         """..."""
-        nav_rect = pygame.Rect(0,  # left
-                               0,  # top
-                               self.width,  # width
-                               int(self.height * 0.15))  # height
+        nav_rect = Rect(0,  # left
+                        0,  # top
+                        self.width,  # width
+                        int(self.height * 0.15))  # height
         self.nav_layer = Navigator(parent=self, rect=nav_rect)
         self.insert_layer(self.nav_layer)
-        print(nav_rect.bottom)
-        desc_rect = pygame.Rect(0,  # left
-                                nav_rect.bottom,  # top
-                                self.width,  # width
-                                self.height - nav_rect.height)  # height
+        # print(nav_rect.bottom)
+        desc_rect = Rect(0,  # left
+                         nav_rect.bottom,  # top
+                         self.width,  # width
+                         self.height - nav_rect.height)  # height
         self.desc_layer = Description(parent=self, rect=desc_rect)
         self.insert_layer(self.desc_layer)
 
@@ -255,10 +258,10 @@ class Main(base_scenes.SceneMultiLayer):
 
     def on_key_press(self, event):
         """..."""
-        if event.key == pygame.K_ESCAPE:
+        if event.key.keysym.sym == sdl2.SDLK_ESCAPE:
             self.quit()
-        elif event.key in [pygame.K_PAGEUP, pygame.K_PAGEDOWN,
-                           pygame.K_HOME, pygame.K_END]:
+        elif event.key.keysym.sym in [sdl2.SDLK_PAGEUP, sdl2.SDLK_PAGEDOWN,
+                                      sdl2.SDLK_HOME, sdl2.SDLK_END]:
             self.desc_layer.on_key_press(event)
         else:
             self.nav_layer.on_key_press(event)
@@ -269,13 +272,9 @@ class Main(base_scenes.SceneMultiLayer):
 
     def on_update(self):
         """..."""
-        self.screen.fill((0, 0, 0))
         super().on_update()
 
 if __name__ == '__main__':
-    from manager import Game
-    from constants import LIMIT_FPS, SCREEN_WIDTH, SCREEN_HEIGHT
+    from manager import Manager
 
-    Game(
-        scene=Main, framerate=LIMIT_FPS,
-        width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+    Manager(scene=Main).execute()
