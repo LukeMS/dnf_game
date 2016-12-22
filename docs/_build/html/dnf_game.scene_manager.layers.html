@@ -1,0 +1,875 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dnf_game.scene_manager.layers package &mdash; Dungeons and Fiends  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Dungeons and Fiends  documentation" href="index.html"/>
+        <link rel="up" title="dnf_game.scene_manager package" href="dnf_game.scene_manager.html"/>
+        <link rel="next" title="dnf_game.util package" href="dnf_game.util.html"/>
+        <link rel="prev" title="dnf_game.scene_manager package" href="dnf_game.scene_manager.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Dungeons and Fiends
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="dnf_game.html">dnf_game package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dnf_game.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dnf_game.data.html">dnf_game.data package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dnf_game.dnf_main.html">dnf_game.dnf_main package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="dnf_game.scene_manager.html">dnf_game.scene_manager package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="dnf_game.scene_manager.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dnf_game.scene_manager.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dnf_game.scene_manager.html#module-dnf_game.scene_manager.base_entity">dnf_game.scene_manager.base_entity module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dnf_game.scene_manager.html#module-dnf_game.scene_manager.manager">dnf_game.scene_manager.manager module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dnf_game.scene_manager.html#module-dnf_game.scene_manager.resources">dnf_game.scene_manager.resources module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dnf_game.util.html">dnf_game.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dnf_game.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnf_game.html#module-dnf_game.test_all">dnf_game.test_all module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Dungeons and Fiends</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="dnf_game.html">dnf_game package</a> &raquo;</li>
+      
+          <li><a href="dnf_game.scene_manager.html">dnf_game.scene_manager package</a> &raquo;</li>
+      
+    <li>dnf_game.scene_manager.layers package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/dnf_game.scene_manager.layers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dnf_game.scene_manager.layers">
+<span id="dnf-game-scene-manager-layers-package"></span><h1>dnf_game.scene_manager.layers package<a class="headerlink" href="#module-dnf_game.scene_manager.layers" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dnf_game.scene_manager.layers.base_layers">
+<span id="dnf-game-scene-manager-layers-base-layers-module"></span><h2>dnf_game.scene_manager.layers.base_layers module<a class="headerlink" href="#module-dnf_game.scene_manager.layers.base_layers" title="Permalink to this headline">¶</a></h2>
+<p>...</p>
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.base_layers.Bar">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.base_layers.</code><code class="descname">Bar</code><span class="sig-paren">(</span><em>parent</em>, <em>name</em>, <em>alpha=90</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Bar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Bar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.base_layers.Layer" title="dnf_game.scene_manager.layers.base_layers.Layer"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.base_layers.Layer</span></code></a></p>
+<p>...</p>
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Bar.active">
+<code class="descname">active</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Bar.active" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Bar.bar_width">
+<code class="descname">bar_width</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Bar.bar_width" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Bar.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Bar.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Bar.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Bar.maximum">
+<code class="descname">maximum</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Bar.maximum" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Bar.percent">
+<code class="descname">percent</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Bar.percent" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Bar.render">
+<code class="descname">render</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Bar.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Bar.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Bar.value">
+<code class="descname">value</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Bar.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Bar.visible">
+<code class="descname">visible</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Bar.visible" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.base_layers.</code><code class="descname">Choice</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.base_layers.Layer" title="dnf_game.scene_manager.layers.base_layers.Layer"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.base_layers.Layer</span></code></a></p>
+<p>...</p>
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.active">
+<code class="descname">active</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.active" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.change_selection">
+<code class="descname">change_selection</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice.change_selection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.change_selection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.choice">
+<code class="descname">choice</code><span class="sig-paren">(</span><em>title</em>, <em>items</em>, <em>callback</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice.choice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.choice" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.color_surface">
+<code class="descname">color_surface</code><span class="sig-paren">(</span><em>surface</em>, <em>color</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice.color_surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.color_surface" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.confirm">
+<code class="descname">confirm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice.confirm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.confirm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.create_head">
+<code class="descname">create_head</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice.create_head"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.create_head" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.create_items">
+<code class="descname">create_items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice.create_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.create_items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.draw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.on_key_press">
+<code class="descname">on_key_press</code><span class="sig-paren">(</span><em>event</em>, <em>mod</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice.on_key_press"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.on_key_press" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called on keyboard input, when a key is held down.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.select">
+<code class="descname">select</code><span class="sig-paren">(</span><em>index=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice.select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.select" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.set_list">
+<code class="descname">set_list</code><span class="sig-paren">(</span><em>title</em>, <em>items</em>, <em>callback</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice.set_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.set_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.set_selected_color">
+<code class="descname">set_selected_color</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Choice.set_selected_color"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.set_selected_color" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Choice.visible">
+<code class="descname">visible</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Choice.visible" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.base_layers.Hud">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.base_layers.</code><code class="descname">Hud</code><span class="sig-paren">(</span><em>*</em>, <em>parent</em>, <em>rect=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Hud"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Hud" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.base_layers.Layer" title="dnf_game.scene_manager.layers.base_layers.Layer"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.base_layers.Layer</span></code></a></p>
+<p>...</p>
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Hud.active">
+<code class="descname">active</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Hud.active" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Hud.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Hud.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Hud.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Hud.visible">
+<code class="descname">visible</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Hud.visible" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.base_layers.</code><code class="descname">Inventory</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Inventory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.base_layers.Layer" title="dnf_game.scene_manager.layers.base_layers.Layer"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.base_layers.Layer</span></code></a></p>
+<p>...</p>
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory.active">
+<code class="descname">active</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory.active" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory.clean_inventory">
+<code class="descname">clean_inventory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Inventory.clean_inventory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory.clean_inventory" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory.click_on">
+<code class="descname">click_on</code><span class="sig-paren">(</span><em>pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Inventory.click_on"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory.click_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory.create_desc">
+<code class="descname">create_desc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Inventory.create_desc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory.create_desc" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory.create_fonts">
+<code class="descname">create_fonts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Inventory.create_fonts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory.create_fonts" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory.create_head">
+<code class="descname">create_head</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Inventory.create_head"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory.create_head" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory.create_main">
+<code class="descname">create_main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Inventory.create_main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory.create_main" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Inventory.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory.on_key_press">
+<code class="descname">on_key_press</code><span class="sig-paren">(</span><em>event</em>, <em>mod</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Inventory.on_key_press"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory.on_key_press" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called on keyboard input, when a key is held down.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory.on_mouse_press">
+<code class="descname">on_mouse_press</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Inventory.on_mouse_press"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory.on_mouse_press" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle mouse press input.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory.set_inventory">
+<code class="descname">set_inventory</code><span class="sig-paren">(</span><em>holder</em>, <em>target=None</em>, <em>mode='use'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Inventory.set_inventory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory.set_inventory" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Inventory.visible">
+<code class="descname">visible</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Inventory.visible" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.base_layers.Layer">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.base_layers.</code><code class="descname">Layer</code><span class="sig-paren">(</span><em>*</em>, <em>rect=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.base_layers.LogicLayer" title="dnf_game.scene_manager.layers.base_layers.LogicLayer"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.base_layers.LogicLayer</span></code></a>, <a class="reference internal" href="dnf_game.util.ext.html#dnf_game.util.ext.rect.Rect" title="dnf_game.util.ext.rect.Rect"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.util.ext.rect.Rect</span></code></a></p>
+<p>...</p>
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Layer.cols">
+<code class="descname">cols</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Layer.cols" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Layer.create_gradient_surface">
+<code class="descname">create_gradient_surface</code><span class="sig-paren">(</span><em>rect=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Layer.create_gradient_surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Layer.create_gradient_surface" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Layer.create_solid_surface">
+<code class="descname">create_solid_surface</code><span class="sig-paren">(</span><em>*</em>, <em>color</em>, <em>rect=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Layer.create_solid_surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Layer.create_solid_surface" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Layer.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Layer.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Layer.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Layer.on_update">
+<code class="descname">on_update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Layer.on_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Layer.on_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Graphical logic.</p>
+<p>Method is called by the parent scene.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Layer.rows">
+<code class="descname">rows</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Layer.rows" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.base_layers.LogicLayer">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.base_layers.</code><code class="descname">LogicLayer</code><span class="sig-paren">(</span><em>*</em>, <em>rect=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#LogicLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.LogicLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dnf_game.scene_manager.html#dnf_game.scene_manager.base_entity.EntityBase" title="dnf_game.scene_manager.base_entity.EntityBase"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.base_entity.EntityBase</span></code></a></p>
+<p>...</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.base_layers.Menu">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.base_layers.</code><code class="descname">Menu</code><span class="sig-paren">(</span><em>*</em>, <em>parent</em>, <em>title</em>, <em>items=None</em>, <em>background=True</em>, <em>font='caladea-regular.ttf'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Menu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Menu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.base_layers.Layer" title="dnf_game.scene_manager.layers.base_layers.Layer"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.base_layers.Layer</span></code></a></p>
+<p>...</p>
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Menu.add_item">
+<code class="descname">add_item</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Menu.add_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Menu.add_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Menu.body_rect">
+<code class="descname">body_rect</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Menu.body_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Menu.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Menu.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Menu.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Menu.create_background">
+<code class="descname">create_background</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Menu.create_background"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Menu.create_background" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Menu.create_header">
+<code class="descname">create_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Menu.create_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Menu.create_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Menu.create_items">
+<code class="descname">create_items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Menu.create_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Menu.create_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Menu.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Menu.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Menu.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Menu.remove_item">
+<code class="descname">remove_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Menu.remove_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Menu.remove_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Menu.select">
+<code class="descname">select</code><span class="sig-paren">(</span><em>index=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Menu.select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Menu.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.base_layers.Msg">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.base_layers.</code><code class="descname">Msg</code><span class="sig-paren">(</span><em>parent</em>, <em>text=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Msg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.base_layers.Layer" title="dnf_game.scene_manager.layers.base_layers.Layer"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.base_layers.Layer</span></code></a></p>
+<p>...</p>
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Msg.active">
+<code class="descname">active</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Msg.active" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Msg.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Msg.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Msg.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Msg.text">
+<code class="descname">text</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Msg.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.Msg.visible">
+<code class="descname">visible</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Msg.visible" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.base_layers.MsgLog">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.base_layers.</code><code class="descname">MsgLog</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#MsgLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.MsgLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.base_layers.Layer" title="dnf_game.scene_manager.layers.base_layers.Layer"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.base_layers.Layer</span></code></a></p>
+<p>...</p>
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.MsgLog.active">
+<code class="descname">active</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.MsgLog.active" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.MsgLog.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>string</em>, <em>color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#MsgLog.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.MsgLog.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.MsgLog.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#MsgLog.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.MsgLog.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.MsgLog.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#MsgLog.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.MsgLog.draw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.MsgLog.history">
+<code class="descname">history</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.MsgLog.history" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.MsgLog.visible">
+<code class="descname">visible</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.MsgLog.visible" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.base_layers.ScrollingSubtitle">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.base_layers.</code><code class="descname">ScrollingSubtitle</code><span class="sig-paren">(</span><em>parent</em>, <em>subtitles</em>, <em>frame_duration=10</em>, <em>show_gap=False</em>, <em>step_x=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#ScrollingSubtitle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.ScrollingSubtitle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.base_layers.Layer" title="dnf_game.scene_manager.layers.base_layers.Layer"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.base_layers.Layer</span></code></a></p>
+<p>...</p>
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.layers.base_layers.ScrollingSubtitle.current_subtitle">
+<code class="descname">current_subtitle</code><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.ScrollingSubtitle.current_subtitle" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.ScrollingSubtitle.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#ScrollingSubtitle.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.ScrollingSubtitle.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.ScrollingSubtitle.on_update">
+<code class="descname">on_update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#ScrollingSubtitle.on_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.ScrollingSubtitle.on_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.ScrollingSubtitle.render_subtitle">
+<code class="descname">render_subtitle</code><span class="sig-paren">(</span><em>first=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#ScrollingSubtitle.render_subtitle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.ScrollingSubtitle.render_subtitle" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.ScrollingSubtitle.set_gap">
+<code class="descname">set_gap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#ScrollingSubtitle.set_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.ScrollingSubtitle.set_gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.base_layers.Window">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.base_layers.</code><code class="descname">Window</code><span class="sig-paren">(</span><em>*</em>, <em>parent</em>, <em>rect</em>, <em>tile_size=32</em>, <em>padding=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Window" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.base_layers.Layer" title="dnf_game.scene_manager.layers.base_layers.Layer"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.base_layers.Layer</span></code></a></p>
+<p>...</p>
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Window.create_map">
+<code class="descname">create_map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Window.create_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Window.create_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Window.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Window.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Window.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Window.hide">
+<code class="descname">hide</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Window.hide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Window.hide" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Window.set_padding">
+<code class="descname">set_padding</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Window.set_padding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Window.set_padding" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.base_layers.Window.show">
+<code class="descname">show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/base_layers.html#Window.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.base_layers.Window.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dnf_game.scene_manager.layers.gui_layer">
+<span id="dnf-game-scene-manager-layers-gui-layer-module"></span><h2>dnf_game.scene_manager.layers.gui_layer module<a class="headerlink" href="#module-dnf_game.scene_manager.layers.gui_layer" title="Permalink to this headline">¶</a></h2>
+<p>...</p>
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GUILayer">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.gui_layer.</code><code class="descname">GUILayer</code><span class="sig-paren">(</span><em>*</em>, <em>parent</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GUILayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GUILayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.base_layers.Layer" title="dnf_game.scene_manager.layers.base_layers.Layer"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.base_layers.Layer</span></code></a></p>
+<p>...</p>
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GUILayer.create_button">
+<code class="descname">create_button</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GUILayer.create_button"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GUILayer.create_button" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GUILayer.create_textbox">
+<code class="descname">create_textbox</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GUILayer.create_textbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GUILayer.create_textbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiButton">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.gui_layer.</code><code class="descname">GuiButton</code><span class="sig-paren">(</span><em>rect</em>, <em>command</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiButton"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiButton" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.gui_layer.GuiElementBase" title="dnf_game.scene_manager.layers.gui_layer.GuiElementBase"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.gui_layer.GuiElementBase</span></code></a></p>
+<p>Button GUI element.</p>
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiButton.check_hover">
+<code class="descname">check_hover</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiButton.check_hover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiButton.check_hover" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiButton.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><em>surface</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiButton.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiButton.draw" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Args:</dt>
+<dd>surface: screen</dd>
+</dl>
+<p>Call once on your main game loop</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiButton.get_event">
+<code class="descname">get_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiButton.get_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiButton.get_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call this on your event loop</p>
+<dl class="docutils">
+<dt>for event in pg.event.get():</dt>
+<dd>Button.get_event(event)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiButton.on_click">
+<code class="descname">on_click</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiButton.on_click"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiButton.on_click" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiButton.on_release">
+<code class="descname">on_release</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiButton.on_release"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiButton.on_release" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiButton.process_kwargs">
+<code class="descname">process_kwargs</code><span class="sig-paren">(</span><em>kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiButton.process_kwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiButton.process_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiButton.render_text">
+<code class="descname">render_text</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiButton.render_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiButton.render_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pre render the button text.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiButton.round_rect">
+<code class="descname">round_rect</code><span class="sig-paren">(</span><em>surface</em>, <em>rect</em>, <em>color</em>, <em>rad=20</em>, <em>border=0</em>, <em>inside=(0</em>, <em>0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiButton.round_rect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiButton.round_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiButton.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiButton.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiButton.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiElementBase">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.gui_layer.</code><code class="descname">GuiElementBase</code><span class="sig-paren">(</span><em>*</em>, <em>rect=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiElementBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiElementBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.layers.base_layers.Layer" title="dnf_game.scene_manager.layers.base_layers.Layer"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.layers.base_layers.Layer</span></code></a></p>
+<p>...</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiTextBox">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.layers.gui_layer.</code><code class="descname">GuiTextBox</code><span class="sig-paren">(</span><em>rect</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiTextBox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiTextBox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Example can found in run_textbox.py.py</p>
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiTextBox.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><em>surface</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiTextBox.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiTextBox.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call once on your main game loop</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiTextBox.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiTextBox.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiTextBox.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiTextBox.get_event">
+<code class="descname">get_event</code><span class="sig-paren">(</span><em>event</em>, <em>mouse_pos=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiTextBox.get_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiTextBox.get_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call this on your event loop.</p>
+<dl class="docutils">
+<dt>for event in pg.event.get():</dt>
+<dd>TextBox.get_event(event)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiTextBox.handle_held_backspace">
+<code class="descname">handle_held_backspace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiTextBox.handle_held_backspace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiTextBox.handle_held_backspace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiTextBox.process_kwargs">
+<code class="descname">process_kwargs</code><span class="sig-paren">(</span><em>kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiTextBox.process_kwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiTextBox.process_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiTextBox.switch_blink">
+<code class="descname">switch_blink</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiTextBox.switch_blink"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiTextBox.switch_blink" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.layers.gui_layer.GuiTextBox.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/layers/gui_layer.html#GuiTextBox.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.layers.gui_layer.GuiTextBox.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call once on your main game loop</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dnf_game.util.html" class="btn btn-neutral float-right" title="dnf_game.util package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dnf_game.scene_manager.html" class="btn btn-neutral" title="dnf_game.scene_manager package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lucas Siqueira.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

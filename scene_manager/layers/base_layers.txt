@@ -1,0 +1,405 @@
+Sat Dec 17 14:31:46 2016    base_windows.tmp
+
+         796198 function calls (795503 primitive calls) in 60.621 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000   60.621   60.621 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\base_windows.py:1092(main)
+        1   48.761   48.761   60.433   60.433 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:87(execute)
+     1811    1.203    0.001    9.927    0.005 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:168(on_update)
+     1810    0.016    0.000    7.119    0.004 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\scenes\base_scenes.py:104(on_update)
+     1810    0.046    0.000    7.103    0.004 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\scenes\base_scenes.py:107(<listcomp>)
+     7091    5.832    0.001    6.906    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:396(render)
+     3620    0.020    0.000    6.484    0.002 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:55(on_update)
+     1661    0.073    0.000    6.244    0.004 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:302(draw)
+     1661    0.017    0.000    5.557    0.003 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:148(draw)
+     1811    0.036    0.000    1.743    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:98(on_event)
+     1810    0.044    0.000    1.524    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:183(draw_fps)
+        6    0.000    0.000    1.498    0.250 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\sftext.py:77(__init__)
+     1810    0.022    0.000    1.473    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\scenes\base_scenes.py:67(draw_fps)
+        2    0.000    0.000    1.448    0.724 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:40(list)
+        3    0.000    0.000    1.419    0.473 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:192(create_text)
+     1810    0.047    0.000    1.413    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:1076(draw)
+        3    0.000    0.000    1.351    0.450 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:257(on_key_press)
+        2    0.000    0.000    1.351    0.675 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:134(on_key_press)
+        1    0.000    0.000    1.351    1.351 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:89(next_item)
+        6    0.004    0.001    1.232    0.205 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\sftext.py:144(parse_text)
+     1914    0.041    0.000    1.195    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\resources.py:101(render)
+    10319    0.073    0.000    1.101    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\resources.py:111(text_size)
+       65    0.033    0.001    1.054    0.016 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\sftext.py:245(wrap_text)
+     1810    0.018    0.000    0.979    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\utils.py:38(render)
+    24637    0.152    0.000    0.795    0.000 c:\Python35-32\lib\ntpath.py:220(splitext)
+    12298    0.089    0.000    0.604    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\resources.py:90(load)
+    24637    0.304    0.000    0.595    0.000 c:\Python35-32\lib\genericpath.py:111(_splitext)
+    10319    0.281    0.000    0.589    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\font.py:365(text_size)
+     1914    0.018    0.000    0.526    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:214(from_surface)
+     1914    0.404    0.000    0.508    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:511(from_surface)
+     5106    0.026    0.000    0.480    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\sftext.py:40(space_left)
+     1914    0.303    0.000    0.441    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\font.py:320(render)
+      149    0.002    0.000    0.415    0.003 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:271(on_update)
+      298    0.003    0.000    0.398    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\sftext.py:371(on_update)
+     1661    0.054    0.000    0.387    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:378(on_update)
+   152527    0.300    0.000    0.300    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:445(size)
+        2    0.000    0.000    0.268    0.134 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:190(set_scene)
+      149    0.002    0.000    0.265    0.002 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:210(on_update)
+   149032    0.258    0.000    0.258    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:432(center)
+40090/40087    0.145    0.000    0.258    0.000 {built-in method builtins.isinstance}
+     3013    0.065    0.000    0.235    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\sftext.py:373(visible_sprites)
+    73911    0.234    0.000    0.234    0.000 {method 'rfind' of 'str' objects}
+        1    0.000    0.000    0.227    0.227 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_title.py:97(on_key_press)
+     7091    0.034    0.000    0.227    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\compat.py:32(<lambda>)
+        1    0.000    0.000    0.226    0.226 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:227(__init__)
+        6    0.001    0.000    0.217    0.036 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\sftext.py:330(render_surfaces)
+     1661    0.011    0.000    0.216    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:399(draw)
+        1    0.000    0.000    0.188    0.188 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:31(__init__)
+      149    0.002    0.000    0.142    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:129(on_update)
+     1811    0.088    0.000    0.124    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\common.py:62(get_events)
+     3495    0.059    0.000    0.121    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:346(get_rect)
+     3430    0.022    0.000    0.118    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:361(move)
+     7098    0.064    0.000    0.113    0.000 c:\Python35-32\lib\abc.py:178(__instancecheck__)
+     1994    0.074    0.000    0.103    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:409(__init__)
+     8320    0.072    0.000    0.102    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\utils.py:97(roundrobin)
+        1    0.092    0.092    0.092    0.092 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:27(__init__)
+     7043    0.066    0.000    0.084    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:47(__init__)
+     1916    0.045    0.000    0.084    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\color.py:545(convert_to_color)
+        3    0.000    0.000    0.081    0.027 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:76(create_text)
+       68    0.003    0.000    0.080    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:106(_get_style)
+     1810    0.076    0.000    0.076    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:137(clear)
+        1    0.002    0.002    0.075    0.075 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\packer.py:56(unpack_json)
+        1    0.000    0.000    0.071    0.071 c:\Python35-32\lib\bz2.py:339(decompress)
+        1    0.071    0.071    0.071    0.071 {method 'decompress' of '_bz2.BZ2Decompressor' objects}
+      107    0.002    0.000    0.062    0.001 c:\Python35-32\lib\site-packages\sdl2\ext\font.py:222(add)
+      107    0.060    0.001    0.060    0.001 c:\Python35-32\lib\site-packages\sdl2\ext\font.py:250(_load_font)
+     7091    0.060    0.000    0.060    0.000 c:\Python35-32\lib\site-packages\sdl2\rect.py:40(__init__)
+     3433    0.017    0.000    0.059    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:347(copy)
+    24722    0.057    0.000    0.057    0.000 {built-in method builtins.max}
+     1499    0.005    0.000    0.054    0.000 c:\Python35-32\lib\re.py:278(_compile)
+        1    0.000    0.000    0.053    0.053 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:237(create_layers)
+        1    0.000    0.000    0.050    0.050 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:21(__init__)
+        6    0.000    0.000    0.049    0.008 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:58(set_default)
+       20    0.000    0.000    0.049    0.002 c:\Python35-32\lib\sre_compile.py:531(compile)
+     2251    0.017    0.000    0.047    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:378(set_rect)
+    10622    0.046    0.000    0.046    0.000 c:\Python35-32\lib\_weakrefset.py:70(__contains__)
+     3867    0.021    0.000    0.042    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:378(move_ip)
+     1810    0.015    0.000    0.042    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:262(topright)
+        1    0.000    0.000    0.040    0.040 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_title.py:18(__init__)
+      748    0.004    0.000    0.040    0.000 c:\Python35-32\lib\re.py:170(search)
+     1834    0.040    0.000    0.040    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:426(__del__)
+     6982    0.028    0.000    0.040    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:230(bottom)
+        1    0.036    0.036    0.036    0.036 c:\Python35-32\lib\site-packages\sdl2\ext\window.py:22(__init__)
+        1    0.000    0.000    0.035    0.035 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:156(__init__)
+       65    0.001    0.000    0.034    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\sftext.py:125(set_font)
+18206/18087    0.031    0.000    0.032    0.000 {built-in method builtins.len}
+     1811    0.031    0.000    0.031    0.000 c:\Python35-32\lib\ctypes\__init__.py:483(cast)
+       65    0.001    0.000    0.031    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:88(split)
+       20    0.000    0.000    0.030    0.001 c:\Python35-32\lib\sre_parse.py:819(parse)
+    83/20    0.002    0.000    0.029    0.001 c:\Python35-32\lib\sre_parse.py:429(_parse_sub)
+   133/20    0.007    0.000    0.029    0.001 c:\Python35-32\lib\sre_parse.py:491(_parse)
+      748    0.004    0.000    0.027    0.000 c:\Python35-32\lib\re.py:175(sub)
+     4992    0.019    0.000    0.026    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\utils.py:106(<genexpr>)
+     1817    0.011    0.000    0.024    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:226(right)
+     2253    0.015    0.000    0.024    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:248(topleft)
+     3832    0.023    0.000    0.023    0.000 c:\Python35-32\lib\site-packages\sdl2\pixels.py:269(__init__)
+    10319    0.023    0.000    0.023    0.000 {method 'encode' of 'str' objects}
+     3867    0.015    0.000    0.021    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\utils.py:58(flatten)
+        1    0.000    0.000    0.020    0.020 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:184(create_background)
+        1    0.000    0.000    0.020    0.020 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:87(__init__)
+        1    0.001    0.001    0.019    0.019 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:111(create_map)
+       80    0.001    0.000    0.018    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:226(from_tileset)
+     2235    0.018    0.000    0.018    0.000 {built-in method builtins.hasattr}
+     1658    0.018    0.000    0.018    0.000 {time.get_delta}
+       20    0.000    0.000    0.018    0.001 c:\Python35-32\lib\sre_compile.py:516(_code)
+       80    0.012    0.000    0.017    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:251(_from_tileset_area)
+     1914    0.016    0.000    0.016    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\color.py:15(__init__)
+     7245    0.016    0.000    0.016    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:82(scene)
+        1    0.000    0.000    0.015    0.015 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\resources.py:75(__init__)
+        1    0.000    0.000    0.015    0.015 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\resources.py:18(__init__)
+        1    0.000    0.000    0.015    0.015 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\resources.py:43(_index)
+     1994    0.014    0.000    0.014    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:330(__init__)
+   169/20    0.006    0.000    0.014    0.001 c:\Python35-32\lib\sre_compile.py:64(_compile)
+     2038    0.010    0.000    0.014    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:221(right)
+     7978    0.014    0.000    0.014    0.000 {built-in method _ctypes.byref}
+     5047    0.014    0.000    0.014    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:342(position)
+     6993    0.012    0.000    0.012    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:212(height)
+     5683    0.010    0.000    0.010    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:194(top)
+       68    0.001    0.000    0.010    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:121(_get_font)
+        1    0.000    0.000    0.009    0.009 <frozen importlib._bootstrap>:966(_find_and_load)
+        1    0.000    0.000    0.009    0.009 <frozen importlib._bootstrap>:939(_find_and_load_unlocked)
+       68    0.001    0.000    0.009    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:153(_get_separate_italic)
+       68    0.001    0.000    0.009    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:178(_get_separate_bold)
+     3495    0.008    0.000    0.008    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:337(position)
+        4    0.000    0.000    0.008    0.002 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:352(render_subtitle)
+       68    0.001    0.000    0.008    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:267(_get_font_underline)
+       68    0.001    0.000    0.008    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:254(_get_font_italic)
+       68    0.001    0.000    0.008    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:241(_get_font_bold)
+        1    0.000    0.000    0.008    0.008 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:258(create_items)
+     1914    0.008    0.000    0.008    0.000 c:\Python35-32\lib\site-packages\sdl2\pixels.py:286(__eq__)
+     3620    0.007    0.000    0.007    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:160(__len__)
+     3518    0.007    0.000    0.007    0.000 {method 'items' of 'dict' objects}
+       68    0.001    0.000    0.007    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:280(_get_font_color)
+        1    0.000    0.000    0.006    0.006 <frozen importlib._bootstrap>:879(_find_spec)
+     3328    0.006    0.000    0.006    0.000 {built-in method builtins.iter}
+        1    0.000    0.000    0.006    0.006 <frozen importlib._bootstrap_external>:1133(find_spec)
+        1    0.000    0.000    0.006    0.006 <frozen importlib._bootstrap_external>:1101(_get_spec)
+       68    0.001    0.000    0.006    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:203(_get_separate_bolditalic)
+       17    0.001    0.000    0.006    0.000 <frozen importlib._bootstrap_external>:1215(find_spec)
+       68    0.001    0.000    0.005    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:292(_get_font_align)
+        1    0.000    0.000    0.005    0.005 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:210(create_header)
+    24/10    0.000    0.000    0.005    0.001 c:\Python35-32\lib\glob.py:39(_iglob)
+        1    0.005    0.005    0.005    0.005 c:\Python35-32\lib\site-packages\sdl2\ext\common.py:37(init)
+     1669    0.005    0.000    0.005    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\scenes\base_scenes.py:49(width)
+        1    0.000    0.000    0.005    0.005 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:317(__init__)
+     2846    0.005    0.000    0.005    0.000 {method 'append' of 'list' objects}
+     1811    0.005    0.000    0.005    0.000 {built-in method _ctypes.POINTER}
+     1995    0.004    0.000    0.004    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:484(sprite_type)
+     2253    0.004    0.000    0.004    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:185(left)
+       68    0.001    0.000    0.004    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:230(_get_size)
+      707    0.003    0.000    0.004    0.000 c:\Python35-32\lib\sre_parse.py:157(__getitem__)
+      298    0.001    0.000    0.004    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:74(draw)
+      576    0.002    0.000    0.004    0.000 c:\Python35-32\lib\sre_parse.py:247(get)
+     2050    0.004    0.000    0.004    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:203(width)
+     1912    0.004    0.000    0.004    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:199(top)
+     1916    0.004    0.000    0.004    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\color.py:127(r)
+      754    0.004    0.000    0.004    0.000 {method 'search' of '_sre.SRE_Pattern' objects}
+     1916    0.004    0.000    0.004    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\color.py:141(g)
+     1916    0.004    0.000    0.004    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\color.py:155(b)
+     1916    0.004    0.000    0.004    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\color.py:169(a)
+  261/112    0.003    0.000    0.004    0.000 c:\Python35-32\lib\sre_parse.py:167(getwidth)
+      748    0.004    0.000    0.004    0.000 {method 'sub' of '_sre.SRE_Pattern' objects}
+       68    0.001    0.000    0.003    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:303(_get_font_indent)
+     37/6    0.001    0.000    0.003    0.001 c:\Python35-32\lib\abc.py:194(__subclasscheck__)
+       20    0.001    0.000    0.003    0.000 c:\Python35-32\lib\sre_compile.py:412(_compile_info)
+       63    0.000    0.000    0.003    0.000 c:\Python35-32\lib\sre_parse.py:90(closegroup)
+      938    0.003    0.000    0.003    0.000 c:\Python35-32\lib\sre_parse.py:226(__next)
+     46/4    0.000    0.000    0.003    0.001 {built-in method builtins.issubclass}
+        1    0.000    0.000    0.003    0.003 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:176(__init__)
+       32    0.000    0.000    0.003    0.000 c:\Python35-32\lib\sre_compile.py:221(_compile_charset)
+      488    0.002    0.000    0.003    0.000 c:\Python35-32\lib\sre_parse.py:165(append)
+        1    0.000    0.000    0.003    0.003 <frozen importlib._bootstrap>:659(_load_unlocked)
+        1    0.000    0.000    0.002    0.002 <frozen importlib._bootstrap_external>:659(exec_module)
+        3    0.000    0.000    0.002    0.001 c:\Python35-32\lib\re.py:222(compile)
+       13    0.000    0.000    0.002    0.000 c:\Python35-32\lib\glob.py:78(glob1)
+       32    0.001    0.000    0.002    0.000 c:\Python35-32\lib\sre_compile.py:248(_optimize_charset)
+       19    0.000    0.000    0.002    0.000 <frozen importlib._bootstrap_external>:68(_path_stat)
+       19    0.002    0.000    0.002    0.000 {built-in method nt.stat}
+        1    0.000    0.000    0.002    0.002 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:238(select)
+        2    0.000    0.000    0.002    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:240(replace)
+       36    0.000    0.000    0.002    0.000 c:\Python35-32\lib\ntpath.py:74(join)
+      392    0.001    0.000    0.002    0.000 c:\Python35-32\lib\sre_parse.py:242(match)
+       85    0.001    0.000    0.002    0.000 <frozen importlib._bootstrap_external>:50(_path_join)
+        1    0.002    0.002    0.002    0.002 c:\Python35-32\lib\site-packages\sdl2\ext\common.py:47(quit)
+       80    0.002    0.000    0.002    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\surface.py:6(subsurface)
+        1    0.002    0.002    0.002    0.002 {built-in method _pickle.loads}
+        1    0.000    0.000    0.002    0.002 <frozen importlib._bootstrap>:214(_call_with_frames_removed)
+       14    0.000    0.000    0.002    0.000 c:\Python35-32\lib\glob.py:106(glob2)
+        1    0.000    0.000    0.002    0.002 {built-in method builtins.exec}
+        1    0.000    0.000    0.002    0.002 c:\Python35-32\lib\glob.py:1(<module>)
+    25/13    0.000    0.000    0.001    0.000 c:\Python35-32\lib\glob.py:112(_rlistdir)
+       26    0.001    0.000    0.001    0.000 {built-in method nt.listdir}
+       86    0.001    0.000    0.001    0.000 c:\Python35-32\lib\ntpath.py:120(splitdrive)
+       63    0.001    0.000    0.001    0.000 c:\Python35-32\lib\sre_parse.py:78(opengroup)
+      252    0.001    0.000    0.001    0.000 c:\Python35-32\lib\sre_parse.py:153(__len__)
+        3    0.000    0.000    0.001    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:295(body_rect)
+        1    0.000    0.000    0.001    0.001 c:\Python35-32\lib\fnmatch.py:48(filter)
+       99    0.001    0.000    0.001    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:253(topleft)
+      202    0.001    0.000    0.001    0.000 c:\Python35-32\lib\sre_parse.py:276(tell)
+       47    0.000    0.000    0.001    0.000 c:\Python35-32\lib\_weakrefset.py:58(__iter__)
+       85    0.001    0.000    0.001    0.000 <frozen importlib._bootstrap_external>:52(<listcomp>)
+      434    0.001    0.000    0.001    0.000 {built-in method builtins.min}
+       19    0.000    0.000    0.001    0.000 c:\Python35-32\lib\sre_parse.py:260(getuntil)
+       35    0.000    0.000    0.001    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\sftext.py:59(contain_any)
+      166    0.001    0.000    0.001    0.000 c:\Python35-32\lib\sre_parse.py:75(groups)
+        1    0.000    0.000    0.001    0.001 c:\Python35-32\lib\fnmatch.py:38(_compile_pattern)
+      435    0.001    0.000    0.001    0.000 {built-in method builtins.ord}
+        1    0.000    0.000    0.001    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_title.py:109(clear)
+        1    0.000    0.000    0.001    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:206(clear)
+        1    0.000    0.000    0.001    0.001 <frozen importlib._bootstrap_external>:729(get_code)
+       80    0.000    0.000    0.001    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\data\tiles_index.py:45(get_tile_rect)
+       17    0.001    0.000    0.001    0.000 <frozen importlib._bootstrap_external>:30(_relax_case)
+       12    0.000    0.000    0.001    0.000 c:\Python35-32\lib\ntpath.py:197(split)
+        3    0.000    0.000    0.001    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:559(unionall)
+      197    0.001    0.000    0.001    0.000 c:\Python35-32\lib\sre_parse.py:105(__init__)
+        3    0.000    0.000    0.001    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:298(<listcomp>)
+        3    0.000    0.000    0.001    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:574(unionall_ip)
+        1    0.000    0.000    0.001    0.001 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:339(set_gap)
+        9    0.000    0.000    0.001    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:535(union_ip)
+        9    0.000    0.000    0.000    0.000 c:\Python35-32\lib\ntpath.py:230(basename)
+      124    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\style\style.py:286(<genexpr>)
+        2    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\scenes\base_scenes.py:90(__init__)
+      184    0.000    0.000    0.000    0.000 {method 'rstrip' of 'str' objects}
+       29    0.000    0.000    0.000    0.000 c:\Python35-32\lib\sre_compile.py:386(_simple)
+       32    0.000    0.000    0.000    0.000 c:\Python35-32\lib\_weakrefset.py:26(__exit__)
+        2    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\scenes\base_scenes.py:35(__init__)
+        7    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:19(__new__)
+        9    0.000    0.000    0.000    0.000 c:\Python35-32\lib\sre_compile.py:374(_mk_bitmap)
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\font.py:184(__init__)
+       96    0.000    0.000    0.000    0.000 {method 'format' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:87(_path_isfile)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:78(_path_is_mode_type)
+       62    0.000    0.000    0.000    0.000 {method 'split' of 'str' objects}
+      171    0.000    0.000    0.000    0.000 {method 'add' of 'set' objects}
+      130    0.000    0.000    0.000    0.000 {method 'find' of 'bytearray' objects}
+       20    0.000    0.000    0.000    0.000 c:\Python35-32\lib\sre_parse.py:217(__init__)
+       35    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\sftext.py:71(<listcomp>)
+       37    0.000    0.000    0.000    0.000 c:\Python35-32\lib\_weakrefset.py:81(add)
+       19    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:158(_modifiers_translate)
+       93    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+       14    0.000    0.000    0.000    0.000 c:\Python35-32\lib\sre_parse.py:473(<listcomp>)
+        1    0.000    0.000    0.000    0.000 {method 'read' of '_io.BufferedReader' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:816(get_data)
+        1    0.000    0.000    0.000    0.000 {built-in method io.open}
+       11    0.000    0.000    0.000    0.000 c:\Python35-32\lib\sre_compile.py:391(_generate_overlap_table)
+       98    0.000    0.000    0.000    0.000 {method 'replace' of 'str' objects}
+        6    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:31(__init__)
+       40    0.000    0.000    0.000    0.000 c:\Python35-32\lib\sre_compile.py:513(isstring)
+       99    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:190(left)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:570(module_from_spec)
+        8    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\sftext.py:228(sum_height)
+       32    0.000    0.000    0.000    0.000 c:\Python35-32\lib\_weakrefset.py:20(__enter__)
+       85    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:366(_verbose_message)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:510(_init_module_attrs)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:613(find_spec)
+       14    0.000    0.000    0.000    0.000 c:\Python35-32\lib\sre_parse.py:362(_escape)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:598(_search_registry)
+       13    0.000    0.000    0.000    0.000 c:\Python35-32\lib\ntpath.py:45(normcase)
+       66    0.000    0.000    0.000    0.000 {method 'group' of '_sre.SRE_Match' objects}
+       41    0.000    0.000    0.000    0.000 {built-in method builtins.any}
+       80    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\data\tiles_index.py:40(get_data)
+        9    0.000    0.000    0.000    0.000 c:\Python35-32\lib\sre_compile.py:376(<listcomp>)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:591(_open_registry)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:246(cache_from_source)
+       20    0.000    0.000    0.000    0.000 c:\Python35-32\lib\sre_parse.py:797(fix_flags)
+       24    0.000    0.000    0.000    0.000 c:\Python35-32\lib\_weakrefset.py:36(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:474(_compile_bytecode)
+        2    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:1049(__init__)
+       67    0.000    0.000    0.000    0.000 {built-in method _sre.getlower}
+        2    0.000    0.000    0.000    0.000 {built-in method winreg.OpenKey}
+        6    0.000    0.000    0.000    0.000 c:\Python35-32\lib\glob.py:133(has_magic)
+       17    0.000    0.000    0.000    0.000 c:\Python35-32\lib\sre_parse.py:278(seek)
+       20    0.000    0.000    0.000    0.000 {built-in method _sre.compile}
+        6    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\sftext\sftext.py:232(<listcomp>)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:826(path_stats)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:406(cached)
+        4    0.000    0.000    0.000    0.000 c:\Python35-32\lib\_collections_abc.py:200(__subclasshook__)
+        1    0.000    0.000    0.000    0.000 {method 'read' of '_io.FileIO' objects}
+        4    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:343(midright)
+        1    0.000    0.000    0.000    0.000 {built-in method marshal.loads}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:342(_get_cached)
+        6    0.000    0.000    0.000    0.000 {method 'splitlines' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:163(__enter__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_title.py:41(create_items)
+       32    0.000    0.000    0.000    0.000 c:\Python35-32\lib\_weakrefset.py:16(__init__)
+       20    0.000    0.000    0.000    0.000 c:\Python35-32\lib\sre_parse.py:70(__init__)
+        4    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:338(midright)
+       40    0.000    0.000    0.000    0.000 {built-in method builtins.getattr}
+       42    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\fnmatch.py:74(translate)
+       32    0.000    0.000    0.000    0.000 c:\Python35-32\lib\_weakrefset.py:52(_commit_removals)
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\ntpath.py:237(dirname)
+       35    0.000    0.000    0.000    0.000 {method 'extend' of 'list' objects}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1086(_legacy_get_spec)
+       12    0.000    0.000    0.000    0.000 c:\Python35-32\lib\ntpath.py:35(_get_bothseps)
+        1    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\manager.py:203(create_sprite_render_system)
+        1    0.000    0.000    0.000    0.000 {built-in method nt._isdir}
+       25    0.000    0.000    0.000    0.000 c:\Python35-32\lib\glob.py:140(_ishidden)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:176(_get_module_lock)
+       29    0.000    0.000    0.000    0.000 c:\Python35-32\lib\_collections_abc.py:308(__subclasshook__)
+       29    0.000    0.000    0.000    0.000 c:\Python35-32\lib\sre_parse.py:161(__setitem__)
+       32    0.000    0.000    0.000    0.000 {method '__subclasses__' of 'type' objects}
+        3    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:316(midtop)
+       20    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1064(_path_importer_cache)
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\font.py:277(color)
+        4    0.000    0.000    0.000    0.000 c:\Python35-32\lib\re.py:240(escape)
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\glob.py:89(<listcomp>)
+       32    0.000    0.000    0.000    0.000 {method 'remove' of 'set' objects}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:56(_path_split)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:419(_validate_bytecode_header)
+       16    0.000    0.000    0.000    0.000 {method 'capitalize' of 'str' objects}
+        2    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\scenes\base_scenes.py:24(__new__)
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:747(__init__)
+       12    0.000    0.000    0.000    0.000 {method 'match' of '_sre.SRE_Pattern' objects}
+       21    0.000    0.000    0.000    0.000 {method 'rpartition' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\font.py:289(bg_color)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:74(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1210(_get_spec)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:321(__exit__)
+        4    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:289(centerx)
+        5    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:298(centery)
+       19    0.000    0.000    0.000    0.000 {method 'isidentifier' of 'str' objects}
+        4    0.000    0.000    0.000    0.000 {time.get_time}
+       11    0.000    0.000    0.000    0.000 c:\Python35-32\lib\_collections_abc.py:203(<genexpr>)
+        9    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:293(centery)
+        9    0.000    0.000    0.000    0.000 {method 'translate' of 'bytearray' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:307(center)
+       17    0.000    0.000    0.000    0.000 {method 'lower' of 'str' objects}
+       18    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:65(<genexpr>)
+        1    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:141(set_padding)
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\_collections_abc.py:220(__subclasshook__)
+        4    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:852(__enter__)
+        2    0.000    0.000    0.000    0.000 {method 'find_loader' of 'zipimport.zipimporter' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_title.py:38(<listcomp>)
+        4    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:856(__exit__)
+        4    0.000    0.000    0.000    0.000 c:\Python35-32\lib\glob.py:143(_isrecursive)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:170(__exit__)
+        9    0.000    0.000    0.000    0.000 {method 'update' of 'dict' objects}
+        9    0.000    0.000    0.000    0.000 {built-in method __new__ of type object at 0x72BABA08}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:45(_r_long)
+        3    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:372(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:94(acquire)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:716(find_spec)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:513(spec_from_file_location)
+        8    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\scenes\base_scenes.py:54(height)
+        2    0.000    0.000    0.000    0.000 {built-in method _thread.allocate_lock}
+        3    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\scenes\base_scenes.py:71(on_key_release)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:119(release)
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:647(__init__)
+        4    0.000    0.000    0.000    0.000 {method 'pop' of 'list' objects}
+        2    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_descriptions.py:253(insert_layer)
+        4    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:284(centerx)
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\window.py:76(show)
+        2    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\scenes\base_scenes.py:96(insert_layer)
+        2    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\utils.py:16(__init__)
+        4    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\windows\base_windows.py:334(current_subtitle)
+        2    0.000    0.000    0.000    0.000 {method 'rsplit' of 'str' objects}
+        4    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:208(width)
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\glob.py:22(iglob)
+        5    0.000    0.000    0.000    0.000 c:\Python35-32\lib\_collections_abc.py:223(<genexpr>)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.sorted}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:789(find_spec)
+        1    0.000    0.000    0.000    0.000 {built-in method _imp.is_builtin}
+        5    0.000    0.000    0.000    0.000 {built-in method _imp.release_lock}
+        4    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:217(height)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:382(_check_name_wrapper)
+        4    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:324(<genexpr>)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:419(parent)
+        4    0.000    0.000    0.000    0.000 {built-in method _imp.acquire_lock}
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\sprite.py:467(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:35(_new_module)
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\_collections_abc.py:283(__subclasshook__)
+        2    0.000    0.000    0.000    0.000 {built-in method from_bytes}
+        2    0.000    0.000    0.000    0.000 {method 'upper' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 c:\Python35-32\lib\site-packages\sdl2\ext\ebs.py:286(__init__)
+        2    0.000    0.000    0.000    0.000 {built-in method _thread.get_ident}
+        1    0.000    0.000    0.000    0.000 {built-in method _imp._fix_co_filename}
+        1    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\scenes\base_scenes.py:77(quit)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:314(__enter__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:786(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:159(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\dnf_main\scenes\scene_title.py:28(<listcomp>)
+        1    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:310(__init__)
+        2    0.000    0.000    0.000    0.000 {method '__subclasshook__' of 'object' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:190(cb)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:225(_verbose_message)
+        1    0.000    0.000    0.000    0.000 {built-in method _imp.is_frozen}
+        1    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\util\rect\rect.py:239(size)
+        1    0.000    0.000    0.000    0.000 {method 'join' of 'bytes' objects}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:427(has_location)
+        1    0.000    0.000    0.000    0.000 C:\Users\Lucas\Documents\Python\pygame\cnl\cnl015.2_pysdl2\scene_manager\windows\..\..\scene_manager\base_entity.py:28(on_mouse_motion)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:811(get_filename)
+        1    0.000    0.000    0.000    0.000 {method 'keys' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:656(create_module)
+
+

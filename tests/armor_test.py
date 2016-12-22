@@ -1,11 +1,8 @@
 """Test for specific_weapons.py."""
-import os
-import sys
+
 import unittest
 
-if __name__ == '__main__':
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-import sprite
+from dnf_game.dnf_main.map_entities import PCreature, Item
 
 
 class TestArmor(unittest.TestCase):
@@ -27,11 +24,12 @@ class TestArmor(unittest.TestCase):
                 self.gfx = gfx = Dummy()
                 gfx.hp_bar = Dummy()
                 gfx.hp_bar.set_value = dummy
+        print("\n", "#" * 30, "\n%s" % __file__)
 
         self.scene = Scene()
-        self.player = sprite.Player(scene=self.scene, x=0, y=0,
-                                    _class="fighter",
-                                    race="human")
+        self.player = PCreature(scene=self.scene, x=0, y=0,
+                             _class="fighter",
+                             race="human")
 
     def tearDown(self):
         """..."""
@@ -41,8 +39,7 @@ class TestArmor(unittest.TestCase):
         """..."""
         player = self.player
 
-        armor = sprite.Item("studded leather",
-                            x=0, y=0, scene=self.scene)
+        armor = Item("studded leather", x=0, y=0, scene=self.scene)
 
         self.assertEqual(armor.equipment.type, "light armor")
 

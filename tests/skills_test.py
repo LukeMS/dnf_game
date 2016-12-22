@@ -6,12 +6,11 @@ import unittest
 if __name__ == '__main__':
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-import combat
+from dnf_main.map_entities import ItemEntity, PCreature
+from dnf_main.components import combat
 
-import sprite
 
-
-class TestCharacter(unittest.TestCase):
+class TestSkills(unittest.TestCase):
     """..."""
 
     def setUp(self):
@@ -39,6 +38,7 @@ class TestCharacter(unittest.TestCase):
                 gfx.hp_bar = Dummy()
                 gfx.hp_bar.set_value = dummy
 
+        print("\n", "#" * 30, "\n%s" % __file__)
         self.scene = Scene()
 
     def tearDown(self):
@@ -47,26 +47,23 @@ class TestCharacter(unittest.TestCase):
 
     def test_dwarf_rogue(self):
         """..."""
-        player = sprite.Player(
-            scene=self.scene, x=0, y=0,
+        player = PCreature(
+            scene=self.scene, pos=(0, 0),
             _class="rogue", race="dwarf")
 
         self.assertEqual(
-            player.combat.skills.skills['appraise'].trained,
-            True)
+            player.combat.skills.skills['appraise'].trained, True)
 
         self.assertEqual(
-            player.combat.skills.skills['appraise'].ranks,
-            2)
+            player.combat.skills.skills['appraise'].ranks, 2)
 
         self.assertEqual(
-            player.combat.skills.skills['appraise'].value,
-            5)
+            player.combat.skills.skills['appraise'].value, 5)
 
         before_armor = int(player.combat.skills.skills['swim'].value)
 
-        armor = sprite.Item("studded leather",
-                            x=0, y=0, scene=self.scene)
+        armor = ItemEntity(name="studded leather", pos=(0, 0),
+                           scene=self.scene)
         armor.item.pick_up(player)
         armor.item.use(player)
 
@@ -100,7 +97,6 @@ class TestCharacter(unittest.TestCase):
             player.combat.skills.skills['swim'].value,
             before_armor + armor.equipment.armor_check_penalty)
 
-
     def test_all(self):
         return
 
@@ -108,7 +104,7 @@ class TestCharacter(unittest.TestCase):
         d = {}
         for _class in ["rogue"]:  # combat.char_roll.classes:
             for race in ["dwarf"]:  # combat.char_roll.races:
-                d["_".join((_class, race))] = sprite.Player(
+                d["_".join((_class, race))] = PCreature(
                     scene=self.scene, x=0, y=0,
                     _class=_class, race=race).combat
 

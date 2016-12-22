@@ -1,0 +1,515 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dnf_game.dnf_main.components.combat.char_roll &mdash; Dungeons and Fiends  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../../../search.html"/>
+    <link rel="top" title="Dungeons and Fiends  documentation" href="../../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../../index.html"/> 
+
+  
+  <script src="../../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home"> Dungeons and Fiends
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../dnf_game.html">dnf_game package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../../index.html">Dungeons and Fiends</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+      
+    <li>dnf_game.dnf_main.components.combat.char_roll</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dnf_game.dnf_main.components.combat.char_roll</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">dnf_game.util</span> <span class="k">import</span> <span class="n">RangedDictionary</span>
+<span class="kn">from</span> <span class="nn">dnf_game.dnf_main.components.combat.char_data</span> <span class="k">import</span> <span class="n">data</span>
+
+
+<span class="n">saving_throws</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;saving_throws&quot;</span><span class="p">]</span>
+<span class="n">save_names</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;save_names&quot;</span><span class="p">]</span>
+<span class="n">att_names</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;att_names&quot;</span><span class="p">]</span>
+<span class="n">classes</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;classes&quot;</span><span class="p">]</span>
+<span class="n">alignments</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;alignments&quot;</span><span class="p">]</span>
+<span class="n">age_dict</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;age_dict&quot;</span><span class="p">]</span>
+<span class="n">age_mod</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;age_mod&quot;</span><span class="p">]</span>
+<span class="n">race_mod</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;race_mod&quot;</span><span class="p">]</span>
+<span class="n">hw_dict</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hw_dict&quot;</span><span class="p">]</span>
+<span class="n">speed</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;speed&quot;</span><span class="p">]</span>
+<span class="n">races</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;races&quot;</span><span class="p">]</span>
+<span class="n">hit_dice</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hit_dice&quot;</span><span class="p">]</span>
+<span class="n">bab</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;bab&quot;</span><span class="p">]</span>
+<span class="n">xp_award</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;xp_award&quot;</span><span class="p">]</span>
+<span class="n">size_modifier</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;size_modifier&quot;</span><span class="p">]</span>
+<span class="n">level_adv</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;level_adv&quot;</span><span class="p">]</span>
+<span class="n">cr</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;cr&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="starting_wealth"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.char_roll.starting_wealth">[docs]</a><span class="k">def</span> <span class="nf">starting_wealth</span><span class="p">(</span><span class="n">_class</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Class </span><span class="si">{}</span><span class="s2">, var </span><span class="si">{}</span><span class="s2">, fix </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">_class</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;starting_wealth&quot;</span><span class="p">][</span><span class="n">_class</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;starting_wealth&quot;</span><span class="p">][</span><span class="n">_class</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">))</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">roll</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;starting_wealth&quot;</span><span class="p">][</span><span class="n">_class</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">fix</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;starting_wealth&quot;</span><span class="p">][</span><span class="n">_class</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;var </span><span class="si">{}</span><span class="s2"> * fix </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">fix</span><span class="p">))</span>
+    <span class="n">wealth</span> <span class="o">=</span> <span class="n">var</span> <span class="o">*</span> <span class="n">fix</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">wealth</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wealth</span></div>
+
+
+<div class="viewcode-block" id="aging_modifiers"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.char_roll.aging_modifiers">[docs]</a><span class="k">def</span> <span class="nf">aging_modifiers</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="n">race</span><span class="p">):</span>
+    <span class="n">test_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
+    <span class="n">final_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">race</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">age_dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">test_list</span>
+
+    <span class="n">mid</span> <span class="o">=</span> <span class="n">age_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="s1">&#39;mid&#39;</span><span class="p">]</span>
+    <span class="n">old</span> <span class="o">=</span> <span class="n">age_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="s1">&#39;old&#39;</span><span class="p">]</span>
+    <span class="n">ven</span> <span class="o">=</span> <span class="n">age_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="s1">&#39;ven&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">att</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">test_list</span><span class="p">)),</span> <span class="n">att_names</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">test_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">age</span> <span class="o">&gt;=</span> <span class="n">ven</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="n">age_mod</span><span class="p">[</span><span class="s1">&#39;ven&#39;</span><span class="p">][</span><span class="n">att</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">age</span> <span class="o">&gt;=</span> <span class="n">old</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="n">age_mod</span><span class="p">[</span><span class="s1">&#39;old&#39;</span><span class="p">][</span><span class="n">att</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">age</span> <span class="o">&gt;=</span> <span class="n">mid</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="n">age_mod</span><span class="p">[</span><span class="s1">&#39;mid&#39;</span><span class="p">][</span><span class="n">att</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+
+        <span class="n">final_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">final_list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="race_modifiers"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.char_roll.race_modifiers">[docs]</a><span class="k">def</span> <span class="nf">race_modifiers</span><span class="p">(</span><span class="n">race</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">test_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
+    <span class="k">if</span> <span class="n">race</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">race_mod</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">test_list</span>
+    <span class="n">final_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">att</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">test_list</span><span class="p">)),</span> <span class="n">att_names</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">att</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="ow">in</span> <span class="n">race_mod</span><span class="p">[</span><span class="n">race</span><span class="p">]:</span>
+            <span class="n">mod</span> <span class="o">=</span> <span class="n">race_mod</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">att</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mod</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">final_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">mod</span><span class="p">)</span>
+    <span class="c1"># print([a[:3] + &quot;: &quot; + str(b) for a, b in zip(att_names, final_list)])</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">final_list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_age"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.char_roll.get_age">[docs]</a><span class="k">def</span> <span class="nf">get_age</span><span class="p">(</span><span class="n">race</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">race</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">age_dict</span><span class="p">:</span>
+        <span class="c1"># not applicable</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="n">adulthood</span> <span class="o">=</span> <span class="n">age_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="s1">&#39;ini&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">class_</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">class_</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">age_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="s1">&#39;var&#39;</span><span class="p">]:</span>
+            <span class="n">class_</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">age_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="s1">&#39;var&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="n">dices</span><span class="p">,</span> <span class="n">faces</span> <span class="o">=</span> <span class="n">age_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="s1">&#39;var&#39;</span><span class="p">][</span><span class="n">class_</span><span class="p">]</span>
+            <span class="c1"># print(age_dict[race][&#39;var&#39;][class_])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dices</span><span class="p">,</span> <span class="n">faces</span> <span class="o">=</span> <span class="n">age_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="s1">&#39;var&#39;</span><span class="p">]</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">adulthood</span> <span class="o">+</span> <span class="n">roll</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="n">dices</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">dices</span><span class="p">,</span> <span class="n">faces</span> <span class="o">=</span> <span class="n">age_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="s1">&#39;max&#39;</span><span class="p">]</span>
+    <span class="n">max_age</span> <span class="o">=</span> <span class="n">age_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="s1">&#39;ven&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">roll</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="n">dices</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># print(&quot;current&quot;, &quot;max_age&quot;, current, max_age)</span>
+    <span class="k">return</span> <span class="n">current</span><span class="p">,</span> <span class="n">max_age</span></div>
+
+
+<div class="viewcode-block" id="unit_conversion"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.char_roll.unit_conversion">[docs]</a><span class="k">def</span> <span class="nf">unit_conversion</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">from_unit</span><span class="p">,</span> <span class="n">to_unit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">round_</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="c1"># lenght in meters</span>
+    <span class="n">lenght</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;m&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;cm&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+        <span class="s1">&#39;mm&#39;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+        <span class="s1">&#39;km&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mf">0.0254</span><span class="p">,</span>
+        <span class="s1">&#39;ft&#39;</span><span class="p">:</span> <span class="mf">0.3048</span><span class="p">,</span>
+        <span class="s1">&#39;yd&#39;</span><span class="p">:</span> <span class="mf">0.9144</span><span class="p">,</span>
+        <span class="s1">&#39;mi&#39;</span><span class="p">:</span> <span class="mf">1609.34</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">from_unit</span> <span class="ow">in</span> <span class="n">lenght</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">to_unit</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">to_unit</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+        <span class="k">if</span> <span class="n">round_</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">value</span> <span class="o">*</span> <span class="n">lenght</span><span class="p">[</span><span class="n">from_unit</span><span class="p">]</span> <span class="o">/</span> <span class="n">lenght</span><span class="p">[</span><span class="n">to_unit</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">value</span> <span class="o">*</span> <span class="n">lenght</span><span class="p">[</span><span class="n">from_unit</span><span class="p">]</span> <span class="o">/</span> <span class="n">lenght</span><span class="p">[</span><span class="n">to_unit</span><span class="p">])</span>
+
+    <span class="c1"># lenght in kilograms</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;g&#39;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+        <span class="s1">&#39;kg&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;mg&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span>
+        <span class="s1">&#39;oz&#39;</span><span class="p">:</span> <span class="mf">0.0283495</span><span class="p">,</span>
+        <span class="s1">&#39;lb&#39;</span><span class="p">:</span> <span class="mf">0.453592</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">from_unit</span> <span class="ow">in</span> <span class="n">weight</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">to_unit</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">to_unit</span> <span class="o">=</span> <span class="s1">&#39;kg&#39;</span>
+        <span class="k">if</span> <span class="n">round_</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">value</span> <span class="o">*</span> <span class="n">weight</span><span class="p">[</span><span class="n">from_unit</span><span class="p">]</span> <span class="o">/</span> <span class="n">weight</span><span class="p">[</span><span class="n">to_unit</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span> <span class="o">*</span> <span class="n">weight</span><span class="p">[</span><span class="n">from_unit</span><span class="p">]</span> <span class="o">/</span> <span class="n">weight</span><span class="p">[</span><span class="n">to_unit</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="height_weight"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.char_roll.height_weight">[docs]</a><span class="k">def</span> <span class="nf">height_weight</span><span class="p">(</span><span class="n">race</span><span class="p">,</span> <span class="n">gender</span><span class="p">,</span> <span class="n">modifiers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">modifiers</span> <span class="o">=</span> <span class="n">modifiers</span> <span class="k">if</span> <span class="n">modifiers</span> <span class="k">else</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">race</span> <span class="ow">in</span> <span class="n">hw_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">race</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">gender</span> <span class="ow">in</span> <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">gender</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">h_feets</span><span class="p">,</span> <span class="n">h_inches</span> <span class="o">=</span> <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+                <span class="n">min_h</span> <span class="o">=</span> <span class="n">unit_conversion</span><span class="p">(((</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="n">h_feets</span><span class="p">)</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">+</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="n">h_inches</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">12</span><span class="p">),</span> <span class="s1">&#39;ft&#39;</span><span class="p">)</span>
+                <span class="n">max_h</span> <span class="o">=</span> <span class="n">unit_conversion</span><span class="p">(((</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="n">h_feets</span><span class="p">)</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">+</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="n">h_inches</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="p">(</span><span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span>
+                        <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span> <span class="o">/</span> <span class="mi">12</span><span class="p">),</span> <span class="s1">&#39;ft&#39;</span><span class="p">)</span>
+                <span class="n">min_w</span> <span class="o">=</span> <span class="n">unit_conversion</span><span class="p">(</span>
+                    <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span>
+                    <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span>
+                    <span class="s1">&#39;lb&#39;</span><span class="p">)</span>
+                <span class="n">max_w</span> <span class="o">=</span> <span class="n">unit_conversion</span><span class="p">(</span>
+                    <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span>
+                    <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span>
+                    <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span>
+                    <span class="s1">&#39;lb&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Height: </span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2">m., Weight: </span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2">kg.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="nb">round</span><span class="p">(</span><span class="n">min_h</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">max_h</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                    <span class="nb">round</span><span class="p">(</span><span class="n">min_w</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">max_w</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">exit</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">race</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">race</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hw_dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="n">h_feets</span><span class="p">,</span> <span class="n">h_inches</span> <span class="o">=</span> <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+    <span class="n">roll_result</span> <span class="o">=</span> <span class="p">(</span><span class="n">roll</span><span class="p">(</span>
+        <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span>
+        <span class="p">(</span><span class="n">modifiers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">modifiers</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">height_inches</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">h_feets</span><span class="p">)</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">h_inches</span><span class="p">)</span> <span class="o">+</span> <span class="n">roll_result</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="p">(</span><span class="n">roll_result</span> <span class="o">*</span> <span class="n">hw_dict</span><span class="p">[</span><span class="n">race</span><span class="p">][</span><span class="n">gender</span><span class="p">][</span><span class="mi">3</span><span class="p">])</span>
+    <span class="n">height_feet</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">height_inches</span> <span class="o">/</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">height_feet</span><span class="p">,</span> <span class="n">weight</span></div>
+<span class="c1"># height_weight(0, 0, debug=True)</span>
+
+
+<div class="viewcode-block" id="roll_attributes"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.char_roll.roll_attributes">[docs]</a><span class="k">def</span> <span class="nf">roll_attributes</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    If the  scores are too low they are rerolled.</span>
+<span class="sd">    They are considered too low if the sum of their modifiers (before</span>
+<span class="sd">    racial adjustments) is 1 or lower, or if the highest score is 14 or</span>
+<span class="sd">    lower.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">valid_attributes</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">rolls</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">valid_attributes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=======================&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;# Roll number&quot;</span><span class="p">,</span> <span class="n">rolls</span><span class="p">)</span>
+
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Each of the character&#39;s six ability scores is determined by rolling</span>
+<span class="sd">        four six-sided dice, ignoring the lowest die roll, and totaling the</span>
+<span class="sd">        other three.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">attribute_creation_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">roll</span><span class="p">(</span><span class="n">rolls</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">faces</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;discard_lowest&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">)]</span>
+
+        <span class="n">attribute_modifiers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">AttributeModifers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">attribute_creation_list</span><span class="p">)</span>
+
+        <span class="n">total_modifiers</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">attribute_modifiers</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;New attributes:&quot;</span><span class="p">,</span> <span class="n">attribute_creation_list</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Modifiers:&quot;</span><span class="p">,</span> <span class="n">attribute_modifiers</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sum:&quot;</span><span class="p">,</span> <span class="n">total_modifiers</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">total_modifiers</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">max</span><span class="p">(</span><span class="n">attribute_creation_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">13</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Valid attributes&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">attribute_creation_list</span>
+
+        <span class="n">rolls</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># print(&#39;Invalid attributes...&#39;)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">att_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">attribute_modifiers</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribute_creation_list</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="AttributeModifers"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.char_roll.AttributeModifers">[docs]</a><span class="k">class</span> <span class="nc">AttributeModifers</span><span class="p">:</span>
+    <span class="n">dic</span> <span class="o">=</span> <span class="n">RangedDictionary</span><span class="p">()</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">dic</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">mod</span>
+        <span class="n">mod</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="AttributeModifers.get"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.char_roll.AttributeModifers.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">dic</span><span class="p">[</span><span class="n">value</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="roll"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.char_roll.roll">[docs]</a><span class="k">def</span> <span class="nf">roll</span><span class="p">(</span>
+        <span class="n">faces</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">rolls</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">modifier</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;std&#39;</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">parse_string</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;(?P&lt;rolls&gt;\d+)&#39;</span>
+            <span class="s1">&#39;d&#39;</span>
+            <span class="s1">&#39;(?P&lt;faces&gt;\d+)&#39;</span>
+            <span class="s1">&#39;(?P&lt;modifier&gt;(\+|-)\d+)?&#39;</span>
+        <span class="p">)</span>
+        <span class="n">searchobj</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">searchobj</span><span class="p">:</span>
+            <span class="n">rolls</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">searchobj</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;rolls&quot;</span><span class="p">))</span>
+            <span class="n">faces</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">searchobj</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;faces&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">searchobj</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;modifier&quot;</span><span class="p">):</span>
+                <span class="n">modifier</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">searchobj</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;modifier&quot;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">modifier</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&quot;</span><span class="si">{}</span><span class="s1">&quot;not found&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">string</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{}</span><span class="s2"> rolls of </span><span class="si">{}</span><span class="s2"> faces with modifier </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">string</span><span class="p">,</span> <span class="n">rolls</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">modifier</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">rolls</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">modifier</span>
+
+    <span class="k">if</span> <span class="n">string</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="n">string</span> <span class="ow">or</span> <span class="n">faces</span>
+        <span class="n">rolls</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">modifier</span> <span class="o">=</span> <span class="n">parse_string</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="n">string</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">roll_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rolls</span><span class="p">):</span>
+        <span class="n">roll</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span> <span class="o">+</span> <span class="n">modifier</span>
+
+        <span class="n">roll_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">roll</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Rolling D&#39;</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">modifier</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">modifier</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;: &#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">roll</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">rolls</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">modifier</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">modifier</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; = &#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;std&#39;</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">roll_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;discard_lowest&#39;</span><span class="p">:</span>
+        <span class="n">min_roll</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">roll_list</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">roll_list</span><span class="p">)</span> <span class="o">-</span> <span class="n">min_roll</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;(discarding </span><span class="si">%i</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">min_roll</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="pretty_stats"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.char_roll.pretty_stats">[docs]</a><span class="k">def</span> <span class="nf">pretty_stats</span><span class="p">():</span>
+    <span class="n">att</span> <span class="o">=</span> <span class="n">roll_attributes</span><span class="p">()</span>
+    <span class="n">att_mod</span> <span class="o">=</span> <span class="p">[</span><span class="n">AttributeModifers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">att</span><span class="p">]</span>
+
+    <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">att_names</span><span class="p">,</span>
+            <span class="n">att</span><span class="p">,</span>
+            <span class="n">att_mod</span><span class="p">)]</span></div>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">pretty_stats</span><span class="p">()</span>
+    <span class="n">exit</span><span class="p">()</span>
+    <span class="kn">from</span> <span class="nn">mylib.data_tree</span> <span class="k">import</span> <span class="n">tk_tree_view</span>
+    <span class="n">tk_tree_view</span><span class="p">(</span><span class="n">AttributeModifers</span><span class="o">.</span><span class="n">dic</span><span class="p">)</span>
+    <span class="n">exit</span><span class="p">()</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Character</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">att_mod</span><span class="p">)</span>
+    <span class="n">exit</span><span class="p">()</span>
+    <span class="n">tk_tree_view</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lucas Siqueira.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dnf_game.dnf_main.components.ai &mdash; Dungeons and Fiends  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../../search.html"/>
+    <link rel="top" title="Dungeons and Fiends  documentation" href="../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../index.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Dungeons and Fiends
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dnf_game.html">dnf_game package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../index.html">Dungeons and Fiends</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      
+    <li>dnf_game.dnf_main.components.ai</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dnf_game.dnf_main.components.ai</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Defines monster&#39;s behaviours.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">dnf_game.data.constants</span> <span class="k">import</span> <span class="n">GAME_COLORS</span><span class="p">,</span> <span class="n">CONFUSE_NUM_TURNS</span>
+
+
+<div class="viewcode-block" id="Ai"><a class="viewcode-back" href="../../../../dnf_game.dnf_main.components.html#dnf_game.dnf_main.components.ai.Ai">[docs]</a><span class="k">class</span> <span class="nc">Ai</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+
+    <span class="n">owner</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">effect</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">owner</span></div>
+
+
+<div class="viewcode-block" id="Confused"><a class="viewcode-back" href="../../../../dnf_game.dnf_main.components.html#dnf_game.dnf_main.components.ai.Confused">[docs]</a><span class="k">class</span> <span class="nc">Confused</span><span class="p">(</span><span class="n">Ai</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;AI for a temporarily confused monster.</span>
+
+<span class="sd">    It reverts to previous AI after a while).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_turns</span><span class="o">=</span><span class="n">CONFUSE_NUM_TURNS</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_turns</span> <span class="o">=</span> <span class="n">num_turns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">effect</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Confused.take_turn"><a class="viewcode-back" href="../../../../dnf_game.dnf_main.components.html#dnf_game.dnf_main.components.ai.Confused.take_turn">[docs]</a>    <span class="k">def</span> <span class="nf">take_turn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+        <span class="c1"># some kind of lock to prevent double calling AND queueing of</span>
+        <span class="c1"># same objects on a single turn.</span>
+
+        <span class="n">monster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span>
+
+        <span class="n">monster</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_turns</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># still confused...</span>
+            <span class="c1"># move in a random direction, and decrease the number of turns</span>
+            <span class="c1"># confused</span>
+            <span class="k">if</span> <span class="n">monster</span><span class="o">.</span><span class="n">visible</span><span class="p">:</span>
+                <span class="n">monster</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">msg_log</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">monster</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; looks confused&quot;</span><span class="p">),</span> <span class="n">GAME_COLORS</span><span class="p">[</span><span class="s2">&quot;pink&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">33</span><span class="p">:</span>
+                <span class="n">monster</span><span class="o">.</span><span class="n">move_rnd</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">monster</span><span class="o">.</span><span class="n">move</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_turns</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="c1"># restore the previous AI (this one will be deleted because it&#39;s not</span>
+        <span class="c1"># referenced anymore)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">effect</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">monster</span><span class="o">.</span><span class="n">ai</span> <span class="o">=</span> <span class="n">monster</span><span class="o">.</span><span class="n">default_ai</span>
+            <span class="n">monster</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">monster</span><span class="o">.</span><span class="n">default_color</span>
+            <span class="n">monster</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">msg_log</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                <span class="s1">&#39;The &#39;</span> <span class="o">+</span> <span class="n">monster</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39; is no longer confused!&#39;</span><span class="p">,</span>
+                <span class="n">GAME_COLORS</span><span class="p">[</span><span class="s2">&quot;yellow&quot;</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="Basic"><a class="viewcode-back" href="../../../../dnf_game.dnf_main.components.html#dnf_game.dnf_main.components.ai.Basic">[docs]</a><span class="k">class</span> <span class="nc">Basic</span><span class="p">(</span><span class="n">Ai</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;AI for a basic monster.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Basic.take_turn"><a class="viewcode-back" href="../../../../dnf_game.dnf_main.components.html#dnf_game.dnf_main.components.ai.Basic.take_turn">[docs]</a>    <span class="k">def</span> <span class="nf">take_turn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A basic monster takes its turn.&quot;&quot;&quot;</span>
+        <span class="c1"># some kind of lock to prevent double calling AND queueing of</span>
+        <span class="c1"># same objects on a single turn.</span>
+
+        <span class="n">monster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span>
+
+        <span class="n">target</span> <span class="o">=</span> <span class="n">monster</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">player</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="n">monster</span><span class="o">.</span><span class="n">distance_to</span><span class="p">(</span><span class="n">monster</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">monster</span><span class="o">.</span><span class="n">visible</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">monster</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="n">monster</span><span class="o">.</span><span class="n">move_rnd</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;AI1 (not visible not pathing): monster.move_rnd()&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">distance</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># implement reach here</span>
+            <span class="k">if</span> <span class="n">monster</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+                <span class="c1"># continue following the path</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">old_path</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">monster</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+                    <span class="n">moved</span> <span class="o">=</span> <span class="n">monster</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">monster</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-AI2: failed to follow path&quot;</span><span class="p">)</span>
+                    <span class="n">moved</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;AI2: following path, dist </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">distance</span><span class="p">))</span>
+                    <span class="c1"># show the path remaining</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">old_path</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+
+                        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">color</span> <span class="o">=</span> <span class="n">GAME_COLORS</span><span class="p">[</span><span class="s2">&quot;orange&quot;</span><span class="p">]</span>
+                        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="n">color</span> <span class="o">=</span> <span class="n">GAME_COLORS</span><span class="p">[</span><span class="s2">&quot;yellow&quot;</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">color</span> <span class="o">=</span> <span class="n">GAME_COLORS</span><span class="p">[</span><span class="s2">&quot;green&quot;</span><span class="p">]</span>
+                        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                        monster.scene.tile_fx.add(</span>
+<span class="sd">                            coord=[pos],</span>
+<span class="sd">                            color=color,</span>
+<span class="sd">                            duration=1)</span>
+<span class="sd">                        &quot;&quot;&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">moved</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">moved</span><span class="p">:</span>
+                <span class="c1"># find a new path</span>
+                <span class="n">monster</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">monster</span><span class="o">.</span><span class="n">move_towards</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                    monster.scene.tile_fx.add(</span>
+<span class="sd">                        coord=monster.path[2:-1],</span>
+<span class="sd">                        color=GAME_COLORS[&quot;green&quot;],</span>
+<span class="sd">                        duration=1)</span>
+<span class="sd">                    &quot;&quot;&quot;</span>
+                    <span class="n">moved</span> <span class="o">=</span> <span class="n">monster</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">monster</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;AI3: new path </span><span class="si">{}</span><span class="s2">, FROM </span><span class="si">{}</span><span class="s2">, TO </span><span class="si">{}</span><span class="s2">, DIST </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">monster</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+                        <span class="nb">tuple</span><span class="p">(</span><span class="n">monster</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
+                        <span class="nb">tuple</span><span class="p">(</span><span class="n">monster</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">player</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
+                        <span class="n">distance</span><span class="p">))</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">monster</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pathing</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">monster</span><span class="o">.</span><span class="n">move_rnd</span><span class="p">()</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;AI4: path failed: monster.move_rnd()&quot;</span><span class="p">)</span>
+
+        <span class="c1"># close enough, attack! (if the player is still alive.)</span>
+        <span class="k">elif</span> <span class="n">target</span><span class="o">.</span><span class="n">combat</span><span class="o">.</span><span class="n">hit_points_current</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">monster</span><span class="o">.</span><span class="n">combat</span><span class="o">.</span><span class="n">attack</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">monster</span><span class="o">.</span><span class="n">combat</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">e</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lucas Siqueira.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

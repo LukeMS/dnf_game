@@ -7,19 +7,24 @@ if __name__ == '__main__':
     import sys
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from manager import Manager
-from manager.scenes import base_scenes
+from scene_manager import Manager
+from scene_manager.scenes import base_scenes
+from util import Rect
 
 
-class TestSceneTiles(unittest.TestCase):
+class TextSizeTextPySDL2(unittest.TestCase):
     """..."""
+
+    def setUp(self):
+        """..."""
+        print("\n", "#" * 30, "\n%s" % __file__)
 
     def test_scene(self):
         """..."""
-        Manager(scene=SceneText).execute()
+        Manager(scene=SceneTextSizeTextPySDL2, test=True).execute()
 
 
-class SceneText(base_scenes.SceneBase):
+class SceneTextSizeTextPySDL2(base_scenes.SceneBase):
     """..."""
 
     def __init__(self, **kwargs):
@@ -41,7 +46,7 @@ class SceneText(base_scenes.SceneBase):
 
         bg_color = (63, 0, 127)
         bg_sprite = self.factory.from_color(color=bg_color,
-                                            size=(w + 16, h + 16))
+                                            rect=Rect(0, 0, w + 16, h + 16))
         self.bg_sprite = bg_sprite
 
     def on_update(self):

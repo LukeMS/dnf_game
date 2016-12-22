@@ -1,0 +1,644 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dnf_game.dnf_main.components.combat.treasure &mdash; Dungeons and Fiends  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../../../search.html"/>
+    <link rel="top" title="Dungeons and Fiends  documentation" href="../../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../../index.html"/> 
+
+  
+  <script src="../../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home"> Dungeons and Fiends
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../dnf_game.html">dnf_game package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../../index.html">Dungeons and Fiends</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+      
+    <li>dnf_game.dnf_main.components.combat.treasure</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dnf_game.dnf_main.components.combat.treasure</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">dnf_game.dnf_main.components.combat</span> <span class="k">import</span> <span class="n">loot_coins</span>
+<span class="kn">from</span> <span class="nn">dnf_game.dnf_main.components.combat</span> <span class="k">import</span> <span class="n">loot_gems</span>
+<span class="kn">from</span> <span class="nn">dnf_game.dnf_main.data_handler.bestiary</span> <span class="k">import</span> <span class="n">Bestiary</span>
+
+
+<span class="n">treasure_budget</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;none&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;incidental&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="s2">&quot;standard&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;double&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;triple&quot;</span><span class="p">:</span> <span class="mi">3</span>
+<span class="p">}</span>
+
+<span class="sd">&quot;&quot;&quot;Treasure Values per Encounter&quot;&quot;&quot;</span>
+<span class="n">treasure_values</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># http://www.d20pfsrd.com/gamemastering#Table-Treasure-Values-per-Encounter</span>
+    <span class="c1"># APL: [Slow, Medium, Fast]</span>
+    <span class="mf">0.13</span><span class="p">:</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span>  <span class="c1"># 1/8</span>
+    <span class="mf">0.17</span><span class="p">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">65</span><span class="p">],</span>  <span class="c1"># 1/6</span>
+    <span class="mf">0.25</span><span class="p">:</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span>  <span class="c1"># 1/4</span>
+    <span class="mf">0.33</span><span class="p">:</span> <span class="p">[</span><span class="mi">55</span><span class="p">,</span> <span class="mi">85</span><span class="p">,</span> <span class="mi">135</span><span class="p">],</span>  <span class="c1"># 1/3</span>
+    <span class="mf">0.5</span><span class="p">:</span> <span class="p">[</span><span class="mi">85</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span>  <span class="c1"># 1/2</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="mi">170</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">400</span><span class="p">],</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="p">[</span><span class="mi">350</span><span class="p">,</span> <span class="mi">550</span><span class="p">,</span> <span class="mi">800</span><span class="p">],</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="p">[</span><span class="mi">550</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">1200</span><span class="p">],</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="p">[</span><span class="mi">750</span><span class="p">,</span> <span class="mi">1150</span><span class="p">,</span> <span class="mi">1700</span><span class="p">],</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="p">[</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1550</span><span class="p">,</span> <span class="mi">2300</span><span class="p">],</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="p">[</span><span class="mi">1350</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">],</span>
+    <span class="mi">7</span><span class="p">:</span> <span class="p">[</span><span class="mi">1750</span><span class="p">,</span> <span class="mi">2600</span><span class="p">,</span> <span class="mi">3900</span><span class="p">],</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="p">[</span><span class="mi">2200</span><span class="p">,</span> <span class="mi">3350</span><span class="p">,</span> <span class="mi">5000</span><span class="p">],</span>
+    <span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="mi">2850</span><span class="p">,</span> <span class="mi">4250</span><span class="p">,</span> <span class="mi">6400</span><span class="p">],</span>
+    <span class="mi">10</span><span class="p">:</span> <span class="p">[</span><span class="mi">3650</span><span class="p">,</span> <span class="mi">5450</span><span class="p">,</span> <span class="mi">8200</span><span class="p">],</span>
+    <span class="mi">11</span><span class="p">:</span> <span class="p">[</span><span class="mi">4650</span><span class="p">,</span> <span class="mi">7000</span><span class="p">,</span> <span class="mi">10500</span><span class="p">],</span>
+    <span class="mi">12</span><span class="p">:</span> <span class="p">[</span><span class="mi">6000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="mi">13500</span><span class="p">],</span>
+    <span class="mi">13</span><span class="p">:</span> <span class="p">[</span><span class="mi">7750</span><span class="p">,</span> <span class="mi">11600</span><span class="p">,</span> <span class="mi">17500</span><span class="p">],</span>
+    <span class="mi">14</span><span class="p">:</span> <span class="p">[</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">15000</span><span class="p">,</span> <span class="mi">22000</span><span class="p">],</span>
+    <span class="mi">15</span><span class="p">:</span> <span class="p">[</span><span class="mi">13000</span><span class="p">,</span> <span class="mi">19500</span><span class="p">,</span> <span class="mi">29000</span><span class="p">],</span>
+    <span class="mi">16</span><span class="p">:</span> <span class="p">[</span><span class="mi">16500</span><span class="p">,</span> <span class="mi">25000</span><span class="p">,</span> <span class="mi">38000</span><span class="p">],</span>
+    <span class="mi">17</span><span class="p">:</span> <span class="p">[</span><span class="mi">22000</span><span class="p">,</span> <span class="mi">32000</span><span class="p">,</span> <span class="mi">48000</span><span class="p">],</span>
+    <span class="mi">18</span><span class="p">:</span> <span class="p">[</span><span class="mi">28000</span><span class="p">,</span> <span class="mi">41000</span><span class="p">,</span> <span class="mi">62000</span><span class="p">],</span>
+    <span class="mi">19</span><span class="p">:</span> <span class="p">[</span><span class="mi">35000</span><span class="p">,</span> <span class="mi">53000</span><span class="p">,</span> <span class="mi">79000</span><span class="p">],</span>
+    <span class="mi">20</span><span class="p">:</span> <span class="p">[</span><span class="mi">44000</span><span class="p">,</span> <span class="mi">67000</span><span class="p">,</span> <span class="mi">100000</span><span class="p">],</span>
+    <span class="mi">21</span><span class="p">:</span> <span class="p">[</span><span class="mi">55000</span><span class="p">,</span> <span class="mi">84000</span><span class="p">,</span> <span class="mi">125000</span><span class="p">],</span>
+    <span class="mi">22</span><span class="p">:</span> <span class="p">[</span><span class="mi">69000</span><span class="p">,</span> <span class="mi">104000</span><span class="p">,</span> <span class="mi">155000</span><span class="p">],</span>
+    <span class="mi">23</span><span class="p">:</span> <span class="p">[</span><span class="mi">85000</span><span class="p">,</span> <span class="mi">127000</span><span class="p">,</span> <span class="mi">190000</span><span class="p">],</span>
+    <span class="mi">24</span><span class="p">:</span> <span class="p">[</span><span class="mi">102000</span><span class="p">,</span> <span class="mi">155000</span><span class="p">,</span> <span class="mi">230000</span><span class="p">],</span>
+    <span class="mi">25</span><span class="p">:</span> <span class="p">[</span><span class="mi">125000</span><span class="p">,</span> <span class="mi">185000</span><span class="p">,</span> <span class="mi">275000</span><span class="p">],</span>
+    <span class="mi">26</span><span class="p">:</span> <span class="p">[</span><span class="mi">150000</span><span class="p">,</span> <span class="mi">220000</span><span class="p">,</span> <span class="mi">330000</span><span class="p">],</span>
+    <span class="mi">27</span><span class="p">:</span> <span class="p">[</span><span class="mi">175000</span><span class="p">,</span> <span class="mi">260000</span><span class="p">,</span> <span class="mi">390000</span><span class="p">],</span>
+    <span class="mi">28</span><span class="p">:</span> <span class="p">[</span><span class="mi">205000</span><span class="p">,</span> <span class="mi">305000</span><span class="p">,</span> <span class="mi">460000</span><span class="p">],</span>
+    <span class="mi">29</span><span class="p">:</span> <span class="p">[</span><span class="mi">240000</span><span class="p">,</span> <span class="mi">360000</span><span class="p">,</span> <span class="mi">540000</span><span class="p">],</span>
+    <span class="mi">30</span><span class="p">:</span> <span class="p">[</span><span class="mi">280000</span><span class="p">,</span> <span class="mi">420000</span><span class="p">,</span> <span class="mi">630000</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="n">npc_gear_table</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mf">0.13</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>  <span class="c1"># 1/8</span>
+    <span class="mf">0.17</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>  <span class="c1"># 1/6</span>
+    <span class="mf">0.25</span><span class="p">:</span> <span class="mi">65</span><span class="p">,</span>  <span class="c1"># 1/4</span>
+    <span class="mf">0.33</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span>  <span class="c1"># 1/3</span>
+    <span class="mf">0.5</span><span class="p">:</span> <span class="mi">130</span><span class="p">,</span>  <span class="c1"># 1/2</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="mi">260</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="mi">390</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="mi">780</span><span class="p">,</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="mi">1650</span><span class="p">,</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="mi">2400</span><span class="p">,</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="mi">3450</span><span class="p">,</span>
+    <span class="mi">7</span><span class="p">:</span> <span class="mi">4650</span><span class="p">,</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="mi">6000</span><span class="p">,</span>
+    <span class="mi">9</span><span class="p">:</span> <span class="mi">7800</span><span class="p">,</span>
+    <span class="mi">10</span><span class="p">:</span> <span class="mi">10050</span><span class="p">,</span>
+    <span class="mi">11</span><span class="p">:</span> <span class="mi">12750</span><span class="p">,</span>
+    <span class="mi">12</span><span class="p">:</span> <span class="mi">16350</span><span class="p">,</span>
+    <span class="mi">13</span><span class="p">:</span> <span class="mi">21000</span><span class="p">,</span>
+    <span class="mi">14</span><span class="p">:</span> <span class="mi">27000</span><span class="p">,</span>
+    <span class="mi">15</span><span class="p">:</span> <span class="mi">34800</span><span class="p">,</span>
+    <span class="mi">16</span><span class="p">:</span> <span class="mi">45000</span><span class="p">,</span>
+    <span class="mi">17</span><span class="p">:</span> <span class="mi">58500</span><span class="p">,</span>
+    <span class="mi">18</span><span class="p">:</span> <span class="mi">75000</span><span class="p">,</span>
+    <span class="mi">19</span><span class="p">:</span> <span class="mi">96000</span><span class="p">,</span>
+    <span class="mi">20</span><span class="p">:</span> <span class="mi">123000</span>
+<span class="p">}</span>
+
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;Standard&quot; treasure indicates the total value of the creature&#39;s treasure</span>
+<span class="sd">is that of a CR equal to the average party level, as listed on</span>
+<span class="sd">Table 12-5 on page 399 in the  Core Rulebook.</span>
+<span class="sd">&quot;Double&quot; or &quot;triple&quot; treasure indicates the creature has double or triple</span>
+<span class="sd">this standard value.</span>
+<span class="sd">&quot;Incidental&quot; indicates the creature has half this standard value, and then</span>
+<span class="sd">only within the confines of its lair.</span>
+<span class="sd">&quot;None&quot; indicates that the creature normally has no treasure (as is typical for</span>
+<span class="sd">an unintelligent creature that has no real lair, although such creatures are</span>
+<span class="sd">often used to guard treasures of varying amounts).</span>
+<span class="sd">&quot;NPC gear&quot; indicates the monster has treasure as normal for an NPC of a level</span>
+<span class="sd">equal to the monster&#39;s CR (see page 454 of the  Core Rulebook).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Monsters with specified treasure:</span>
+
+<span class="sd">The Goblin entry lists its NPC Gear as:</span>
+<span class="sd">Treasure: NPC gear (leather armor, light wooden shield, short sword, short bow</span>
+<span class="sd">with 20 arrows, other treasure).</span>
+<span class="sd">Totalling up everything (except &quot;other treasure&quot; of course) gives a value of</span>
+<span class="sd">54gp. You could thus assume you have 32gp (86-54) of wiggling room. Either</span>
+<span class="sd">give them about 30gp or an item worth about that much.</span>
+<span class="sd">(http://rpg.stackexchange.com/a/40954/26974)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="get_treasure_budget"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.treasure.get_treasure_budget">[docs]</a><span class="k">def</span> <span class="nf">get_treasure_budget</span><span class="p">(</span><span class="n">creature</span><span class="p">):</span>
+    <span class="n">search_type</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="s1">&#39;(?P&lt;type&gt;none|incidental|standard|double|triple|npc gear)&#39;</span><span class="p">,</span>
+        <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;treasure&#39;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">search_type</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;def_name&#39;</span><span class="p">]</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;cr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">creature</span><span class="p">[</span><span class="s1">&#39;cr&#39;</span><span class="p">])</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;treasure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;treasure&#39;</span><span class="p">]</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;str&#39;</span><span class="p">,</span> <span class="s1">&#39;dex&#39;</span><span class="p">,</span> <span class="s1">&#39;con&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;wis&#39;</span><span class="p">,</span> <span class="s1">&#39;cha&#39;</span><span class="p">]:</span>
+            <span class="n">stats</span><span class="p">[</span><span class="n">stat</span><span class="p">]</span> <span class="o">=</span> <span class="n">creature</span><span class="p">[</span><span class="n">stat</span><span class="p">]</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;stats&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stats</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">search_type</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;npc gear&quot;</span><span class="p">:</span>
+            <span class="n">base_value</span> <span class="o">=</span> <span class="n">treasure_values</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;cr&#39;</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">treasure_budget</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]]</span> <span class="o">*</span> <span class="n">base_value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">npc_gear_table</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;cr&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">d</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;&quot;</span><span class="si">{}</span><span class="s1">&quot;: &quot;</span><span class="si">{}</span><span class="s1">&quot; (source: </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;def_name&#39;</span><span class="p">],</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;treasure&#39;</span><span class="p">],</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;source&#39;</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="get_treasure_types"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.treasure.get_treasure_types">[docs]</a><span class="k">def</span> <span class="nf">get_treasure_types</span><span class="p">(</span><span class="n">creature</span><span class="p">,</span> <span class="n">budget</span><span class="p">):</span>
+
+    <span class="c1"># Aberration: Many aberrations have little use for treasure, possessing</span>
+    <span class="c1"># only what hangs from the remains of their previous victims. Others are</span>
+    <span class="c1"># cunning adversaries that use various magic items and treasure to enhance</span>
+    <span class="c1"># their abilities.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types: A, B, D, E (add F, G, H if the creature is cunning).</span>
+    <span class="k">if</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;aberration&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">budget</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="s1">&#39;incidental&#39;</span><span class="p">,</span> <span class="s1">&#39;standard&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Animal: Animals place little to no value on treasure, instead leaving</span>
+    <span class="c1"># such coins and objects with the remains of their meals. For those with</span>
+    <span class="c1"># treasure, it is typically found in their lairs, scattered amid bones and</span>
+    <span class="c1"># other refuse.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types: A, B, D, E.</span>
+    <span class="k">elif</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;animal&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Construct: The only treasure carried by constructs is usually part of</span>
+    <span class="c1"># their construction, such as a weapon or magic item. Constructs are,</span>
+    <span class="c1"># however, typically used to guard more valuable treasures or magic items.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types: E, F (add B, C, H if the creature is guarding a</span>
+    <span class="c1"># treasure).</span>
+    <span class="k">elif</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;construct&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Dragon: Known for their valuable treasures, dragons often brood over</span>
+    <span class="c1"># vast piles of coins, gems, magic items, and other expensive objects.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types: A, B, C, H, I.</span>
+    <span class="k">elif</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;dragon&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Fey: Above all other things, fey value items of magic and beauty. They</span>
+    <span class="c1"># have little use for tools of trade and commerce used by the more</span>
+    <span class="c1"># civilized races, such as coins and valuables.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types: B, C, D, G.</span>
+    <span class="k">elif</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;fey&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;G&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Humanoid: Creatures of this type are quite varied, but even the most</span>
+    <span class="c1"># primitive humanoids use gear and magic items to some extent. In bigger</span>
+    <span class="c1"># groups such as communities, humanoids often posses larger amounts of</span>
+    <span class="c1"># treasure that they collectively guard.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types: A, B, D, E, F, G (add H for an entire community).</span>
+    <span class="k">elif</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;humanoid&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;G&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Magical Beast: Caring little for valuables, most magical beasts are only</span>
+    <span class="c1"># in search of their next meal. The lairs of these creatures are often</span>
+    <span class="c1"># strewn with a few valuable trinkets and magic items.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types: A, B, D, E.</span>
+    <span class="k">elif</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;magical beast&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Monstrous Humanoid: Most monstrous humanoids care only about treasures</span>
+    <span class="c1"># that they can use, although some have been known to hoard valuables in</span>
+    <span class="c1"># their lairs.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types: A, B, C, D, E, H.</span>
+    <span class="k">elif</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;monstrous humanoid&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Ooze: Oozes have no concept of treasure and leave any they find behind</span>
+    <span class="c1"># as they search for their next meal. Any treasure they might carry is</span>
+    <span class="c1"># entirely accidental.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types: A, B, D.</span>
+    <span class="k">elif</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ooze&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Outsider: Outsiders are one of the most varied creature types and as a</span>
+    <span class="c1"># result might truly have any type of treasure on them or hidden in their</span>
+    <span class="c1"># lair. The GM should consider the creature individually to determine the</span>
+    <span class="c1"># treasure type that best fits the outsider.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types: any.</span>
+    <span class="k">elif</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;outsider&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Plant: Like animals, plant creatures do not care for treasure, and any</span>
+    <span class="c1"># that might be found where they grow is simply the indigestible remnants</span>
+    <span class="c1"># of a previous victim.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types: A, B, D, E.</span>
+    <span class="k">elif</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;plant&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Undead: The treasure carried by undead varies depending on whether or</span>
+    <span class="c1"># not the creature is intelligent. Unintelligent undead typically only</span>
+    <span class="c1"># possess meager valuables carried on themselves in life, rarely actually</span>
+    <span class="c1"># using such treasures, while intelligent undead take advantage of a wide</span>
+    <span class="c1"># variety of magic items in order to destroy the living.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types:  (add F, G for intelligent undead).</span>
+    <span class="k">if</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;undead&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">budget</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="s1">&#39;incidental&#39;</span><span class="p">]</span> <span class="ow">and</span>
+            <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;int&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;-&#39;</span> <span class="ow">and</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">creature</span><span class="p">[</span><span class="s1">&#39;int&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">4</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;G&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Vermin: Like other mindless creatures, vermin do not covet treasure,</span>
+    <span class="c1"># although such creatures are sometimes found infesting areas where</span>
+    <span class="c1"># valuables are kept.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Treasure Types: A, B, D.</span>
+    <span class="k">elif</span> <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;vermin&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">creature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">],</span> <span class="s2">&quot;is not a valid creature type&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="set_percent_per_type"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.treasure.set_percent_per_type">[docs]</a><span class="k">def</span> <span class="nf">set_percent_per_type</span><span class="p">(</span><span class="n">creature</span><span class="p">,</span> <span class="n">treasure_types</span><span class="p">):</span>
+    <span class="n">percents</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="p">[</span><span class="n">percents</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">treasure_types</span><span class="p">]</span>
+
+    <span class="n">total</span> <span class="o">=</span> <span class="mi">100</span>
+
+    <span class="n">attempts</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">treasure_types</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># print(total)</span>
+
+        <span class="n">t_type</span> <span class="o">=</span> <span class="n">treasure_types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="c1"># we&#39;re finished</span>
+        <span class="k">if</span> <span class="n">total</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">break</span>
+
+        <span class="c1"># trow the 15% left anywhere</span>
+        <span class="k">elif</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="mi">15</span><span class="p">:</span>
+            <span class="n">percents</span><span class="p">[</span><span class="n">t_type</span><span class="p">]</span> <span class="o">+=</span> <span class="n">total</span>
+            <span class="n">total</span> <span class="o">-=</span> <span class="n">total</span>
+            <span class="k">break</span>
+        <span class="c1"># this is taking too long</span>
+        <span class="k">elif</span> <span class="n">attempts</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">treasure_types</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">percents</span><span class="p">[</span><span class="n">treasure_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">total</span>
+            <span class="n">total</span> <span class="o">-=</span> <span class="n">total</span>
+            <span class="k">break</span>
+
+        <span class="c1"># its an item type</span>
+        <span class="k">if</span> <span class="n">t_type</span> <span class="o">&gt;</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
+            <span class="c1"># 50% chance to be ignored</span>
+            <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">50</span><span class="p">:</span>
+
+                <span class="c1"># not ignored, get some of the total</span>
+                <span class="n">chance</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+
+                <span class="c1">#   25% chance to take 100% of total</span>
+                <span class="k">if</span> <span class="n">chance</span> <span class="o">&gt;=</span> <span class="mi">75</span> <span class="ow">or</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="mi">25</span><span class="p">:</span>
+                    <span class="n">percents</span><span class="p">[</span><span class="n">t_type</span><span class="p">]</span> <span class="o">+=</span> <span class="n">total</span>
+                    <span class="n">total</span> <span class="o">-=</span> <span class="n">total</span>
+
+                <span class="c1">#   25% chance to take 75% of total</span>
+                <span class="k">elif</span> <span class="n">chance</span> <span class="o">&gt;=</span> <span class="mi">50</span><span class="p">:</span>
+                    <span class="n">v</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="p">((</span><span class="n">total</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span> <span class="o">//</span> <span class="mi">5</span><span class="p">)</span>
+                    <span class="n">percents</span><span class="p">[</span><span class="n">t_type</span><span class="p">]</span> <span class="o">+=</span> <span class="n">v</span>
+                    <span class="n">total</span> <span class="o">-=</span> <span class="n">v</span>
+
+                <span class="c1">#   50% chance to take 50% of total</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">v</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="p">((</span><span class="n">total</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">//</span> <span class="mi">5</span><span class="p">)</span>
+                    <span class="n">percents</span><span class="p">[</span><span class="n">t_type</span><span class="p">]</span> <span class="o">+=</span> <span class="n">v</span>
+                    <span class="n">total</span> <span class="o">-=</span> <span class="n">v</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># not artwork for now...</span>
+            <span class="k">if</span> <span class="n">t_type</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
+                    <span class="n">t_type</span> <span class="o">=</span> <span class="n">treasure_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1">#   50% chance to take 100% of total</span>
+            <span class="k">if</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="mi">25</span> <span class="ow">or</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">50</span><span class="p">:</span>
+                <span class="n">percents</span><span class="p">[</span><span class="n">t_type</span><span class="p">]</span> <span class="o">+=</span> <span class="n">total</span>
+                <span class="n">total</span> <span class="o">-=</span> <span class="n">total</span>
+
+            <span class="c1">#   50% chance to take 50% of total</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="p">((</span><span class="n">total</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span> <span class="o">//</span> <span class="mi">5</span><span class="p">)</span>
+                <span class="n">percents</span><span class="p">[</span><span class="n">t_type</span><span class="p">]</span> <span class="o">+=</span> <span class="n">v</span>
+                <span class="n">total</span> <span class="o">-=</span> <span class="n">v</span>
+
+        <span class="n">attempts</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">i</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">treasure_types</span><span class="p">)</span>
+
+    <span class="c1"># print(json.dumps(creature, indent=4))</span>
+    <span class="c1"># print(percents)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;F&quot;</span> <span class="ow">in</span> <span class="n">treasure_types</span> <span class="ow">and</span> <span class="s2">&quot;G&quot;</span> <span class="ow">in</span> <span class="n">treasure_types</span><span class="p">:</span>
+        <span class="c1"># both combatant and spellcaster gear...</span>
+        <span class="c1"># pick the one that seems proper</span>
+        <span class="n">melee_value</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">creature</span><span class="p">[</span><span class="s1">&#39;str&#39;</span><span class="p">],</span>
+                          <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;con&#39;</span><span class="p">],</span>
+                          <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;dex&#39;</span><span class="p">])</span>
+
+        <span class="n">caster_value</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">creature</span><span class="p">[</span><span class="s1">&#39;int&#39;</span><span class="p">],</span>
+                           <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;wis&#39;</span><span class="p">],</span>
+                           <span class="n">creature</span><span class="p">[</span><span class="s1">&#39;cha&#39;</span><span class="p">])</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">melee_value</span> <span class="o">-</span> <span class="n">caster_value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="c1"># print(&#39;big dif&#39;)</span>
+                <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">melee_value</span> <span class="o">&gt;</span> <span class="n">caster_value</span><span class="p">:</span>
+                        <span class="c1"># print(&#39;removing &quot;G&quot;&#39;)</span>
+                        <span class="n">percents</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">percents</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">percents</span><span class="p">[</span><span class="s2">&quot;G&quot;</span><span class="p">]</span>
+                        <span class="n">percents</span><span class="p">[</span><span class="s2">&quot;G&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># print(&#39;removing &quot;F&quot;&#39;)</span>
+                        <span class="n">percents</span><span class="p">[</span><span class="s2">&quot;G&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">percents</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">percents</span><span class="p">[</span><span class="s2">&quot;G&quot;</span><span class="p">]</span>
+                        <span class="n">percents</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">creature</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
+
+        <span class="c1"># print(&quot;melee_value&quot;, melee_value)</span>
+        <span class="c1"># print(&quot;caster_value&quot;, caster_value)</span>
+        <span class="c1"># print(&#39;caster or melee?&#39;)</span>
+
+    <span class="k">return</span> <span class="n">percents</span></div>
+
+<span class="nb">print</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="set_value_per_type"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.treasure.set_value_per_type">[docs]</a><span class="k">def</span> <span class="nf">set_value_per_type</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">percents</span><span class="p">):</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">percents</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="n">values</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">values</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="mi">5</span><span class="p">)</span>
+
+    <span class="c1"># total = sum(v for k, v in values.items())</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="set_hoard"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.treasure.set_hoard">[docs]</a><span class="k">def</span> <span class="nf">set_hoard</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+    <span class="n">hoard</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;coins&#39;</span><span class="p">:</span> <span class="n">loot_coins</span><span class="o">.</span><span class="n">Coins</span><span class="p">(),</span>
+        <span class="s1">&#39;gems&#39;</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="s2">&quot;A&quot;</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="c1"># Treasure of this type is made up entirely of coins.</span>
+        <span class="n">hoard</span><span class="p">[</span><span class="s1">&#39;coins&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">loot_coins</span><span class="o">.</span><span class="n">calculate_hoard</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">hoard</span><span class="p">[</span><span class="s1">&#39;coins&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">&quot;B&quot;</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">loot_gems</span><span class="o">.</span><span class="n">calculate_hoard</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;coins&#39;</span><span class="p">])</span>
+        <span class="n">hoard</span><span class="p">[</span><span class="s1">&#39;coins&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;coins&#39;</span><span class="p">]</span>
+        <span class="n">hoard</span><span class="p">[</span><span class="s1">&#39;gems&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;gems&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">&quot;C&quot;</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WTF!!! treasure type c&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;D&quot;</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="n">hoard</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.treasure.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">creature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+    <span class="n">budget</span> <span class="o">=</span> <span class="n">get_treasure_budget</span><span class="p">(</span><span class="n">creature</span><span class="p">)</span>
+
+    <span class="n">treasure_types</span> <span class="o">=</span> <span class="n">get_treasure_types</span><span class="p">(</span><span class="n">creature</span><span class="p">,</span> <span class="n">budget</span><span class="p">)</span>
+
+    <span class="n">treasure_percents</span> <span class="o">=</span> <span class="n">set_percent_per_type</span><span class="p">(</span><span class="n">creature</span><span class="p">,</span> <span class="n">treasure_types</span><span class="p">)</span>
+
+    <span class="n">treasure_values</span> <span class="o">=</span> <span class="n">set_value_per_type</span><span class="p">(</span><span class="n">budget</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="n">treasure_percents</span><span class="p">)</span>
+
+    <span class="n">hoard</span> <span class="o">=</span> <span class="n">set_hoard</span><span class="p">(</span><span class="n">treasure_values</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">]:</span>
+        <span class="n">budget</span><span class="p">[</span><span class="n">info</span><span class="p">]</span> <span class="o">=</span> <span class="n">creature</span><span class="p">[</span><span class="n">info</span><span class="p">]</span>
+
+    <span class="n">budget</span><span class="p">[</span><span class="s2">&quot;treasure_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">treasure_types</span>
+    <span class="n">budget</span><span class="p">[</span><span class="s2">&quot;treasure_percents&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">treasure_percents</span>
+    <span class="n">budget</span><span class="p">[</span><span class="s2">&quot;treasure_values&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">treasure_values</span>
+    <span class="n">budget</span><span class="p">[</span><span class="s2">&quot;hoard&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hoard</span>
+
+    <span class="n">pprint</span><span class="p">(</span><span class="n">budget</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">Bestiary</span><span class="o">.</span><span class="n">get_filtered</span><span class="p">(</span><span class="n">filter_list</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;treasure&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;search&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+        <span class="n">tables</span><span class="p">[</span><span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="n">main</span><span class="p">(</span><span class="n">Bestiary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;treasure_gen_test.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="c1"># json.dumps(tables, indent=4)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">description:</span>
+<span class="sd">view&amp;mdash;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lucas Siqueira.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

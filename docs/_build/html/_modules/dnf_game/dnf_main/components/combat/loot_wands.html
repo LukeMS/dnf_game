@@ -1,0 +1,695 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dnf_game.dnf_main.components.combat.loot_wands &mdash; Dungeons and Fiends  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../../../search.html"/>
+    <link rel="top" title="Dungeons and Fiends  documentation" href="../../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../../index.html"/> 
+
+  
+  <script src="../../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home"> Dungeons and Fiends
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../dnf_game.html">dnf_game package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../../index.html">Dungeons and Fiends</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+      
+    <li>dnf_game.dnf_main.components.combat.loot_wands</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dnf_game.dnf_main.components.combat.loot_wands</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">dnf_game.util.rnd_utils</span> <span class="k">import</span> <span class="n">RangedDictionary</span><span class="p">,</span> <span class="n">test_range100</span>
+
+
+<span class="n">rnd_wands</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;common&#39;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span> <span class="s2">&quot;Acid splash&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span> <span class="s2">&quot;Create water&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">21</span><span class="p">):</span> <span class="s2">&quot;Daze&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">29</span><span class="p">):</span> <span class="s2">&quot;Detect magic&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">29</span><span class="p">,</span> <span class="mi">35</span><span class="p">):</span> <span class="s2">&quot;Ghost sound&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">43</span><span class="p">):</span> <span class="s2">&quot;Light&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="mi">50</span><span class="p">):</span> <span class="s2">&quot;Mage hand&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">56</span><span class="p">):</span> <span class="s2">&quot;Mending&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">56</span><span class="p">,</span> <span class="mi">61</span><span class="p">):</span> <span class="s2">&quot;Message&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">61</span><span class="p">,</span> <span class="mi">67</span><span class="p">):</span> <span class="s2">&quot;Prestidigitation&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">67</span><span class="p">,</span> <span class="mi">74</span><span class="p">):</span> <span class="s2">&quot;Purify food and drink&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">74</span><span class="p">,</span> <span class="mi">82</span><span class="p">):</span> <span class="s2">&quot;Ray of frost&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">82</span><span class="p">,</span> <span class="mi">89</span><span class="p">):</span> <span class="s2">&quot;Read magic&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">89</span><span class="p">,</span> <span class="mi">96</span><span class="p">):</span> <span class="s2">&quot;Stabilize&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="s2">&quot;Touch of fatigue&quot;</span><span class="p">,</span>
+        <span class="p">}),</span>
+        <span class="s1">&#39;uncommon&#39;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span> <span class="s2">&quot;Arcane mark&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span> <span class="s2">&quot;Bleed&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">23</span><span class="p">):</span> <span class="s2">&quot;Dancing lights&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">32</span><span class="p">):</span> <span class="s2">&quot;Detect poison&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">41</span><span class="p">):</span> <span class="s2">&quot;Disrupt undead&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">41</span><span class="p">,</span> <span class="mi">49</span><span class="p">):</span> <span class="s2">&quot;Flare&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">49</span><span class="p">,</span> <span class="mi">57</span><span class="p">):</span> <span class="s2">&quot;Guidance&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">57</span><span class="p">,</span> <span class="mi">66</span><span class="p">):</span> <span class="s2">&quot;Know direction&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">66</span><span class="p">,</span> <span class="mi">74</span><span class="p">):</span> <span class="s2">&quot;Lullaby&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">74</span><span class="p">,</span> <span class="mi">80</span><span class="p">):</span> <span class="s2">&quot;Open/close&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">87</span><span class="p">):</span> <span class="s2">&quot;Resistance&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">87</span><span class="p">,</span> <span class="mi">95</span><span class="p">):</span> <span class="s2">&quot;Spark&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">95</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="s2">&quot;Virtue&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+    <span class="p">},</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;common&#39;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="s2">&quot;Alarm&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span> <span class="s2">&quot;Animate rope&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span> <span class="s2">&quot;Bane&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">):</span> <span class="s2">&quot;Bless&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span> <span class="s2">&quot;Burning hands&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">18</span><span class="p">):</span> <span class="s2">&quot;Cause fear&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">20</span><span class="p">):</span> <span class="s2">&quot;Charm person&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">22</span><span class="p">):</span> <span class="s2">&quot;Color spray&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">24</span><span class="p">):</span> <span class="s2">&quot;Command&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span> <span class="s2">&quot;Comprehend languages&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">32</span><span class="p">):</span> <span class="s2">&quot;Cure light wounds&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">34</span><span class="p">):</span> <span class="s2">&quot;Disguise self&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">34</span><span class="p">,</span> <span class="mi">38</span><span class="p">):</span> <span class="s2">&quot;Divine favor&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">38</span><span class="p">,</span> <span class="mi">39</span><span class="p">):</span> <span class="s2">&quot;Endure elements&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">39</span><span class="p">,</span> <span class="mi">42</span><span class="p">):</span> <span class="s2">&quot;Enlarge person&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="mi">44</span><span class="p">):</span> <span class="s2">&quot;Entangle&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">44</span><span class="p">,</span> <span class="mi">46</span><span class="p">):</span> <span class="s2">&quot;Expeditious retreat&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">46</span><span class="p">,</span> <span class="mi">47</span><span class="p">):</span> <span class="s2">&quot;Feather fall&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">47</span><span class="p">,</span> <span class="mi">49</span><span class="p">):</span> <span class="s2">&quot;Grease&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">49</span><span class="p">,</span> <span class="mi">51</span><span class="p">):</span> <span class="s2">&quot;Identify&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">51</span><span class="p">,</span> <span class="mi">53</span><span class="p">):</span> <span class="s2">&quot;Inflict light wounds&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">53</span><span class="p">,</span> <span class="mi">59</span><span class="p">):</span> <span class="s2">&quot;Mage armor&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span> <span class="mi">61</span><span class="p">):</span> <span class="s2">&quot;Magic fang&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">61</span><span class="p">,</span> <span class="mi">68</span><span class="p">):</span> <span class="s2">&quot;Magic missile&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">68</span><span class="p">,</span> <span class="mi">69</span><span class="p">):</span> <span class="s2">&quot;Magic stone&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">69</span><span class="p">,</span> <span class="mi">71</span><span class="p">):</span> <span class="s2">&quot;Magic weapon&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">71</span><span class="p">,</span> <span class="mi">72</span><span class="p">):</span> <span class="s2">&quot;Obscuring mist&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">72</span><span class="p">,</span> <span class="mi">74</span><span class="p">):</span> <span class="s2">&quot;Produce flame&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">74</span><span class="p">,</span> <span class="mi">75</span><span class="p">):</span> <span class="s2">&quot;Protection from chaos&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">76</span><span class="p">):</span> <span class="s2">&quot;Protection from evil&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">76</span><span class="p">,</span> <span class="mi">77</span><span class="p">):</span> <span class="s2">&quot;Protection from good&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">77</span><span class="p">,</span> <span class="mi">78</span><span class="p">):</span> <span class="s2">&quot;Protection from law&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">78</span><span class="p">,</span> <span class="mi">80</span><span class="p">):</span> <span class="s2">&quot;Ray of enfeeblement&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">82</span><span class="p">):</span> <span class="s2">&quot;Remove fear&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">82</span><span class="p">,</span> <span class="mi">85</span><span class="p">):</span> <span class="s2">&quot;Shield&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">85</span><span class="p">,</span> <span class="mi">87</span><span class="p">):</span> <span class="s2">&quot;Shield of faith&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">87</span><span class="p">,</span> <span class="mi">88</span><span class="p">):</span> <span class="s2">&quot;Shillelagh&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span> <span class="mi">90</span><span class="p">):</span> <span class="s2">&quot;Shocking grasp&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="mi">91</span><span class="p">):</span> <span class="s2">&quot;Silent image&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">91</span><span class="p">,</span> <span class="mi">95</span><span class="p">):</span> <span class="s2">&quot;Sleep&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">95</span><span class="p">,</span> <span class="mi">96</span><span class="p">):</span> <span class="s2">&quot;Summon monster I&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span> <span class="mi">97</span><span class="p">):</span> <span class="s2">&quot;Summon nature&#39;s ally I&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">97</span><span class="p">,</span> <span class="mi">100</span><span class="p">):</span> <span class="s2">&quot;True strike&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="s2">&quot;Unseen servant&quot;</span><span class="p">,</span>
+        <span class="p">}),</span>
+        <span class="s1">&#39;uncommon&#39;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="s2">&quot;Ant haul&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span> <span class="s2">&quot;Aspect of the falcon&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span> <span class="s2">&quot;Bless weapon&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span> <span class="s2">&quot;Calm animals&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span> <span class="s2">&quot;Charm animal&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span> <span class="s2">&quot;Chill touch&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span> <span class="s2">&quot;Compel hostility&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">18</span><span class="p">):</span> <span class="s2">&quot;Confusion, lesser&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">20</span><span class="p">):</span> <span class="s2">&quot;Corrosive touch&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">22</span><span class="p">):</span> <span class="s2">&quot;Deathwatch&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">):</span> <span class="s2">&quot;Detect animals or plants&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">24</span><span class="p">):</span> <span class="s2">&quot;Detect chaos&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span> <span class="s2">&quot;Detect evil&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">):</span> <span class="s2">&quot;Detect good&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">27</span><span class="p">):</span> <span class="s2">&quot;Detect law&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">27</span><span class="p">,</span> <span class="mi">29</span><span class="p">):</span> <span class="s2">&quot;Detect secret doors&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">29</span><span class="p">,</span> <span class="mi">30</span><span class="p">):</span> <span class="s2">&quot;Detect snares and pits&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">32</span><span class="p">):</span> <span class="s2">&quot;Detect undead&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">36</span><span class="p">):</span> <span class="s2">&quot;Doom&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">38</span><span class="p">):</span> <span class="s2">&quot;Entropic shield&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">38</span><span class="p">,</span> <span class="mi">39</span><span class="p">):</span> <span class="s2">&quot;Erase&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">39</span><span class="p">,</span> <span class="mi">40</span><span class="p">):</span> <span class="s2">&quot;Faerie fire&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">42</span><span class="p">):</span> <span class="s2">&quot;Feather step&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="mi">45</span><span class="p">):</span> <span class="s2">&quot;Floating disk&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="mi">48</span><span class="p">):</span> <span class="s2">&quot;Goodberry&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="mi">50</span><span class="p">):</span> <span class="s2">&quot;Hide from animals&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">52</span><span class="p">):</span> <span class="s2">&quot;Hide from undead&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">52</span><span class="p">,</span> <span class="mi">53</span><span class="p">):</span> <span class="s2">&quot;Hideous laughter&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">53</span><span class="p">,</span> <span class="mi">55</span><span class="p">):</span> <span class="s2">&quot;Hold portal&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="mi">57</span><span class="p">):</span> <span class="s2">&quot;Hypnotism&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">57</span><span class="p">,</span> <span class="mi">59</span><span class="p">):</span> <span class="s2">&quot;Icicle dagger&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span> <span class="mi">61</span><span class="p">):</span> <span class="s2">&quot;Ill omen&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">61</span><span class="p">,</span> <span class="mi">64</span><span class="p">):</span> <span class="s2">&quot;Jump&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">):</span> <span class="s2">&quot;Longstrider&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">):</span> <span class="s2">&quot;Magic aura&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">67</span><span class="p">,</span> <span class="mi">69</span><span class="p">):</span> <span class="s2">&quot;Mount&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">69</span><span class="p">,</span> <span class="mi">70</span><span class="p">):</span> <span class="s2">&quot;Obscure object&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="mi">72</span><span class="p">):</span> <span class="s2">&quot;Pass without trace&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">72</span><span class="p">,</span> <span class="mi">73</span><span class="p">):</span> <span class="s2">&quot;Ray of sickening&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">73</span><span class="p">,</span> <span class="mi">76</span><span class="p">):</span> <span class="s2">&quot;Reduce person&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">76</span><span class="p">,</span> <span class="mi">79</span><span class="p">):</span> <span class="s2">&quot;Sanctuary&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">79</span><span class="p">,</span> <span class="mi">81</span><span class="p">):</span> <span class="s2">&quot;Shock shield&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">81</span><span class="p">,</span> <span class="mi">84</span><span class="p">):</span> <span class="s2">&quot;Speak with animals&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">84</span><span class="p">,</span> <span class="mi">86</span><span class="p">):</span> <span class="s2">&quot;Stone fist&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">86</span><span class="p">,</span> <span class="mi">88</span><span class="p">):</span> <span class="s2">&quot;Stone shield&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span> <span class="mi">89</span><span class="p">):</span> <span class="s2">&quot;Summon minor monster&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">89</span><span class="p">,</span> <span class="mi">90</span><span class="p">):</span> <span class="s2">&quot;Undetectable alignment&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="mi">93</span><span class="p">):</span> <span class="s2">&quot;Urban grace&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">93</span><span class="p">,</span> <span class="mi">97</span><span class="p">):</span> <span class="s2">&quot;Vanish&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">97</span><span class="p">,</span> <span class="mi">98</span><span class="p">):</span> <span class="s2">&quot;Ventriloquism&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">):</span> <span class="s2">&quot;Magic mouth&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">99</span><span class="p">,</span> <span class="mi">100</span><span class="p">):</span> <span class="s2">&quot;Bless water&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="s2">&quot;Curse water&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+    <span class="p">},</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;common&#39;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="s2">&quot;Acid arrow&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span> <span class="s2">&quot;Aid&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span> <span class="s2">&quot;Alter self&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span> <span class="s2">&quot;Barkskin&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span> <span class="s2">&quot;Bear&#39;s endurance&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">):</span> <span class="s2">&quot;Blur&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span> <span class="s2">&quot;Bull&#39;s strength&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">17</span><span class="p">):</span> <span class="s2">&quot;Cat&#39;s grace&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">23</span><span class="p">):</span> <span class="s2">&quot;Cure moderate wounds&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">26</span><span class="p">):</span> <span class="s2">&quot;Darkness&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">27</span><span class="p">):</span> <span class="s2">&quot;Darkvision&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">27</span><span class="p">,</span> <span class="mi">28</span><span class="p">):</span> <span class="s2">&quot;Delay poison&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">30</span><span class="p">):</span> <span class="s2">&quot;Eagle&#39;s splendor&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">):</span> <span class="s2">&quot;False life&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="mi">32</span><span class="p">):</span> <span class="s2">&quot;Find traps&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">33</span><span class="p">):</span> <span class="s2">&quot;Flame blade&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">33</span><span class="p">,</span> <span class="mi">34</span><span class="p">):</span> <span class="s2">&quot;Flaming sphere&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">34</span><span class="p">,</span> <span class="mi">36</span><span class="p">):</span> <span class="s2">&quot;Fog cloud&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">38</span><span class="p">):</span> <span class="s2">&quot;Fox&#39;s cunning&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">38</span><span class="p">,</span> <span class="mi">39</span><span class="p">):</span> <span class="s2">&quot;Glitterdust&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">39</span><span class="p">,</span> <span class="mi">41</span><span class="p">):</span> <span class="s2">&quot;Heat metal&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">41</span><span class="p">,</span> <span class="mi">44</span><span class="p">):</span> <span class="s2">&quot;Hold person&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">44</span><span class="p">,</span> <span class="mi">47</span><span class="p">):</span> <span class="s2">&quot;Inflict moderate wounds&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">47</span><span class="p">,</span> <span class="mi">52</span><span class="p">):</span> <span class="s2">&quot;Invisibility&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">52</span><span class="p">,</span> <span class="mi">53</span><span class="p">):</span> <span class="s2">&quot;Knock&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">53</span><span class="p">,</span> <span class="mi">55</span><span class="p">):</span> <span class="s2">&quot;Levitate&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="mi">56</span><span class="p">):</span> <span class="s2">&quot;Minor image&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">56</span><span class="p">,</span> <span class="mi">58</span><span class="p">):</span> <span class="s2">&quot;Mirror image&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">58</span><span class="p">,</span> <span class="mi">60</span><span class="p">):</span> <span class="s2">&quot;Owl&#39;s wisdom&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">61</span><span class="p">):</span> <span class="s2">&quot;Pyrotechnics&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">61</span><span class="p">,</span> <span class="mi">62</span><span class="p">):</span> <span class="s2">&quot;Remove paralysis&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">62</span><span class="p">,</span> <span class="mi">65</span><span class="p">):</span> <span class="s2">&quot;Resist energy&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">65</span><span class="p">,</span> <span class="mi">67</span><span class="p">):</span> <span class="s2">&quot;Restoration, lesser&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">67</span><span class="p">,</span> <span class="mi">72</span><span class="p">):</span> <span class="s2">&quot;Scorching ray&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">72</span><span class="p">,</span> <span class="mi">74</span><span class="p">):</span> <span class="s2">&quot;See invisibility&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">74</span><span class="p">,</span> <span class="mi">75</span><span class="p">):</span> <span class="s2">&quot;Shatter&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">77</span><span class="p">):</span> <span class="s2">&quot;Shield other&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">77</span><span class="p">,</span> <span class="mi">79</span><span class="p">):</span> <span class="s2">&quot;Silence&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">79</span><span class="p">,</span> <span class="mi">82</span><span class="p">):</span> <span class="s2">&quot;Sound burst&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">82</span><span class="p">,</span> <span class="mi">84</span><span class="p">):</span> <span class="s2">&quot;Spider climb&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">84</span><span class="p">,</span> <span class="mi">87</span><span class="p">):</span> <span class="s2">&quot;Spiritual weapon&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">87</span><span class="p">,</span> <span class="mi">89</span><span class="p">):</span> <span class="s2">&quot;Summon monster II&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">89</span><span class="p">,</span> <span class="mi">91</span><span class="p">):</span> <span class="s2">&quot;Summon nature&#39;s ally II&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">91</span><span class="p">,</span> <span class="mi">93</span><span class="p">):</span> <span class="s2">&quot;Summon swarm&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">93</span><span class="p">,</span> <span class="mi">97</span><span class="p">):</span> <span class="s2">&quot;Web&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">97</span><span class="p">,</span> <span class="mi">98</span><span class="p">):</span> <span class="s2">&quot;Whispering wind&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">100</span><span class="p">):</span> <span class="s2">&quot;Augury&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="s2">&quot;Fire trap&quot;</span><span class="p">,</span>
+        <span class="p">}),</span>
+        <span class="s1">&#39;uncommon&#39;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="s2">&quot;Align weapon&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span> <span class="s2">&quot;Animal aspect&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span> <span class="s2">&quot;Animal messenger&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span> <span class="s2">&quot;Animal trance&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span> <span class="s2">&quot;Aspect of the bear&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">14</span><span class="p">):</span> <span class="s2">&quot;Bestow weapon proficiency&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span> <span class="s2">&quot;Blindness/deafness&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">19</span><span class="p">):</span> <span class="s2">&quot;Burning gaze&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mi">22</span><span class="p">):</span> <span class="s2">&quot;Calm emotions&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span> <span class="s2">&quot;Chill metal&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">):</span> <span class="s2">&quot;Command undead&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">28</span><span class="p">):</span> <span class="s2">&quot;Daze monster&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">30</span><span class="p">):</span> <span class="s2">&quot;Death knell&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">33</span><span class="p">):</span> <span class="s2">&quot;Defensive shock&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">33</span><span class="p">,</span> <span class="mi">34</span><span class="p">):</span> <span class="s2">&quot;Delay pain&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">34</span><span class="p">,</span> <span class="mi">36</span><span class="p">):</span> <span class="s2">&quot;Detect thoughts&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">40</span><span class="p">):</span> <span class="s2">&quot;Disguise other&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">43</span><span class="p">):</span> <span class="s2">&quot;Effortless armor&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="mi">47</span><span class="p">):</span> <span class="s2">&quot;Elemental touch&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">47</span><span class="p">,</span> <span class="mi">49</span><span class="p">):</span> <span class="s2">&quot;Enthrall&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">49</span><span class="p">,</span> <span class="mi">51</span><span class="p">):</span> <span class="s2">&quot;Gentle repose&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">51</span><span class="p">,</span> <span class="mi">52</span><span class="p">):</span> <span class="s2">&quot;Ghoul touch&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">52</span><span class="p">,</span> <span class="mi">54</span><span class="p">):</span> <span class="s2">&quot;Glide&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">54</span><span class="p">,</span> <span class="mi">56</span><span class="p">):</span> <span class="s2">&quot;Groundswell&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">56</span><span class="p">,</span> <span class="mi">57</span><span class="p">):</span> <span class="s2">&quot;Gust of wind&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">57</span><span class="p">,</span> <span class="mi">58</span><span class="p">):</span> <span class="s2">&quot;Hold animal&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">58</span><span class="p">,</span> <span class="mi">60</span><span class="p">):</span> <span class="s2">&quot;Hypnotic pattern&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">61</span><span class="p">):</span> <span class="s2">&quot;Locate object&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">61</span><span class="p">,</span> <span class="mi">62</span><span class="p">):</span> <span class="s2">&quot;Make whole&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">):</span> <span class="s2">&quot;Misdirection&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">):</span> <span class="s2">&quot;Oppressive boredom&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">):</span> <span class="s2">&quot;Protection from arrows&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">67</span><span class="p">,</span> <span class="mi">68</span><span class="p">):</span> <span class="s2">&quot;Reduce animal&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">68</span><span class="p">,</span> <span class="mi">70</span><span class="p">):</span> <span class="s2">&quot;Rope trick&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="mi">73</span><span class="p">):</span> <span class="s2">&quot;Scare&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">73</span><span class="p">,</span> <span class="mi">75</span><span class="p">):</span> <span class="s2">&quot;Share language&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">77</span><span class="p">):</span> <span class="s2">&quot;Soften earth and stone&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">77</span><span class="p">,</span> <span class="mi">79</span><span class="p">):</span> <span class="s2">&quot;Spectral hand&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">79</span><span class="p">,</span> <span class="mi">81</span><span class="p">):</span> <span class="s2">&quot;Status&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">81</span><span class="p">,</span> <span class="mi">83</span><span class="p">):</span> <span class="s2">&quot;Tongues&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">83</span><span class="p">,</span> <span class="mi">85</span><span class="p">):</span> <span class="s2">&quot;Touch of idiocy&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">85</span><span class="p">,</span> <span class="mi">87</span><span class="p">):</span> <span class="s2">&quot;Tree shape&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">87</span><span class="p">,</span> <span class="mi">89</span><span class="p">):</span> <span class="s2">&quot;Warp wood&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">89</span><span class="p">,</span> <span class="mi">92</span><span class="p">):</span> <span class="s2">&quot;Weapon of awe&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">92</span><span class="p">,</span> <span class="mi">94</span><span class="p">):</span> <span class="s2">&quot;Wood shape&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">94</span><span class="p">,</span> <span class="mi">96</span><span class="p">):</span> <span class="s2">&quot;Zone of truth&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span> <span class="mi">97</span><span class="p">):</span> <span class="s2">&quot;Arcane lock&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">97</span><span class="p">,</span> <span class="mi">98</span><span class="p">):</span> <span class="s2">&quot;Consecrate&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">):</span> <span class="s2">&quot;Desecrate&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">99</span><span class="p">,</span> <span class="mi">100</span><span class="p">):</span> <span class="s2">&quot;Continual flame&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="s2">&quot;Phantom trap&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+    <span class="p">},</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;common&#39;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="s2">&quot;Beast shape I&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span> <span class="s2">&quot;Blink&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span> <span class="s2">&quot;Call lightning&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span> <span class="s2">&quot;Create food and water&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span> <span class="s2">&quot;Cure serious wounds&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">17</span><span class="p">):</span> <span class="s2">&quot;Daylight&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">19</span><span class="p">):</span> <span class="s2">&quot;Deep slumber&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mi">21</span><span class="p">):</span> <span class="s2">&quot;Deeper darkness&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">26</span><span class="p">):</span> <span class="s2">&quot;Dispel magic&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">29</span><span class="p">):</span> <span class="s2">&quot;Displacement&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">29</span><span class="p">,</span> <span class="mi">35</span><span class="p">):</span> <span class="s2">&quot;Fireball&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">36</span><span class="p">):</span> <span class="s2">&quot;Flame arrow&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">38</span><span class="p">):</span> <span class="s2">&quot;Fly&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">38</span><span class="p">,</span> <span class="mi">39</span><span class="p">):</span> <span class="s2">&quot;Gaseous form&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">39</span><span class="p">,</span> <span class="mi">41</span><span class="p">):</span> <span class="s2">&quot;Haste&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">41</span><span class="p">,</span> <span class="mi">43</span><span class="p">):</span> <span class="s2">&quot;Heroism&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="mi">46</span><span class="p">):</span> <span class="s2">&quot;Inflict serious wounds&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">46</span><span class="p">,</span> <span class="mi">48</span><span class="p">):</span> <span class="s2">&quot;Invisibility purge&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="mi">49</span><span class="p">):</span> <span class="s2">&quot;Invisibility sphere&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">49</span><span class="p">,</span> <span class="mi">51</span><span class="p">):</span> <span class="s2">&quot;Keen edge&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">51</span><span class="p">,</span> <span class="mi">56</span><span class="p">):</span> <span class="s2">&quot;Lightning bolt&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">56</span><span class="p">,</span> <span class="mi">57</span><span class="p">):</span> <span class="s2">&quot;Magic circle against chaos&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">57</span><span class="p">,</span> <span class="mi">58</span><span class="p">):</span> <span class="s2">&quot;Magic circle against evil&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">58</span><span class="p">,</span> <span class="mi">59</span><span class="p">):</span> <span class="s2">&quot;Magic circle against good&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span> <span class="mi">60</span><span class="p">):</span> <span class="s2">&quot;Magic circle against law&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">61</span><span class="p">):</span> <span class="s2">&quot;Magic fang, greater&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">61</span><span class="p">,</span> <span class="mi">63</span><span class="p">):</span> <span class="s2">&quot;Magic vestment&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">63</span><span class="p">,</span> <span class="mi">65</span><span class="p">):</span> <span class="s2">&quot;Magic weapon, greater&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">65</span><span class="p">,</span> <span class="mi">67</span><span class="p">):</span> <span class="s2">&quot;Major image&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">67</span><span class="p">,</span> <span class="mi">71</span><span class="p">):</span> <span class="s2">&quot;Prayer&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">71</span><span class="p">,</span> <span class="mi">75</span><span class="p">):</span> <span class="s2">&quot;Protection from energy&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">76</span><span class="p">):</span> <span class="s2">&quot;Remove blindness/deafness&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">76</span><span class="p">,</span> <span class="mi">78</span><span class="p">):</span> <span class="s2">&quot;Remove curse&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">78</span><span class="p">,</span> <span class="mi">80</span><span class="p">):</span> <span class="s2">&quot;Remove disease&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">83</span><span class="p">):</span> <span class="s2">&quot;Searing light&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">83</span><span class="p">,</span> <span class="mi">84</span><span class="p">):</span> <span class="s2">&quot;Sleet storm&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">84</span><span class="p">,</span> <span class="mi">86</span><span class="p">):</span> <span class="s2">&quot;Slow&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">86</span><span class="p">,</span> <span class="mi">88</span><span class="p">):</span> <span class="s2">&quot;Speak with dead&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span> <span class="mi">90</span><span class="p">):</span> <span class="s2">&quot;Stinking cloud&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="mi">91</span><span class="p">):</span> <span class="s2">&quot;Stone shape&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">91</span><span class="p">,</span> <span class="mi">93</span><span class="p">):</span> <span class="s2">&quot;Suggestion&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">93</span><span class="p">,</span> <span class="mi">94</span><span class="p">):</span> <span class="s2">&quot;Summon monster III&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">94</span><span class="p">,</span> <span class="mi">95</span><span class="p">):</span> <span class="s2">&quot;Summon nature&#39;s ally III&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">95</span><span class="p">,</span> <span class="mi">98</span><span class="p">):</span> <span class="s2">&quot;Vampiric touch&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">100</span><span class="p">):</span> <span class="s2">&quot;Water breathing&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="s2">&quot;Animate dead&quot;</span><span class="p">,</span>
+        <span class="p">}),</span>
+        <span class="s1">&#39;uncommon&#39;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span> <span class="s2">&quot;Animal aspect, greater&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span> <span class="s2">&quot;Aqueous orb&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span> <span class="s2">&quot;Arcane sight&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">):</span> <span class="s2">&quot;Archon&#39;s aura&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span> <span class="s2">&quot;Ash storm&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">18</span><span class="p">):</span> <span class="s2">&quot;Bestow curse&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">21</span><span class="p">):</span> <span class="s2">&quot;Clairaudience/clairvoyance&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">23</span><span class="p">):</span> <span class="s2">&quot;Contagion&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">24</span><span class="p">):</span> <span class="s2">&quot;Diminish plants&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">26</span><span class="p">):</span> <span class="s2">&quot;Dominate animal&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">30</span><span class="p">):</span> <span class="s2">&quot;Elemental aura&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">):</span> <span class="s2">&quot;Explosive runes&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="mi">35</span><span class="p">):</span> <span class="s2">&quot;Force punch&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">36</span><span class="p">):</span> <span class="s2">&quot;Halt undead&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">38</span><span class="p">):</span> <span class="s2">&quot;Helping hand&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">38</span><span class="p">,</span> <span class="mi">41</span><span class="p">):</span> <span class="s2">&quot;Hostile levitation&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">41</span><span class="p">,</span> <span class="mi">44</span><span class="p">):</span> <span class="s2">&quot;Howling agony&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">44</span><span class="p">,</span> <span class="mi">46</span><span class="p">):</span> <span class="s2">&quot;Hydraulic torrent&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">46</span><span class="p">,</span> <span class="mi">47</span><span class="p">):</span> <span class="s2">&quot;Mad monkeys&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">47</span><span class="p">,</span> <span class="mi">50</span><span class="p">):</span> <span class="s2">&quot;Meld into stone&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">53</span><span class="p">):</span> <span class="s2">&quot;Neutralize poison&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">53</span><span class="p">,</span> <span class="mi">55</span><span class="p">):</span> <span class="s2">&quot;Pain strike&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="mi">56</span><span class="p">):</span> <span class="s2">&quot;Phantom steed&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">56</span><span class="p">,</span> <span class="mi">58</span><span class="p">):</span> <span class="s2">&quot;Plant growth&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">58</span><span class="p">,</span> <span class="mi">61</span><span class="p">):</span> <span class="s2">&quot;Poison&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">61</span><span class="p">,</span> <span class="mi">62</span><span class="p">):</span> <span class="s2">&quot;Quench&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">62</span><span class="p">,</span> <span class="mi">66</span><span class="p">):</span> <span class="s2">&quot;Rage&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">66</span><span class="p">,</span> <span class="mi">68</span><span class="p">):</span> <span class="s2">&quot;Ray of exhaustion&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">68</span><span class="p">,</span> <span class="mi">70</span><span class="p">):</span> <span class="s2">&quot;Resinous skin&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="mi">71</span><span class="p">):</span> <span class="s2">&quot;Secret page&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">71</span><span class="p">,</span> <span class="mi">72</span><span class="p">):</span> <span class="s2">&quot;Shrink item&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">72</span><span class="p">,</span> <span class="mi">74</span><span class="p">):</span> <span class="s2">&quot;Snare&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">74</span><span class="p">,</span> <span class="mi">75</span><span class="p">):</span> <span class="s2">&quot;Speak with plants&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">77</span><span class="p">):</span> <span class="s2">&quot;Spike growth&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">77</span><span class="p">,</span> <span class="mi">78</span><span class="p">):</span> <span class="s2">&quot;Tiny hut&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">78</span><span class="p">,</span> <span class="mi">82</span><span class="p">):</span> <span class="s2">&quot;Water walk&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">82</span><span class="p">,</span> <span class="mi">85</span><span class="p">):</span> <span class="s2">&quot;Wind wall&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">85</span><span class="p">,</span> <span class="mi">87</span><span class="p">):</span> <span class="s2">&quot;Wrathful mantle&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">87</span><span class="p">,</span> <span class="mi">88</span><span class="p">):</span> <span class="s2">&quot;Illusory script&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span> <span class="mi">90</span><span class="p">):</span> <span class="s2">&quot;Nondetection&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="mi">92</span><span class="p">):</span> <span class="s2">&quot;Glibness&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">92</span><span class="p">,</span> <span class="mi">96</span><span class="p">):</span> <span class="s2">&quot;Good hope&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span> <span class="mi">98</span><span class="p">):</span> <span class="s2">&quot;Heal mount&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">):</span> <span class="s2">&quot;Sculpt sound&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">99</span><span class="p">,</span> <span class="mi">100</span><span class="p">):</span> <span class="s2">&quot;Glyph of warding&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="s2">&quot;Sepia snake sigil&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+    <span class="p">},</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;common&#39;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="s2">&quot;Air walk&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span> <span class="s2">&quot;Beast shape II&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span> <span class="s2">&quot;Black tentacles&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span> <span class="s2">&quot;Chaos hammer&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">):</span> <span class="s2">&quot;Charm monster&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span> <span class="s2">&quot;Confusion&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">17</span><span class="p">):</span> <span class="s2">&quot;Crushing despair&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">23</span><span class="p">):</span> <span class="s2">&quot;Cure critical wounds&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span> <span class="s2">&quot;Death ward&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">29</span><span class="p">):</span> <span class="s2">&quot;Dimension door&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">29</span><span class="p">,</span> <span class="mi">30</span><span class="p">):</span> <span class="s2">&quot;Dimensional anchor&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">):</span> <span class="s2">&quot;Dismissal&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="mi">34</span><span class="p">):</span> <span class="s2">&quot;Divine power&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">34</span><span class="p">,</span> <span class="mi">36</span><span class="p">):</span> <span class="s2">&quot;Elemental body I&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">38</span><span class="p">):</span> <span class="s2">&quot;Enervation&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">38</span><span class="p">,</span> <span class="mi">40</span><span class="p">):</span> <span class="s2">&quot;Enlarge person, mass&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">43</span><span class="p">):</span> <span class="s2">&quot;Fear&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="mi">45</span><span class="p">):</span> <span class="s2">&quot;Fire shield&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="mi">49</span><span class="p">):</span> <span class="s2">&quot;Flame strike&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">49</span><span class="p">,</span> <span class="mi">52</span><span class="p">):</span> <span class="s2">&quot;Freedom of movement&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">52</span><span class="p">,</span> <span class="mi">54</span><span class="p">):</span> <span class="s2">&quot;Globe of invulnerability, lesser&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">54</span><span class="p">,</span> <span class="mi">55</span><span class="p">):</span> <span class="s2">&quot;Holy smite&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="mi">57</span><span class="p">):</span> <span class="s2">&quot;Ice storm&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">57</span><span class="p">,</span> <span class="mi">59</span><span class="p">):</span> <span class="s2">&quot;Imbue with spell ability&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span> <span class="mi">62</span><span class="p">):</span> <span class="s2">&quot;Inflict critical wounds&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">62</span><span class="p">,</span> <span class="mi">66</span><span class="p">):</span> <span class="s2">&quot;Invisibility, greater&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">):</span> <span class="s2">&quot;Order&#39;s wrath&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">67</span><span class="p">,</span> <span class="mi">70</span><span class="p">):</span> <span class="s2">&quot;Phantasmal killer&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="mi">71</span><span class="p">):</span> <span class="s2">&quot;Resilient sphere&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">71</span><span class="p">,</span> <span class="mi">73</span><span class="p">):</span> <span class="s2">&quot;Scrying&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">73</span><span class="p">,</span> <span class="mi">74</span><span class="p">):</span> <span class="s2">&quot;Sending&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">74</span><span class="p">,</span> <span class="mi">75</span><span class="p">):</span> <span class="s2">&quot;Shout&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">77</span><span class="p">):</span> <span class="s2">&quot;Solid fog&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">77</span><span class="p">,</span> <span class="mi">80</span><span class="p">):</span> <span class="s2">&quot;Spell immunity&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">81</span><span class="p">):</span> <span class="s2">&quot;Summon monster IV&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">81</span><span class="p">,</span> <span class="mi">82</span><span class="p">):</span> <span class="s2">&quot;Summon nature&#39;s ally IV&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">82</span><span class="p">,</span> <span class="mi">83</span><span class="p">):</span> <span class="s2">&quot;Unholy blight&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">83</span><span class="p">,</span> <span class="mi">88</span><span class="p">):</span> <span class="s2">&quot;Wall of fire&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span> <span class="mi">92</span><span class="p">):</span> <span class="s2">&quot;Wall of ice&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">92</span><span class="p">,</span> <span class="mi">94</span><span class="p">):</span> <span class="s2">&quot;Divination&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">94</span><span class="p">,</span> <span class="mi">96</span><span class="p">):</span> <span class="s2">&quot;Restoration&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span> <span class="mi">97</span><span class="p">):</span> <span class="s2">&quot;Break enchantment&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">97</span><span class="p">,</span> <span class="mi">99</span><span class="p">):</span> <span class="s2">&quot;Stoneskin&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">99</span><span class="p">,</span> <span class="mi">100</span><span class="p">):</span> <span class="s2">&quot;Planar ally, lesser&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="s2">&quot;Restoration&quot;</span><span class="p">,</span>
+        <span class="p">}),</span>
+        <span class="s1">&#39;uncommon&#39;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="s2">&quot;Antiplant shell&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span> <span class="s2">&quot;Arcane eye&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span> <span class="s2">&quot;Aspect of the stag&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">):</span> <span class="s2">&quot;Ball lightning&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span> <span class="s2">&quot;Blight&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">):</span> <span class="s2">&quot;Command plants&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span> <span class="s2">&quot;Control water&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">19</span><span class="p">):</span> <span class="s2">&quot;Darkvision, greater&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mi">20</span><span class="p">):</span> <span class="s2">&quot;Detect scrying&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">):</span> <span class="s2">&quot;Discern lies&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span> <span class="s2">&quot;Dragon&#39;s breath&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">29</span><span class="p">):</span> <span class="s2">&quot;False life, greater&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">29</span><span class="p">,</span> <span class="mi">31</span><span class="p">):</span> <span class="s2">&quot;Geas, lesser&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="mi">35</span><span class="p">):</span> <span class="s2">&quot;Ghost wolf&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">37</span><span class="p">):</span> <span class="s2">&quot;Giant vermin&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">37</span><span class="p">,</span> <span class="mi">38</span><span class="p">):</span> <span class="s2">&quot;Hallucinatory terrain&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">38</span><span class="p">,</span> <span class="mi">39</span><span class="p">):</span> <span class="s2">&quot;Illusory wall&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">39</span><span class="p">,</span> <span class="mi">41</span><span class="p">):</span> <span class="s2">&quot;Locate creature&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">41</span><span class="p">,</span> <span class="mi">43</span><span class="p">):</span> <span class="s2">&quot;Minor creation&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="mi">44</span><span class="p">):</span> <span class="s2">&quot;Mnemonic enhancer&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">44</span><span class="p">,</span> <span class="mi">47</span><span class="p">):</span> <span class="s2">&quot;Obsidian flow&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">47</span><span class="p">,</span> <span class="mi">49</span><span class="p">):</span> <span class="s2">&quot;Rainbow pattern&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">49</span><span class="p">,</span> <span class="mi">51</span><span class="p">):</span> <span class="s2">&quot;Reduce person, mass&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">51</span><span class="p">,</span> <span class="mi">54</span><span class="p">):</span> <span class="s2">&quot;Reincarnate&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">54</span><span class="p">,</span> <span class="mi">55</span><span class="p">):</span> <span class="s2">&quot;Repel vermin&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="mi">57</span><span class="p">):</span> <span class="s2">&quot;Ride the waves&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">57</span><span class="p">,</span> <span class="mi">60</span><span class="p">):</span> <span class="s2">&quot;Rusting grasp&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">61</span><span class="p">):</span> <span class="s2">&quot;Secure shelter&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">61</span><span class="p">,</span> <span class="mi">64</span><span class="p">):</span> <span class="s2">&quot;Shadow conjuration&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">68</span><span class="p">):</span> <span class="s2">&quot;Shadow step&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">68</span><span class="p">,</span> <span class="mi">71</span><span class="p">):</span> <span class="s2">&quot;Shocking image&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">71</span><span class="p">,</span> <span class="mi">75</span><span class="p">):</span> <span class="s2">&quot;Spike stones&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">77</span><span class="p">):</span> <span class="s2">&quot;Volcanic storm&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">77</span><span class="p">,</span> <span class="mi">80</span><span class="p">):</span> <span class="s2">&quot;Wandering star motes&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">81</span><span class="p">):</span> <span class="s2">&quot;Animal growth&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">81</span><span class="p">,</span> <span class="mi">83</span><span class="p">):</span> <span class="s2">&quot;Commune with nature&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">83</span><span class="p">,</span> <span class="mi">84</span><span class="p">):</span> <span class="s2">&quot;Dispel chaos&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">84</span><span class="p">,</span> <span class="mi">85</span><span class="p">):</span> <span class="s2">&quot;Dispel evil&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">85</span><span class="p">,</span> <span class="mi">88</span><span class="p">):</span> <span class="s2">&quot;Dominate person&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span> <span class="mi">92</span><span class="p">):</span> <span class="s2">&quot;Hold monster&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">92</span><span class="p">,</span> <span class="mi">95</span><span class="p">):</span> <span class="s2">&quot;Holy sword&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">95</span><span class="p">,</span> <span class="mi">96</span><span class="p">):</span> <span class="s2">&quot;Mark of justice&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span> <span class="mi">98</span><span class="p">):</span> <span class="s2">&quot;Modify memory&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">99</span><span class="p">):</span> <span class="s2">&quot;Tree stride&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">99</span><span class="p">,</span> <span class="mi">100</span><span class="p">):</span> <span class="s2">&quot;Zone of silence&quot;</span><span class="p">,</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="s2">&quot;Legend lore&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+
+<span class="n">rnd_wands_grade</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1">#                (spell level, caster level, type)</span>
+    <span class="s2">&quot;lesser minor&quot;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">41</span><span class="p">):</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">41</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">}),</span>
+    <span class="s2">&quot;greater minor&quot;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">81</span><span class="p">):</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">81</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="p">}),</span>
+    <span class="s2">&quot;lesser medium&quot;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">76</span><span class="p">):</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">76</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="p">}),</span>
+    <span class="s2">&quot;greater medium&quot;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">21</span><span class="p">):</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="p">}),</span>
+    <span class="s2">&quot;lesser major&quot;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">61</span><span class="p">):</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">61</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+    <span class="p">}),</span>
+    <span class="s2">&quot;greater major&quot;</span><span class="p">:</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">31</span><span class="p">):</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+    <span class="p">})</span>
+<span class="p">}</span>
+
+<span class="n">rnd_wands_rarity</span> <span class="o">=</span> <span class="n">RangedDictionary</span><span class="p">({</span>
+    <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">76</span><span class="p">):</span> <span class="s2">&quot;common&quot;</span><span class="p">,</span>
+    <span class="nb">range</span><span class="p">(</span><span class="mi">76</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span> <span class="s2">&quot;uncommon&quot;</span>
+<span class="p">})</span>
+
+
+<div class="viewcode-block" id="get_wand"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.loot_wands.get_wand">[docs]</a><span class="k">def</span> <span class="nf">get_wand</span><span class="p">(</span><span class="n">grade</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">d100</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">spell_lvl</span><span class="p">,</span> <span class="n">caster_lvl</span> <span class="o">=</span> <span class="n">rnd_wands_grade</span><span class="p">[</span><span class="n">grade</span><span class="p">][</span><span class="n">d100</span><span class="p">()]</span>
+
+    <span class="n">rarity</span> <span class="o">=</span> <span class="n">rnd_wands_rarity</span><span class="p">[</span><span class="n">d100</span><span class="p">()]</span>
+
+    <span class="n">wand</span> <span class="o">=</span> <span class="n">rnd_wands</span><span class="p">[</span><span class="n">spell_lvl</span><span class="p">][</span><span class="n">rarity</span><span class="p">][</span><span class="n">d100</span><span class="p">()]</span>
+
+    <span class="c1"># TO-DO: IMPLEMENT CASTER LEVEL</span>
+
+    <span class="k">return</span> <span class="n">wand</span></div>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">test_range100</span><span class="p">(</span><span class="n">rnd_wands_rarity</span><span class="p">)</span>
+    <span class="n">test_range100</span><span class="p">(</span><span class="n">rnd_wands_grade</span><span class="p">)</span>
+    <span class="n">test_range100</span><span class="p">(</span><span class="n">rnd_wands</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;lesser minor&quot;</span><span class="p">,</span> <span class="s2">&quot;greater minor&quot;</span><span class="p">,</span> <span class="s2">&quot;lesser medium&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;greater medium&quot;</span><span class="p">,</span> <span class="s2">&quot;lesser major&quot;</span><span class="p">,</span> <span class="s2">&quot;greater major&quot;</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">get_wand</span><span class="p">(</span><span class="n">g</span><span class="p">)))</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lucas Siqueira.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,652 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dnf_game.scene_manager package &mdash; Dungeons and Fiends  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Dungeons and Fiends  documentation" href="index.html"/>
+        <link rel="up" title="dnf_game package" href="dnf_game.html"/>
+        <link rel="next" title="dnf_game.scene_manager.layers package" href="dnf_game.scene_manager.layers.html"/>
+        <link rel="prev" title="dnf_game.dnf_main.scenes package" href="dnf_game.dnf_main.scenes.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Dungeons and Fiends
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="dnf_game.html">dnf_game package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dnf_game.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dnf_game.data.html">dnf_game.data package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dnf_game.dnf_main.html">dnf_game.dnf_main package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">dnf_game.scene_manager package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-dnf_game.scene_manager.base_entity">dnf_game.scene_manager.base_entity module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-dnf_game.scene_manager.manager">dnf_game.scene_manager.manager module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-dnf_game.scene_manager.resources">dnf_game.scene_manager.resources module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dnf_game.util.html">dnf_game.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dnf_game.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnf_game.html#module-dnf_game.test_all">dnf_game.test_all module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Dungeons and Fiends</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="dnf_game.html">dnf_game package</a> &raquo;</li>
+      
+    <li>dnf_game.scene_manager package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/dnf_game.scene_manager.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dnf_game.scene_manager">
+<span id="dnf-game-scene-manager-package"></span><h1>dnf_game.scene_manager package<a class="headerlink" href="#module-dnf_game.scene_manager" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dnf_game.scene_manager.layers.html">dnf_game.scene_manager.layers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dnf_game.scene_manager.layers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnf_game.scene_manager.layers.html#module-dnf_game.scene_manager.layers.base_layers">dnf_game.scene_manager.layers.base_layers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnf_game.scene_manager.layers.html#module-dnf_game.scene_manager.layers.gui_layer">dnf_game.scene_manager.layers.gui_layer module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dnf_game.scene_manager.base_entity">
+<span id="dnf-game-scene-manager-base-entity-module"></span><h2>dnf_game.scene_manager.base_entity module<a class="headerlink" href="#module-dnf_game.scene_manager.base_entity" title="Permalink to this headline">¶</a></h2>
+<p>...</p>
+<dl class="class">
+<dt id="dnf_game.scene_manager.base_entity.EntityBase">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.base_entity.</code><code class="descname">EntityBase</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/base_entity.html#EntityBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.base_entity.EntityBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Abstract entity inherited from both SceneBase an WindowBase.</p>
+<dl class="method">
+<dt id="dnf_game.scene_manager.base_entity.EntityBase.on_key_press">
+<code class="descname">on_key_press</code><span class="sig-paren">(</span><em>event</em>, <em>mod</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/base_entity.html#EntityBase.on_key_press"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.base_entity.EntityBase.on_key_press" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called on keyboard input, when a key is held down.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.base_entity.EntityBase.on_key_release">
+<code class="descname">on_key_release</code><span class="sig-paren">(</span><em>event</em>, <em>mod</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/base_entity.html#EntityBase.on_key_release"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.base_entity.EntityBase.on_key_release" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called on keyboard input, when a key is released.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.base_entity.EntityBase.on_mouse_drag">
+<code class="descname">on_mouse_drag</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>dx</em>, <em>dy</em>, <em>button</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/base_entity.html#EntityBase.on_mouse_drag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.base_entity.EntityBase.on_mouse_drag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when mouse buttons are pressed and the mouse is dragged.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.base_entity.EntityBase.on_mouse_motion">
+<code class="descname">on_mouse_motion</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>dx</em>, <em>dy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/base_entity.html#EntityBase.on_mouse_motion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.base_entity.EntityBase.on_mouse_motion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when the mouse is moved.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.base_entity.EntityBase.on_mouse_press">
+<code class="descname">on_mouse_press</code><span class="sig-paren">(</span><em>event</em>, <em>x</em>, <em>y</em>, <em>button</em>, <em>double</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/base_entity.html#EntityBase.on_mouse_press"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.base_entity.EntityBase.on_mouse_press" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when mouse buttons are pressed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.base_entity.EntityBase.on_mouse_scroll">
+<code class="descname">on_mouse_scroll</code><span class="sig-paren">(</span><em>event</em>, <em>offset_x</em>, <em>offset_y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/base_entity.html#EntityBase.on_mouse_scroll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.base_entity.EntityBase.on_mouse_scroll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when the mouse wheel is scrolled.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.base_entity.EntityBase.on_update">
+<code class="descname">on_update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/base_entity.html#EntityBase.on_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.base_entity.EntityBase.on_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Graphical logic.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.base_entity.EntityBase.post_update">
+<code class="descname">post_update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/base_entity.html#EntityBase.post_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.base_entity.EntityBase.post_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dnf_game.scene_manager.manager">
+<span id="dnf-game-scene-manager-manager-module"></span><h2>dnf_game.scene_manager.manager module<a class="headerlink" href="#module-dnf_game.scene_manager.manager" title="Permalink to this headline">¶</a></h2>
+<p>SDL2 Tiles Test.</p>
+<dl class="class">
+<dt id="dnf_game.scene_manager.manager.Manager">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.manager.</code><code class="descname">Manager</code><span class="sig-paren">(</span><em>*</em>, <em>width=1024</em>, <em>height=768</em>, <em>framerate=30</em>, <em>show_fps=True</em>, <em>show_play_time=False</em>, <em>scene=None</em>, <em>test=False</em>, <em>scene_args=None</em>, <em>opacity=255</em>, <em>window_color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#Manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.Manager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Manage scenes and the main loop.</p>
+<p>At each loop the events are passed down to the scene and its updates
+method is called.</p>
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.Manager.draw_fps">
+<code class="descname">draw_fps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#Manager.draw_fps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.Manager.draw_fps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw the fps display.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.Manager.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#Manager.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.Manager.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main loop handling events and updates.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.Manager.get_mouse_state">
+<code class="descname">get_mouse_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#Manager.get_mouse_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.Manager.get_mouse_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.Manager.on_event">
+<code class="descname">on_event</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#Manager.on_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.Manager.on_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle the events and distribute them.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.Manager.on_update">
+<code class="descname">on_update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#Manager.on_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.Manager.on_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update scene unless specified not to do so.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.Manager.present">
+<code class="descname">present</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#Manager.present"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.Manager.present" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flip.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.manager.Manager.scene">
+<code class="descname">scene</code><a class="headerlink" href="#dnf_game.scene_manager.manager.Manager.scene" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.Manager.set_scene">
+<code class="descname">set_scene</code><span class="sig-paren">(</span><em>scene=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#Manager.set_scene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.Manager.set_scene" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.manager.SpriteFactory">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.manager.</code><code class="descname">SpriteFactory</code><span class="sig-paren">(</span><em>sprite_type=0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#SpriteFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.SpriteFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sdl2.ext.sprite.SpriteFactory</span></code></p>
+<p>A factory class for creating Sprite components.</p>
+<p>Subclass of sdl2.ext.SpriteFactory with additional methods.</p>
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.SpriteFactory.create_sprite_render_system">
+<code class="descname">create_sprite_render_system</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#SpriteFactory.create_sprite_render_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.SpriteFactory.create_sprite_render_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new SpriteRenderSystem.</p>
+<p>For TEXTURE mode, the passed args and kwargs are ignored and the
+Renderer or SDL_Renderer passed to the SpriteFactory is used.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.SpriteFactory.create_surface">
+<code class="descname">create_surface</code><span class="sig-paren">(</span><em>w</em>, <em>h</em>, <em>bpp=32</em>, <em>masks=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#SpriteFactory.create_surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.SpriteFactory.create_surface" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.SpriteFactory.from_color">
+<code class="descname">from_color</code><span class="sig-paren">(</span><em>*</em>, <em>rect</em>, <em>color=None</em>, <em>bpp=32</em>, <em>masks=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#SpriteFactory.from_color"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.SpriteFactory.from_color" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a sprite with a certain color.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.SpriteFactory.from_gradient">
+<code class="descname">from_gradient</code><span class="sig-paren">(</span><em>*</em>, <em>rect</em>, <em>color_start=None</em>, <em>color_end=None</em>, <em>mode=None</em>, <em>masks=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#SpriteFactory.from_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.SpriteFactory.from_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.SpriteFactory.from_surface">
+<code class="descname">from_surface</code><span class="sig-paren">(</span><em>tsurface</em>, <em>free=False</em>, <em>position=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#SpriteFactory.from_surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.SpriteFactory.from_surface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Sprite from the passed SDL_Surface.</p>
+<p>If free is set to True, the passed surface will be freed
+automatically.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.SpriteFactory.from_texture">
+<code class="descname">from_texture</code><span class="sig-paren">(</span><em>texture</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#SpriteFactory.from_texture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.SpriteFactory.from_texture" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.SpriteFactory.from_tileset">
+<code class="descname">from_tileset</code><span class="sig-paren">(</span><em>*</em>, <em>tile=None</em>, <em>pos=None</em>, <em>var=None</em>, <em>_id=None</em>, <em>area=None</em>, <em>position=None</em>, <em>rect=None</em>, <em>color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#SpriteFactory.from_tileset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.SpriteFactory.from_tileset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a sprite from a tile name or id code.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>tile (str): name ot the tile type
+pos (int): tile position relative to auto-tiling
+var (int): tile variation
+_id (int): tile ordinal position on the tileset (e.g.: _id=127)
+area (rect): tuple with coordinates (x, y, w, h)</dd>
+<dt>Returns:</dt>
+<dd>sdl2.ext.sprite.TextureSprite</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.manager.TextureSprite">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.manager.</code><code class="descname">TextureSprite</code><span class="sig-paren">(</span><em>texture</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sdl2.ext.sprite.TextureSprite</span></code></p>
+<p>A simple, visible, texture-based 2D object, using a renderer.</p>
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.bottomright">
+<code class="descname">bottomright</code><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.bottomright" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.flip_sprite">
+<code class="descname">flip_sprite</code><span class="sig-paren">(</span><em>mode=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite.flip_sprite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.flip_sprite" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.frame_rect">
+<code class="descname">frame_rect</code><em class="property"> = None</em><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.frame_rect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.get_alpha_mod">
+<code class="descname">get_alpha_mod</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite.get_alpha_mod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.get_alpha_mod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the alpha value multiplier for render copy operations.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>(int): integer alpha value.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.get_color_mod">
+<code class="descname">get_color_mod</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite.get_color_mod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.get_color_mod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the color value multiplier for render copy operations.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>(int), (int), (int): 3-tuple of rgb integer values (RGB).</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.get_rect">
+<code class="descname">get_rect</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite.get_rect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.get_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the rectangular area of the sprite.</p>
+<p>Returns a new rectangle covering the sprite area. This rectangle will
+have the sprite&#8217;s x, y, width and height.</p>
+<p>You can pass keyword argument values to this function. These named
+values will be applied to the attributes of the Rect before it is
+returned. An example would be ‘mysurf.get_rect(center=(100,100))’
+to create a rectangle for the Surface centered at a given position.</p>
+<dl class="docutils">
+<dt>Usage:</dt>
+<dd>get_rect()</dd>
+<dt>Returns:</dt>
+<dd>Rect</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.reset_alpha_mod">
+<code class="descname">reset_alpha_mod</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite.reset_alpha_mod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.reset_alpha_mod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redefine the alpha multiplier on the sprite texture to default.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.reset_color_mod">
+<code class="descname">reset_color_mod</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite.reset_color_mod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.reset_color_mod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redefine the color multiplier on the sprite texture to default.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.set_alpha_mod">
+<code class="descname">set_alpha_mod</code><span class="sig-paren">(</span><em>alpha=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite.set_alpha_mod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.set_alpha_mod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a alpha value multiplier for render copy operations.</p>
+<p>When this texture is rendered, during the copy operation the source
+alpha value is modulated by this alpha value according to the
+following formula:</p>
+<blockquote>
+<div>srcA = srcA * (alpha / 255)</div></blockquote>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>alpha (int): integer between 0 and 255</dd>
+<dt>Returns:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.set_animation">
+<code class="descname">set_animation</code><span class="sig-paren">(</span><em>cols</em>, <em>rows</em>, <em>col_w</em>, <em>row_h</em>, <em>col=0</em>, <em>row=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite.set_animation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.set_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#8220;Set animation frames parameters.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>cols (int): number of frame columns
+rows (int): number of frame rows
+col_w (int): width of each column, in pixels
+row_h (int): height of each row, in pexels
+col (int): the column of the desired starting frame
+row (int): the row of the desired starting frame</dd>
+<dt>Returns:</dt>
+<dd>TextureSprite (self): reference to self instance, making it
+possible to use this method on the object creation (see Usage
+below).</dd>
+<dt>Usage:</dt>
+<dd><p class="first"># here a 10x1 area of 32x32 tiles is used
+sprite = TextureSprite(<a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs).set_animation(</p>
+<blockquote class="last">
+<div>10, 1, 32, 32)</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.set_color_mod">
+<code class="descname">set_color_mod</code><span class="sig-paren">(</span><em>color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite.set_color_mod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.set_color_mod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a color value multiplier for render copy operations.</p>
+<p>When this texture is rendered, during the copy operation each source
+color channel is modulated by the appropriate color value according
+to the following formula:</p>
+<blockquote>
+<div>srcC = srcC * (color / 255)</div></blockquote>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>color (3-tuple of ints): rgb color with values between 0 and 255</dd>
+<dt>Returns:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.set_current_rect">
+<code class="descname">set_current_rect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite.set_current_rect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.set_current_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.set_rect">
+<code class="descname">set_rect</code><span class="sig-paren">(</span><em>rect</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite.set_rect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.set_rect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the position and size of the sprite from a Rect.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>rect: a Rect from which position and size will be taken.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.step">
+<code class="descname">step</code><span class="sig-paren">(</span><em>col=0</em>, <em>row=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSprite.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dnf_game.scene_manager.manager.TextureSprite.topleft">
+<code class="descname">topleft</code><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSprite.topleft" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.manager.TextureSpriteRenderSystem">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.manager.</code><code class="descname">TextureSpriteRenderSystem</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSpriteRenderSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSpriteRenderSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sdl2.ext.sprite.TextureSpriteRenderSystem</span></code></p>
+<p>A rendering system for TextureSprite components.</p>
+<p>The TextureSpriteRenderSystem class uses a SDL_Renderer as drawing
+device to display TextureSprite objects.</p>
+<dl class="method">
+<dt id="dnf_game.scene_manager.manager.TextureSpriteRenderSystem.render">
+<code class="descname">render</code><span class="sig-paren">(</span><em>sprites</em>, <em>x=None</em>, <em>y=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/manager.html#TextureSpriteRenderSystem.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.manager.TextureSpriteRenderSystem.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw the passed sprites (or sprite).</p>
+<p>x and y are optional arguments that can be used as relative
+drawing location for sprites. If set to None, the location
+information of the sprites are used. If set and sprites is an
+iterable, such as a list of TextureSprite objects, x and y are
+relative location values that will be added to each individual
+sprite&#8217;s position. If sprites is a single TextureSprite, x and y
+denote the absolute position of the TextureSprite, if set.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dnf_game.scene_manager.resources">
+<span id="dnf-game-scene-manager-resources-module"></span><h2>dnf_game.scene_manager.resources module<a class="headerlink" href="#module-dnf_game.scene_manager.resources" title="Permalink to this headline">¶</a></h2>
+<p>...</p>
+<dl class="class">
+<dt id="dnf_game.scene_manager.resources.FontsManager">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.resources.</code><code class="descname">FontsManager</code><span class="sig-paren">(</span><em>factory</em>, <em>path=None</em>, <em>types=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/resources.html#FontsManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.resources.FontsManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dnf_game.scene_manager.resources.Resources" title="dnf_game.scene_manager.resources.Resources"><code class="xref py py-class docutils literal"><span class="pre">dnf_game.scene_manager.resources.Resources</span></code></a></p>
+<p>...</p>
+<dl class="classmethod">
+<dt id="dnf_game.scene_manager.resources.FontsManager.load">
+<em class="property">classmethod </em><code class="descname">load</code><span class="sig-paren">(</span><em>name</em>, <em>size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/resources.html#FontsManager.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.resources.FontsManager.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="dnf_game.scene_manager.resources.FontsManager.render">
+<em class="property">classmethod </em><code class="descname">render</code><span class="sig-paren">(</span><em>text</em>, <em>name</em>, <em>size</em>, <em>color</em>, <em>rect=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/resources.html#FontsManager.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.resources.FontsManager.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="dnf_game.scene_manager.resources.FontsManager.render_w">
+<em class="property">classmethod </em><code class="descname">render_w</code><span class="sig-paren">(</span><em>text</em>, <em>name</em>, <em>size</em>, <em>color</em>, <em>wrap</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/resources.html#FontsManager.render_w"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.resources.FontsManager.render_w" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="dnf_game.scene_manager.resources.FontsManager.text_size">
+<em class="property">classmethod </em><code class="descname">text_size</code><span class="sig-paren">(</span><em>text</em>, <em>name</em>, <em>size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/resources.html#FontsManager.text_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.resources.FontsManager.text_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dnf_game.scene_manager.resources.Resources">
+<em class="property">class </em><code class="descclassname">dnf_game.scene_manager.resources.</code><code class="descname">Resources</code><span class="sig-paren">(</span><em>loader</em>, <em>path</em>, <em>types</em>, <em>weak_ref=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/resources.html#Resources"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.resources.Resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>...</p>
+<dl class="classmethod">
+<dt id="dnf_game.scene_manager.resources.Resources.get">
+<em class="property">classmethod </em><code class="descname">get</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dnf_game/scene_manager/resources.html#Resources.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dnf_game.scene_manager.resources.Resources.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>...</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dnf_game.scene_manager.layers.html" class="btn btn-neutral float-right" title="dnf_game.scene_manager.layers package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dnf_game.dnf_main.scenes.html" class="btn btn-neutral" title="dnf_game.dnf_main.scenes package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lucas Siqueira.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

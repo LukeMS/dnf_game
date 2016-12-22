@@ -1,0 +1,797 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dnf_game.scene_manager.manager &mdash; Dungeons and Fiends  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="Dungeons and Fiends  documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Dungeons and Fiends
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../dnf_game.html">dnf_game package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">Dungeons and Fiends</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>dnf_game.scene_manager.manager</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dnf_game.scene_manager.manager</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;SDL2 Tiles Test.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">ctypes</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">sdl2</span>
+<span class="kn">import</span> <span class="nn">sdl2.ext</span>
+
+<span class="kn">from</span> <span class="nn">dnf_game.data.constants</span> <span class="k">import</span> <span class="n">SCR_W</span><span class="p">,</span> <span class="n">SCR_H</span><span class="p">,</span> <span class="n">FPS</span><span class="p">,</span> <span class="n">TILE_W</span>
+<span class="kn">from</span> <span class="nn">dnf_game.data.tiles_index</span> <span class="k">import</span> <span class="n">TilesetIndex</span>
+<span class="kn">from</span> <span class="nn">dnf_game.scene_manager.resources</span> <span class="k">import</span> <span class="n">FontsManager</span>
+<span class="kn">from</span> <span class="nn">dnf_game.util.ext</span> <span class="k">import</span> <span class="n">time</span>
+<span class="kn">from</span> <span class="nn">dnf_game.util.ext.rect</span> <span class="k">import</span> <span class="n">Rect</span>
+
+<span class="n">RESOURCES</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">Resources</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;resources&quot;</span><span class="p">))</span>
+<span class="n">TILESET</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">RESOURCES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tileset</span><span class="si">{}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">TILE_W</span><span class="p">)))</span>
+
+
+<div class="viewcode-block" id="Manager"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.Manager">[docs]</a><span class="k">class</span> <span class="nc">Manager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Manage scenes and the main loop.</span>
+
+<span class="sd">    At each loop the events are passed down to the scene and its updates</span>
+<span class="sd">    method is called.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">SCR_W</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">SCR_H</span><span class="p">,</span> <span class="n">framerate</span><span class="o">=</span><span class="n">FPS</span><span class="p">,</span> <span class="n">show_fps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_play_time</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scene</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scene_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">opacity</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">window_color</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            opacity (int): a number from 0 to 255, where 0 will make the</span>
+<span class="sd">            window fully transparent (invisible) and 255 fully opaque (</span>
+<span class="sd">            opacity value will be ignored in that case)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alive</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scene</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_fps</span> <span class="o">=</span> <span class="n">show_fps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fps</span> <span class="o">=</span> <span class="n">framerate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="n">test</span>
+
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+        <span class="n">window</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">Window</span><span class="p">(</span><span class="s2">&quot;Tiles&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">SCR_W</span><span class="p">,</span> <span class="n">SCR_H</span><span class="p">),</span>
+                                 <span class="n">flags</span><span class="o">=</span><span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_WINDOW_BORDERLESS</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">opacity</span> <span class="o">&lt;</span> <span class="mi">255</span><span class="p">:</span>
+            <span class="n">sdl2</span><span class="o">.</span><span class="n">video</span><span class="o">.</span><span class="n">SDL_SetWindowOpacity</span><span class="p">(</span><span class="n">window</span><span class="o">.</span><span class="n">window</span><span class="p">,</span> <span class="n">opacity</span> <span class="o">/</span> <span class="mi">255</span><span class="p">)</span>
+        <span class="n">sfc</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GetWindowSurface</span><span class="p">(</span><span class="n">window</span><span class="o">.</span><span class="n">window</span><span class="p">)</span><span class="o">.</span><span class="n">contents</span>
+        <span class="n">opf</span> <span class="o">=</span> <span class="n">sfc</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">contents</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_window</span> <span class="o">=</span> <span class="n">window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opacity</span> <span class="o">=</span> <span class="n">opacity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_color</span> <span class="o">=</span> <span class="n">window_color</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+
+        <span class="n">renderer</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">Renderer</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="n">renderer</span>
+
+        <span class="n">factory</span> <span class="o">=</span> <span class="n">SpriteFactory</span><span class="p">(</span><span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">TEXTURE</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="n">renderer</span><span class="p">)</span>
+        <span class="n">factory</span><span class="o">.</span><span class="n">opf</span> <span class="o">=</span> <span class="n">opf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory</span> <span class="o">=</span> <span class="n">factory</span>
+
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">sdlttf</span><span class="o">.</span><span class="n">TTF_Init</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fonts</span> <span class="o">=</span> <span class="n">FontsManager</span><span class="p">(</span><span class="n">factory</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span> <span class="o">=</span> <span class="n">TILE_W</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">spriterenderer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">create_sprite_render_system</span><span class="p">(</span>
+            <span class="n">window</span><span class="p">)</span>
+
+        <span class="n">window</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="c1"># self.renderer.clear()</span>
+        <span class="n">scene_args</span> <span class="o">=</span> <span class="n">scene_args</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">scene</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_scene</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="o">**</span><span class="n">scene_args</span><span class="p">)</span>
+
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_RaiseWindow</span><span class="p">(</span><span class="n">window</span><span class="o">.</span><span class="n">window</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alive</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_mouse_state</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clock</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">Clock</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Manager.get_mouse_state"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.Manager.get_mouse_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_mouse_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">SDL_GetMouseState</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mouse_x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mouse_y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mouse_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mouse_y</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scene</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scene</span>
+
+<div class="viewcode-block" id="Manager.execute"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.Manager.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Main loop handling events and updates.&quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">alive</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">ms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_event</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_update</span><span class="p">()</span>
+
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="Manager.on_event"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.Manager.on_event">[docs]</a>    <span class="k">def</span> <span class="nf">on_event</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Handle the events and distribute them.&quot;&quot;&quot;</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span>
+        <span class="k">if</span> <span class="n">scene</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">get_events</span><span class="p">():</span>
+            <span class="c1"># Exit events</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_QUIT</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_WINDOWEVENT_FOCUS_GAINED</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_update</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">key_mods</span> <span class="o">=</span> <span class="n">modifiers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modifiers_translate</span><span class="p">(</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">keysym</span><span class="o">.</span><span class="n">mod</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_KEYUP</span><span class="p">:</span>
+                <span class="n">scene</span><span class="o">.</span><span class="n">on_key_release</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_KEYDOWN</span><span class="p">:</span>
+                <span class="n">scene</span><span class="o">.</span><span class="n">on_key_press</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_MOUSEMOTION</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">motion</span><span class="o">.</span><span class="n">x</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">motion</span><span class="o">.</span><span class="n">y</span>
+                <span class="n">buttons</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">motion</span><span class="o">.</span><span class="n">state</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_mouse_x</span> <span class="o">=</span> <span class="n">x</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_mouse_y</span> <span class="o">=</span> <span class="n">y</span>
+                <span class="n">dx</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mouse_x</span>
+                <span class="n">dy</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mouse_y</span>
+                <span class="k">if</span> <span class="n">buttons</span> <span class="o">&amp;</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_BUTTON_LMASK</span><span class="p">:</span>
+                    <span class="n">scene</span><span class="o">.</span><span class="n">on_mouse_drag</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="s2">&quot;LEFT&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">buttons</span> <span class="o">&amp;</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_BUTTON_MMASK</span><span class="p">:</span>
+                    <span class="n">scene</span><span class="o">.</span><span class="n">on_mouse_drag</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="s2">&quot;MIDDLE&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">buttons</span> <span class="o">&amp;</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_BUTTON_RMASK</span><span class="p">:</span>
+                    <span class="n">scene</span><span class="o">.</span><span class="n">on_mouse_drag</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="s2">&quot;RIGHT&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">scene</span><span class="o">.</span><span class="n">on_mouse_motion</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_MOUSEBUTTONDOWN</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">x</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">y</span>
+
+                <span class="n">button_n</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">button</span>
+                <span class="k">if</span> <span class="n">button_n</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_BUTTON_LEFT</span><span class="p">:</span>
+                    <span class="n">button</span> <span class="o">=</span> <span class="s2">&quot;LEFT&quot;</span>
+                <span class="k">elif</span> <span class="n">button_n</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_BUTTON_RIGHT</span><span class="p">:</span>
+                    <span class="n">button</span> <span class="o">=</span> <span class="s2">&quot;RIGHT&quot;</span>
+                <span class="k">elif</span> <span class="n">button_n</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_BUTTON_MIDDLE</span><span class="p">:</span>
+                    <span class="n">button</span> <span class="o">=</span> <span class="s2">&quot;MIDDLE&quot;</span>
+
+                <span class="n">double</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">clicks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="n">scene</span><span class="o">.</span><span class="n">on_mouse_press</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">button</span><span class="p">,</span> <span class="n">double</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_MOUSEWHEEL</span><span class="p">:</span>
+                <span class="n">offset_x</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">wheel</span><span class="o">.</span><span class="n">x</span>
+                <span class="n">offset_y</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">wheel</span><span class="o">.</span><span class="n">y</span>
+                <span class="n">scene</span><span class="o">.</span><span class="n">on_mouse_scroll</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">offset_x</span><span class="p">,</span> <span class="n">offset_y</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+    <span class="k">def</span> <span class="nf">_modifiers_translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">):</span>
+        <span class="n">_modifiers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">modifiers</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sdl2</span><span class="o">.</span><span class="n">SDLK_LSHIFT</span> <span class="o">|</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDLK_RSHIFT</span><span class="p">):</span>
+            <span class="n">_modifiers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;SHIFT&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">modifiers</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sdl2</span><span class="o">.</span><span class="n">SDLK_LCTRL</span> <span class="o">|</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDLK_RCTRL</span><span class="p">):</span>
+            <span class="n">_modifiers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;CTRL&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">modifiers</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sdl2</span><span class="o">.</span><span class="n">SDLK_LALT</span> <span class="o">|</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDLK_RALT</span><span class="p">):</span>
+            <span class="n">_modifiers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ALT&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_modifiers</span>
+
+<div class="viewcode-block" id="Manager.on_update"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.Manager.on_update">[docs]</a>    <span class="k">def</span> <span class="nf">on_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update scene unless specified not to do so.&quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">update</span><span class="p">():</span>
+            <span class="n">scene</span><span class="o">.</span><span class="n">on_update</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_fps</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">draw_fps</span><span class="p">()</span>
+
+        <span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alive</span> <span class="ow">and</span> <span class="n">scene</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">scene</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">scene</span><span class="o">.</span><span class="n">ignore_regular_update</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_color</span><span class="p">)</span>
+                    <span class="n">update</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">present</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">alive</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Manager.present"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.Manager.present">[docs]</a>    <span class="k">def</span> <span class="nf">present</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Flip.&quot;&quot;&quot;</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">render</span><span class="o">.</span><span class="n">SDL_RenderPresent</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spriterenderer</span><span class="o">.</span><span class="n">sdlrenderer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Manager.draw_fps"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.Manager.draw_fps">[docs]</a>    <span class="k">def</span> <span class="nf">draw_fps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Draw the fps display.&quot;&quot;&quot;</span>
+        <span class="n">ms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ms</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_fps</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;FPS: </span><span class="si">%.3d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ms</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">draw_fps</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Manager.set_scene"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.Manager.set_scene">[docs]</a>    <span class="k">def</span> <span class="nf">set_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scene</span> <span class="o">=</span> <span class="n">scene</span><span class="p">(</span><span class="n">_manager</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SpriteFactory"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.SpriteFactory">[docs]</a><span class="k">class</span> <span class="nc">SpriteFactory</span><span class="p">(</span><span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">SpriteFactory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A factory class for creating Sprite components.</span>
+
+<span class="sd">    Subclass of sdl2.ext.SpriteFactory with additional methods.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SpriteFactory.create_sprite_render_system"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.SpriteFactory.create_sprite_render_system">[docs]</a>    <span class="k">def</span> <span class="nf">create_sprite_render_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new SpriteRenderSystem.</span>
+
+<span class="sd">        For TEXTURE mode, the passed args and kwargs are ignored and the</span>
+<span class="sd">        Renderer or SDL_Renderer passed to the SpriteFactory is used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprite_type</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">TEXTURE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TextureSpriteRenderSystem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_args</span><span class="p">[</span><span class="s2">&quot;renderer&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SpriteFactory.from_surface"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.SpriteFactory.from_surface">[docs]</a>    <span class="k">def</span> <span class="nf">from_surface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tsurface</span><span class="p">,</span> <span class="n">free</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a Sprite from the passed SDL_Surface.</span>
+
+<span class="sd">        If free is set to True, the passed surface will be freed</span>
+<span class="sd">        automatically.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sprite</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">from_surface</span><span class="p">(</span><span class="n">tsurface</span><span class="p">,</span> <span class="n">free</span><span class="p">)</span>
+        <span class="n">sprite</span><span class="o">.</span><span class="n">__class__</span> <span class="o">=</span> <span class="n">TextureSprite</span>
+        <span class="k">if</span> <span class="n">position</span><span class="p">:</span>
+            <span class="n">sprite</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
+        <span class="k">return</span> <span class="n">sprite</span></div>
+
+<div class="viewcode-block" id="SpriteFactory.from_texture"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.SpriteFactory.from_texture">[docs]</a>    <span class="k">def</span> <span class="nf">from_texture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texture</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">TextureSprite</span><span class="p">(</span><span class="n">texture</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpriteFactory.from_tileset"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.SpriteFactory.from_tileset">[docs]</a>    <span class="k">def</span> <span class="nf">from_tileset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">tile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">var</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a sprite from a tile name or id code.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tile (str): name ot the tile type</span>
+<span class="sd">            pos (int): tile position relative to auto-tiling</span>
+<span class="sd">            var (int): tile variation</span>
+<span class="sd">            _id (int): tile ordinal position on the tileset (e.g.: _id=127)</span>
+<span class="sd">            area (rect): tuple with coordinates (x, y, w, h)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sdl2.ext.sprite.TextureSprite</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">position</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">DeprecationWarning</span><span class="p">(</span>
+                <span class="s2">&quot;Position not used anymore, use rect instead.&quot;</span><span class="p">)</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">area</span> <span class="ow">or</span> <span class="n">TilesetIndex</span><span class="o">.</span><span class="n">get_tile_rect</span><span class="p">(</span>
+            <span class="n">tile</span><span class="o">=</span><span class="n">tile</span><span class="p">,</span> <span class="n">var</span><span class="o">=</span><span class="n">var</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">_id</span><span class="o">=</span><span class="n">_id</span><span class="p">)</span>
+        <span class="n">sprite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_tileset_area</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
+        <span class="n">sprite</span><span class="o">.</span><span class="n">set_rect</span><span class="p">(</span><span class="n">rect</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sprite</span></div>
+
+    <span class="k">def</span> <span class="nf">_from_tileset_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">tileset</span><span class="o">=</span><span class="n">TILESET</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a sprite from an area (tile) of a tileset (surface).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            area (rect): tuple with coordinates (x, y, w, h)</span>
+<span class="sd">            tileset (sdl2.surface.SDL_Surface): source surface</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sdl2.ext.sprite.TextureSprite</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">surface</span> <span class="o">=</span> <span class="n">tileset</span>
+        <span class="n">ssurface</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">subsurface</span><span class="p">(</span><span class="n">surface</span><span class="o">=</span><span class="n">surface</span><span class="p">,</span> <span class="n">area</span><span class="o">=</span><span class="n">area</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprite_type</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">TEXTURE</span><span class="p">:</span>
+            <span class="n">renderer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_args</span><span class="p">[</span><span class="s2">&quot;renderer&quot;</span><span class="p">]</span>
+            <span class="n">texture</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">render</span><span class="o">.</span><span class="n">SDL_CreateTextureFromSurface</span><span class="p">(</span>
+                <span class="n">renderer</span><span class="o">.</span><span class="n">sdlrenderer</span><span class="p">,</span> <span class="n">ssurface</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">texture</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">SDLError</span><span class="p">()</span>
+            <span class="n">sprite</span> <span class="o">=</span> <span class="n">TextureSprite</span><span class="p">(</span><span class="n">texture</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">sprite</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SpriteFactory.from_color"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.SpriteFactory.from_color">[docs]</a>    <span class="k">def</span> <span class="nf">from_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bpp</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">masks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a sprite with a certain color.&quot;&quot;&quot;</span>
+        <span class="n">masks</span> <span class="o">=</span> <span class="n">masks</span> <span class="ow">or</span> <span class="p">(</span><span class="mh">0xFF000000</span><span class="p">,</span> <span class="mh">0x00FF0000</span><span class="p">,</span> <span class="mh">0x0000FF00</span><span class="p">,</span> <span class="mh">0x000000FF</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">color</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+        <span class="n">sprite</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">from_color</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">rect</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">bpp</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
+        <span class="n">sprite</span><span class="o">.</span><span class="n">__class__</span> <span class="o">=</span> <span class="n">TextureSprite</span>
+        <span class="n">sprite</span><span class="o">.</span><span class="n">set_rect</span><span class="p">(</span><span class="n">rect</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sprite</span></div>
+
+<div class="viewcode-block" id="SpriteFactory.create_surface"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.SpriteFactory.create_surface">[docs]</a>    <span class="k">def</span> <span class="nf">create_surface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">bpp</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">masks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">masks</span> <span class="o">=</span> <span class="n">masks</span> <span class="ow">or</span> <span class="p">(</span><span class="mh">0xFF000000</span><span class="p">,</span> <span class="mh">0x00FF0000</span><span class="p">,</span> <span class="mh">0x0000FF00</span><span class="p">,</span> <span class="mh">0x000000FF</span><span class="p">)</span>
+        <span class="n">rmask</span><span class="p">,</span> <span class="n">gmask</span><span class="p">,</span> <span class="n">bmask</span><span class="p">,</span> <span class="n">amask</span> <span class="o">=</span> <span class="n">masks</span>
+        <span class="k">return</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_CreateRGBSurface</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">bpp</span><span class="p">,</span>
+                                         <span class="n">rmask</span><span class="p">,</span> <span class="n">gmask</span><span class="p">,</span> <span class="n">bmask</span><span class="p">,</span> <span class="n">amask</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpriteFactory.from_gradient"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.SpriteFactory.from_gradient">[docs]</a>    <span class="k">def</span> <span class="nf">from_gradient</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">color_start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color_end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">masks</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">):</span>
+                <span class="n">dest_rect</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="c1"># dest_rect.w = 1</span>
+            <span class="k">elif</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="s2">&quot;V&quot;</span><span class="p">):</span>
+                <span class="n">dest_rect</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="c1"># dest_rect.h = 1</span>
+        <span class="n">fill_rect</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_FillRect</span>
+        <span class="n">map_rgba</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_MapRGBA</span>
+        <span class="n">convert_to_color</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">convert_to_color</span>
+
+        <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span> <span class="ow">or</span> <span class="s2">&quot;v&quot;</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">rect</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">color_start</span> <span class="o">=</span> <span class="n">color_start</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">106</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+        <span class="n">color_end</span> <span class="o">=</span> <span class="n">color_end</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">166</span><span class="p">,</span> <span class="mi">202</span><span class="p">,</span> <span class="mi">240</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+
+        <span class="n">dest_rect</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">SDL_Rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+        <span class="n">cur_r</span><span class="p">,</span> <span class="n">cur_g</span><span class="p">,</span> <span class="n">cur_b</span><span class="p">,</span> <span class="n">cur_a</span> <span class="o">=</span> <span class="n">color_start</span>
+        <span class="n">end_r</span><span class="p">,</span> <span class="n">end_g</span><span class="p">,</span> <span class="n">end_b</span><span class="p">,</span> <span class="n">end_a</span> <span class="o">=</span> <span class="n">color_end</span>
+
+        <span class="c1"># SDL_CreateRGBSurface(flags, width, height, depth(bits), r, g, b, a)</span>
+        <span class="n">sfc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_surface</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+
+        <span class="c1"># loses opacity!</span>
+        <span class="c1"># sfc = sdl2.SDL_ConvertSurface(sfc, self.opf, 0)</span>
+
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">sfc</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">contents</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">):</span>
+            <span class="n">div</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="s2">&quot;V&quot;</span><span class="p">):</span>
+            <span class="n">div</span> <span class="o">=</span> <span class="n">h</span>
+
+        <span class="n">d_r</span> <span class="o">=</span> <span class="p">(</span><span class="n">end_r</span> <span class="o">-</span> <span class="n">cur_r</span><span class="p">)</span> <span class="o">/</span> <span class="n">div</span>
+        <span class="n">d_g</span> <span class="o">=</span> <span class="p">(</span><span class="n">end_g</span> <span class="o">-</span> <span class="n">cur_g</span><span class="p">)</span> <span class="o">/</span> <span class="n">div</span>
+        <span class="n">d_b</span> <span class="o">=</span> <span class="p">(</span><span class="n">end_b</span> <span class="o">-</span> <span class="n">cur_b</span><span class="p">)</span> <span class="o">/</span> <span class="n">div</span>
+        <span class="n">d_a</span> <span class="o">=</span> <span class="p">(</span><span class="n">end_a</span> <span class="o">-</span> <span class="n">cur_a</span><span class="p">)</span> <span class="o">/</span> <span class="n">div</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">div</span><span class="p">):</span>
+            <span class="n">step</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">convert_to_color</span><span class="p">((</span><span class="n">cur_r</span><span class="p">,</span> <span class="n">cur_g</span><span class="p">,</span> <span class="n">cur_b</span><span class="p">,</span> <span class="n">cur_a</span><span class="p">))</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">map_rgba</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+            <span class="c1"># SDL_FillRect(dst, rect, color)</span>
+            <span class="n">fill_rect</span><span class="p">(</span><span class="n">sfc</span><span class="p">,</span> <span class="n">dest_rect</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+            <span class="n">cur_r</span> <span class="o">+=</span> <span class="n">d_r</span>
+            <span class="n">cur_g</span> <span class="o">+=</span> <span class="n">d_g</span>
+            <span class="n">cur_b</span> <span class="o">+=</span> <span class="n">d_b</span>
+            <span class="n">cur_a</span> <span class="o">+=</span> <span class="n">d_a</span>
+
+        <span class="n">sprite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_surface</span><span class="p">(</span><span class="n">sfc</span><span class="o">.</span><span class="n">contents</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">sprite</span><span class="o">.</span><span class="n">set_rect</span><span class="p">(</span><span class="n">rect</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sprite</span></div></div>
+
+
+<div class="viewcode-block" id="TextureSprite"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite">[docs]</a><span class="k">class</span> <span class="nc">TextureSprite</span><span class="p">(</span><span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">TextureSprite</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A simple, visible, texture-based 2D object, using a renderer.&quot;&quot;&quot;</span>
+
+    <span class="n">frame_rect</span><span class="o">=</span><span class="kc">None</span>
+
+<div class="viewcode-block" id="TextureSprite.flip_sprite"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite.flip_sprite">[docs]</a>    <span class="k">def</span> <span class="nf">flip_sprite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flip</span> <span class="o">^=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_FLIP_HORIZONTAL</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="s2">&quot;V&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flip</span> <span class="o">^=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_FLIP_VERTICAL</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flip</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_FLIP_NONE</span></div>
+
+<div class="viewcode-block" id="TextureSprite.get_rect"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite.get_rect">[docs]</a>    <span class="k">def</span> <span class="nf">get_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the rectangular area of the sprite.</span>
+
+<span class="sd">        Returns a new rectangle covering the sprite area. This rectangle will</span>
+<span class="sd">        have the sprite&#39;s x, y, width and height.</span>
+
+<span class="sd">        You can pass keyword argument values to this function. These named</span>
+<span class="sd">        values will be applied to the attributes of the Rect before it is</span>
+<span class="sd">        returned. An example would be ‘mysurf.get_rect(center=(100,100))’</span>
+<span class="sd">        to create a rectangle for the Surface centered at a given position.</span>
+
+<span class="sd">        Usage:</span>
+<span class="sd">            get_rect()</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Rect</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">Rect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="TextureSprite.get_alpha_mod"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite.get_alpha_mod">[docs]</a>    <span class="k">def</span> <span class="nf">get_alpha_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the alpha value multiplier for render copy operations.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (int): integer alpha value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint8</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GetTextureAlphaMod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">alpha</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">alpha</span><span class="o">.</span><span class="n">value</span></div>
+
+<div class="viewcode-block" id="TextureSprite.get_color_mod"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite.get_color_mod">[docs]</a>    <span class="k">def</span> <span class="nf">get_color_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the color value multiplier for render copy operations.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (int), (int), (int): 3-tuple of rgb integer values (RGB).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint8</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint8</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint8</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GetTextureAlphaMod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="p">,</span>
+                                    <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">r</span><span class="p">),</span>
+                                    <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">g</span><span class="p">),</span>
+                                    <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">value</span></div>
+
+<div class="viewcode-block" id="TextureSprite.set_alpha_mod"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite.set_alpha_mod">[docs]</a>    <span class="k">def</span> <span class="nf">set_alpha_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a alpha value multiplier for render copy operations.</span>
+
+<span class="sd">        When this texture is rendered, during the copy operation the source</span>
+<span class="sd">        alpha value is modulated by this alpha value according to the</span>
+<span class="sd">        following formula:</span>
+<span class="sd">            srcA = srcA * (alpha / 255)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alpha (int): integer between 0 and 255</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span> <span class="ow">or</span> <span class="mi">255</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_SetTextureAlphaMod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TextureSprite.set_color_mod"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite.set_color_mod">[docs]</a>    <span class="k">def</span> <span class="nf">set_color_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a color value multiplier for render copy operations.</span>
+
+<span class="sd">        When this texture is rendered, during the copy operation each source</span>
+<span class="sd">        color channel is modulated by the appropriate color value according</span>
+<span class="sd">        to the following formula:</span>
+<span class="sd">            srcC = srcC * (color / 255)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            color (3-tuple of ints): rgb color with values between 0 and 255</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">color</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_SetTextureColorMod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="p">,</span> <span class="o">*</span><span class="n">color</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TextureSprite.set_animation"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite.set_animation">[docs]</a>    <span class="k">def</span> <span class="nf">set_animation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">col_w</span><span class="p">,</span> <span class="n">row_h</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;Set animation frames parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (int): number of frame columns</span>
+<span class="sd">            rows (int): number of frame rows</span>
+<span class="sd">            col_w (int): width of each column, in pixels</span>
+<span class="sd">            row_h (int): height of each row, in pexels</span>
+<span class="sd">            col (int): the column of the desired starting frame</span>
+<span class="sd">            row (int): the row of the desired starting frame</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            TextureSprite (self): reference to self instance, making it</span>
+<span class="sd">            possible to use this method on the object creation (see Usage</span>
+<span class="sd">            below).</span>
+
+<span class="sd">        Usage:</span>
+<span class="sd">                # here a 10x1 area of 32x32 tiles is used</span>
+<span class="sd">                sprite = TextureSprite(**kwargs).set_animation(</span>
+<span class="sd">                    10, 1, 32, 32)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col_w</span> <span class="o">=</span> <span class="n">col_w</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row_h</span> <span class="o">=</span> <span class="n">row_h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">=</span> <span class="n">row</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="n">col_w</span><span class="p">,</span> <span class="n">row_h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_current_rect</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="TextureSprite.set_current_rect"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite.set_current_rect">[docs]</a>    <span class="k">def</span> <span class="nf">set_current_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_rect</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">SDL_Rect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">col_w</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_h</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">col_w</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">row_h</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TextureSprite.step"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">col</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">col</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">+=</span> <span class="n">col</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">cols</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">+=</span> <span class="n">row</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">rows</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_current_rect</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TextureSprite.reset_alpha_mod"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite.reset_alpha_mod">[docs]</a>    <span class="k">def</span> <span class="nf">reset_alpha_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Redefine the alpha multiplier on the sprite texture to default.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_alpha_mod</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TextureSprite.reset_color_mod"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite.reset_color_mod">[docs]</a>    <span class="k">def</span> <span class="nf">reset_color_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Redefine the color multiplier on the sprite texture to default.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_color_mod</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bottomright</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span><span class="o">.</span><span class="n">bottomright</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">topleft</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span><span class="o">.</span><span class="n">topleft</span>
+
+<div class="viewcode-block" id="TextureSprite.set_rect"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSprite.set_rect">[docs]</a>    <span class="k">def</span> <span class="nf">set_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rect</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the position and size of the sprite from a Rect.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rect: a Rect from which position and size will be taken.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">rect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">rect</span><span class="o">.</span><span class="n">topleft</span></div></div>
+        <span class="c1"># TODO implement sprite resizing on sdl2.ext.sprite</span>
+        <span class="c1"># self.size = rect.size</span>
+
+
+<div class="viewcode-block" id="TextureSpriteRenderSystem"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSpriteRenderSystem">[docs]</a><span class="k">class</span> <span class="nc">TextureSpriteRenderSystem</span><span class="p">(</span><span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">TextureSpriteRenderSystem</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A rendering system for TextureSprite components.</span>
+
+<span class="sd">    The TextureSpriteRenderSystem class uses a SDL_Renderer as drawing</span>
+<span class="sd">    device to display TextureSprite objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TextureSpriteRenderSystem.render"><a class="viewcode-back" href="../../../dnf_game.scene_manager.html#dnf_game.scene_manager.manager.TextureSpriteRenderSystem.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sprites</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Draw the passed sprites (or sprite).</span>
+
+<span class="sd">        x and y are optional arguments that can be used as relative</span>
+<span class="sd">        drawing location for sprites. If set to None, the location</span>
+<span class="sd">        information of the sprites are used. If set and sprites is an</span>
+<span class="sd">        iterable, such as a list of TextureSprite objects, x and y are</span>
+<span class="sd">        relative location values that will be added to each individual</span>
+<span class="sd">        sprite&#39;s position. If sprites is a single TextureSprite, x and y</span>
+<span class="sd">        denote the absolute position of the TextureSprite, if set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">SDL_Rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">rcopy</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">render</span><span class="o">.</span><span class="n">SDL_RenderCopyEx</span>
+        <span class="k">if</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">isiterable</span><span class="p">(</span><span class="n">sprites</span><span class="p">):</span>
+            <span class="n">renderer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdlrenderer</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="ow">or</span> <span class="mi">0</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="ow">or</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="n">sprites</span><span class="p">:</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">sprite</span><span class="o">.</span><span class="n">x</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">sprite</span><span class="o">.</span><span class="n">y</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">sprite</span><span class="o">.</span><span class="n">size</span>
+                <span class="k">if</span> <span class="n">rcopy</span><span class="p">(</span><span class="n">renderer</span><span class="p">,</span> <span class="n">sprite</span><span class="o">.</span><span class="n">texture</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">sprite</span><span class="o">.</span><span class="n">angle</span><span class="p">,</span>
+                         <span class="n">sprite</span><span class="o">.</span><span class="n">center</span><span class="p">,</span> <span class="n">sprite</span><span class="o">.</span><span class="n">flip</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">SDLError</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">sprites</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">sprites</span><span class="o">.</span><span class="n">y</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">sprites</span><span class="o">.</span><span class="n">size</span>
+
+            <span class="n">dx</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">dx</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">r</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+
+            <span class="n">dy</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">dy</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">r</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+
+            <span class="k">if</span> <span class="n">dx</span> <span class="ow">or</span> <span class="n">dy</span><span class="p">:</span>
+                <span class="n">src_r</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">SDL_Rect</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">w</span> <span class="o">-</span> <span class="n">dx</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">h</span> <span class="o">-</span> <span class="n">dy</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">rcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sdlrenderer</span><span class="p">,</span> <span class="n">sprites</span><span class="o">.</span><span class="n">texture</span><span class="p">,</span> <span class="n">src_r</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span>
+                         <span class="n">sprites</span><span class="o">.</span><span class="n">angle</span><span class="p">,</span> <span class="n">sprites</span><span class="o">.</span><span class="n">center</span><span class="p">,</span> <span class="n">sprites</span><span class="o">.</span><span class="n">flip</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">SDLError</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">frame_rect</span> <span class="o">=</span> <span class="n">sprites</span><span class="o">.</span><span class="n">frame_rect</span> <span class="ow">or</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">rcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sdlrenderer</span><span class="p">,</span> <span class="n">sprites</span><span class="o">.</span><span class="n">texture</span><span class="p">,</span> <span class="n">frame_rect</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span>
+                         <span class="n">sprites</span><span class="o">.</span><span class="n">angle</span><span class="p">,</span> <span class="n">sprites</span><span class="o">.</span><span class="n">center</span><span class="p">,</span> <span class="n">sprites</span><span class="o">.</span><span class="n">flip</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">SDLError</span><span class="p">()</span></div></div>
+        <span class="c1"># To avoid flickering present must be called only once, by the</span>
+        <span class="c1"># manager</span>
+        <span class="c1"># sdl2.render.SDL_RenderPresent(self.sdlrenderer)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">Manager</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lucas Siqueira.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

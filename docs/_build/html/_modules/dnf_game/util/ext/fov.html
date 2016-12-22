@@ -1,0 +1,524 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dnf_game.util.ext.fov &mdash; Dungeons and Fiends  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../../search.html"/>
+    <link rel="top" title="Dungeons and Fiends  documentation" href="../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../index.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Dungeons and Fiends
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dnf_game.html">dnf_game package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../index.html">Dungeons and Fiends</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      
+    <li>dnf_game.util.ext.fov</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dnf_game.util.ext.fov</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Field of view.</span>
+
+<span class="sd">Author: Aaron MacDonald</span>
+<span class="sd">Date: June 14, 2007</span>
+
+<span class="sd">Description:</span>
+<span class="sd">    An implementation of the precise permissive field of view algorithm for</span>
+<span class="sd">    use in tile-based games. Based on the algorithm presented at:</span>
+<span class="sd">    http://roguebasin.roguelikedevelopment.org/</span>
+<span class="sd">    index.php?title=Precise_Permissive_Field_of_View.</span>
+
+<span class="sd">You are free to use or modify this code as long as this notice is included.</span>
+<span class="sd">This code is released without warranty.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+
+
+<div class="viewcode-block" id="fieldOfView"><a class="viewcode-back" href="../../../../dnf_game.util.ext.html#dnf_game.util.ext.fov.fieldOfView">[docs]</a><span class="k">def</span> <span class="nf">fieldOfView</span><span class="p">(</span><span class="n">startX</span><span class="p">,</span> <span class="n">startY</span><span class="p">,</span> <span class="n">mapWidth</span><span class="p">,</span> <span class="n">mapHeight</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="n">funcVisitTile</span><span class="p">,</span> <span class="n">funcTileBlocked</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determines which coordinates on a 2D grid are visible from a</span>
+<span class="sd">        particular coordinate.</span>
+
+<span class="sd">        startX, startY:         The (x, y) coordinate on the grid that</span>
+<span class="sd">                                is the centre of view.</span>
+
+<span class="sd">        mapWidth, mapHeight:    The maximum extents of the grid.  The</span>
+<span class="sd">                                minimum extents are assumed to be both</span>
+<span class="sd">                                zero.</span>
+
+<span class="sd">        radius:                 How far the field of view may extend</span>
+<span class="sd">                                in either direction along the x and y</span>
+<span class="sd">                                axis.</span>
+
+<span class="sd">        funcVisitTile:          User function that takes two integers</span>
+<span class="sd">                                representing an (x, y) coordinate.  Is</span>
+<span class="sd">                                used to &quot;visit&quot; visible coordinates.</span>
+
+<span class="sd">        funcTileBlocked:        User function that takes two integers</span>
+<span class="sd">                                representing an (x, y) coordinate.</span>
+<span class="sd">                                Returns True if the coordinate blocks</span>
+<span class="sd">                                sight to coordinates &quot;behind&quot; it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">visited</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># Keep track of what tiles have been visited so</span>
+    <span class="c1"># that no tile will be visited twice.</span>
+
+    <span class="c1"># Will always see the centre.</span>
+    <span class="n">funcVisitTile</span><span class="p">(</span><span class="n">startX</span><span class="p">,</span> <span class="n">startY</span><span class="p">)</span>
+    <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">startX</span><span class="p">,</span> <span class="n">startY</span><span class="p">))</span>
+
+    <span class="c1"># Ge the dimensions of the actual field of view, making</span>
+    <span class="c1"># sure not to go off the map or beyond the radius.</span>
+
+    <span class="k">if</span> <span class="n">startX</span> <span class="o">&lt;</span> <span class="n">radius</span><span class="p">:</span>
+        <span class="n">minExtentX</span> <span class="o">=</span> <span class="n">startX</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">minExtentX</span> <span class="o">=</span> <span class="n">radius</span>
+
+    <span class="k">if</span> <span class="n">mapWidth</span> <span class="o">-</span> <span class="n">startX</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">radius</span><span class="p">:</span>
+        <span class="n">maxExtentX</span> <span class="o">=</span> <span class="n">mapWidth</span> <span class="o">-</span> <span class="n">startX</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">maxExtentX</span> <span class="o">=</span> <span class="n">radius</span>
+
+    <span class="k">if</span> <span class="n">startY</span> <span class="o">&lt;</span> <span class="n">radius</span><span class="p">:</span>
+        <span class="n">minExtentY</span> <span class="o">=</span> <span class="n">startY</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">minExtentY</span> <span class="o">=</span> <span class="n">radius</span>
+
+    <span class="k">if</span> <span class="n">mapHeight</span> <span class="o">-</span> <span class="n">startY</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">radius</span><span class="p">:</span>
+        <span class="n">maxExtentY</span> <span class="o">=</span> <span class="n">mapHeight</span> <span class="o">-</span> <span class="n">startY</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">maxExtentY</span> <span class="o">=</span> <span class="n">radius</span>
+
+    <span class="c1"># Northeast quadrant</span>
+    <span class="n">__checkQuadrant</span><span class="p">(</span><span class="n">visited</span><span class="p">,</span> <span class="n">startX</span><span class="p">,</span> <span class="n">startY</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">maxExtentX</span><span class="p">,</span> <span class="n">maxExtentY</span><span class="p">,</span>
+                    <span class="n">funcVisitTile</span><span class="p">,</span> <span class="n">funcTileBlocked</span><span class="p">)</span>
+
+    <span class="c1"># Southeast quadrant</span>
+    <span class="n">__checkQuadrant</span><span class="p">(</span><span class="n">visited</span><span class="p">,</span> <span class="n">startX</span><span class="p">,</span> <span class="n">startY</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">maxExtentX</span><span class="p">,</span> <span class="n">minExtentY</span><span class="p">,</span>
+                    <span class="n">funcVisitTile</span><span class="p">,</span> <span class="n">funcTileBlocked</span><span class="p">)</span>
+
+    <span class="c1"># Southwest quadrant</span>
+    <span class="n">__checkQuadrant</span><span class="p">(</span><span class="n">visited</span><span class="p">,</span> <span class="n">startX</span><span class="p">,</span> <span class="n">startY</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">minExtentX</span><span class="p">,</span> <span class="n">minExtentY</span><span class="p">,</span>
+                    <span class="n">funcVisitTile</span><span class="p">,</span> <span class="n">funcTileBlocked</span><span class="p">)</span>
+
+    <span class="c1"># Northwest quadrant</span>
+    <span class="n">__checkQuadrant</span><span class="p">(</span><span class="n">visited</span><span class="p">,</span> <span class="n">startX</span><span class="p">,</span> <span class="n">startY</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">minExtentX</span><span class="p">,</span> <span class="n">maxExtentY</span><span class="p">,</span>
+                    <span class="n">funcVisitTile</span><span class="p">,</span> <span class="n">funcTileBlocked</span><span class="p">)</span></div>
+
+<span class="c1">#-------------------------------------------------------------</span>
+
+
+<span class="k">class</span> <span class="nc">__Line</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">xf</span><span class="p">,</span> <span class="n">yf</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xi</span> <span class="o">=</span> <span class="n">xi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yi</span> <span class="o">=</span> <span class="n">yi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xf</span> <span class="o">=</span> <span class="n">xf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yf</span> <span class="o">=</span> <span class="n">yf</span>
+
+    <span class="n">dx</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">fget</span><span class="o">=</span><span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xf</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">)</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">fget</span><span class="o">=</span><span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">yf</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">yi</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">pBelow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">relativeSlope</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">pBelowOrCollinear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">relativeSlope</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">pAbove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">relativeSlope</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">pAboveOrCollinear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">relativeSlope</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">pCollinear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">relativeSlope</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">lineCollinear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pCollinear</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">xi</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">yi</span><span class="p">)</span> \
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pCollinear</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">xf</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">yf</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">relativeSlope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xf</span> <span class="o">-</span> <span class="n">x</span><span class="p">))</span> \
+            <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yf</span> <span class="o">-</span> <span class="n">y</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">__ViewBump</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+
+<span class="k">class</span> <span class="nc">__View</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shallowLine</span><span class="p">,</span> <span class="n">steepLine</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shallowLine</span> <span class="o">=</span> <span class="n">shallowLine</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steepLine</span> <span class="o">=</span> <span class="n">steepLine</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">shallowBump</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steepBump</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">__checkQuadrant</span><span class="p">(</span><span class="n">visited</span><span class="p">,</span> <span class="n">startX</span><span class="p">,</span> <span class="n">startY</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span>
+                    <span class="n">extentX</span><span class="p">,</span> <span class="n">extentY</span><span class="p">,</span> <span class="n">funcVisitTile</span><span class="p">,</span> <span class="n">funcTileBlocked</span><span class="p">):</span>
+    <span class="n">activeViews</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">shallowLine</span> <span class="o">=</span> <span class="n">__Line</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">extentX</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">steepLine</span> <span class="o">=</span> <span class="n">__Line</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">extentY</span><span class="p">)</span>
+
+    <span class="n">activeViews</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">__View</span><span class="p">(</span><span class="n">shallowLine</span><span class="p">,</span> <span class="n">steepLine</span><span class="p">))</span>
+    <span class="n">viewIndex</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Visit the tiles diagonally and going outwards</span>
+    <span class="c1">#</span>
+    <span class="c1"># .</span>
+    <span class="c1"># .</span>
+    <span class="c1"># .           .</span>
+    <span class="c1"># 9        .</span>
+    <span class="c1"># 5  8  .</span>
+    <span class="c1"># 2  4  7</span>
+    <span class="c1"># @  1  3  6  .  .  .</span>
+    <span class="n">maxI</span> <span class="o">=</span> <span class="n">extentX</span> <span class="o">+</span> <span class="n">extentY</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">maxI</span> <span class="o">+</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">activeViews</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="o">&gt;</span> <span class="n">i</span> <span class="o">-</span> <span class="n">extentX</span><span class="p">:</span>
+            <span class="n">startJ</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">startJ</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="n">extentX</span>
+
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">extentY</span><span class="p">:</span>
+            <span class="n">maxJ</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">maxJ</span> <span class="o">=</span> <span class="n">extentY</span>
+
+        <span class="n">j</span> <span class="o">=</span> <span class="n">startJ</span>
+        <span class="k">while</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">maxJ</span> <span class="o">+</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">viewIndex</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">activeViews</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="n">j</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">j</span>
+            <span class="n">__visitCoord</span><span class="p">(</span><span class="n">visited</span><span class="p">,</span> <span class="n">startX</span><span class="p">,</span> <span class="n">startY</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span>
+                         <span class="n">viewIndex</span><span class="p">,</span> <span class="n">activeViews</span><span class="p">,</span>
+                         <span class="n">funcVisitTile</span><span class="p">,</span> <span class="n">funcTileBlocked</span><span class="p">)</span>
+
+            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+<span class="k">def</span> <span class="nf">__visitCoord</span><span class="p">(</span><span class="n">visited</span><span class="p">,</span> <span class="n">startX</span><span class="p">,</span> <span class="n">startY</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">viewIndex</span><span class="p">,</span>
+                 <span class="n">activeViews</span><span class="p">,</span> <span class="n">funcVisitTile</span><span class="p">,</span> <span class="n">funcTileBlocked</span><span class="p">):</span>
+    <span class="c1"># The top left and bottom right corners of the current coordinate.</span>
+    <span class="n">topLeft</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">bottomRight</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="n">viewIndex</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">activeViews</span><span class="p">)</span> \
+            <span class="ow">and</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">steepLine</span><span class="o">.</span><span class="n">pBelowOrCollinear</span><span class="p">(</span>
+            <span class="n">bottomRight</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bottomRight</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="c1"># The current coordinate is above the current view and is</span>
+        <span class="c1"># ignored.  The steeper fields may need it though.</span>
+        <span class="n">viewIndex</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">viewIndex</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">activeViews</span><span class="p">)</span> \
+        <span class="ow">or</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">shallowLine</span><span class="o">.</span><span class="n">pAboveOrCollinear</span><span class="p">(</span>
+       <span class="n">topLeft</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">topLeft</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="c1"># Either the current coordinate is above all of the fields</span>
+        <span class="c1"># or it is below all of the fields.</span>
+        <span class="k">return</span>
+
+    <span class="c1"># It is now known that the current coordinate is between the steep</span>
+    <span class="c1"># and shallow lines of the current view.</span>
+
+    <span class="n">isBlocked</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># The real quadrant coordinates</span>
+    <span class="n">realX</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">dx</span>
+    <span class="n">realY</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">dy</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">startX</span> <span class="o">+</span> <span class="n">realX</span><span class="p">,</span> <span class="n">startY</span> <span class="o">+</span> <span class="n">realY</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+        <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">startX</span> <span class="o">+</span> <span class="n">realX</span><span class="p">,</span> <span class="n">startY</span> <span class="o">+</span> <span class="n">realY</span><span class="p">))</span>
+        <span class="n">funcVisitTile</span><span class="p">(</span><span class="n">startX</span> <span class="o">+</span> <span class="n">realX</span><span class="p">,</span> <span class="n">startY</span> <span class="o">+</span> <span class="n">realY</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;else:</span>
+<span class="sd">        # Debugging</span>
+<span class="sd">        print (startX + realX, startY + realY)&quot;&quot;&quot;</span>
+
+    <span class="n">isBlocked</span> <span class="o">=</span> <span class="n">funcTileBlocked</span><span class="p">(</span><span class="n">startX</span> <span class="o">+</span> <span class="n">realX</span><span class="p">,</span> <span class="n">startY</span> <span class="o">+</span> <span class="n">realY</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isBlocked</span><span class="p">:</span>
+        <span class="c1"># The current coordinate does not block sight and therefore</span>
+        <span class="c1"># has no effect on the view.</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">shallowLine</span><span class="o">.</span><span class="n">pAbove</span><span class="p">(</span>
+       <span class="n">bottomRight</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bottomRight</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> \
+            <span class="ow">and</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">steepLine</span><span class="o">.</span><span class="n">pBelow</span><span class="p">(</span>
+            <span class="n">topLeft</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">topLeft</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="c1"># The current coordinate is intersected by both lines in the</span>
+        <span class="c1"># current view.  The view is completely blocked.</span>
+        <span class="k">del</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">shallowLine</span><span class="o">.</span><span class="n">pAbove</span><span class="p">(</span>
+            <span class="n">bottomRight</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bottomRight</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="c1"># The current coordinate is intersected by the shallow line of</span>
+        <span class="c1"># the current view.  The shallow line needs to be raised.</span>
+        <span class="n">__addShallowBump</span><span class="p">(</span><span class="n">topLeft</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">topLeft</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                         <span class="n">activeViews</span><span class="p">,</span> <span class="n">viewIndex</span><span class="p">)</span>
+        <span class="n">__checkView</span><span class="p">(</span><span class="n">activeViews</span><span class="p">,</span> <span class="n">viewIndex</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">steepLine</span><span class="o">.</span><span class="n">pBelow</span><span class="p">(</span>
+            <span class="n">topLeft</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">topLeft</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="c1"># The current coordinate is intersected by the steep line of</span>
+        <span class="c1"># the current view.  The steep line needs to be lowered.</span>
+        <span class="n">__addSteepBump</span><span class="p">(</span><span class="n">bottomRight</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bottomRight</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">activeViews</span><span class="p">,</span>
+                       <span class="n">viewIndex</span><span class="p">)</span>
+        <span class="n">__checkView</span><span class="p">(</span><span class="n">activeViews</span><span class="p">,</span> <span class="n">viewIndex</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># The current coordinate is completely between the two lines</span>
+        <span class="c1"># of the current view.  Split the current view into two views</span>
+        <span class="c1"># above and below the current coordinate.</span>
+
+        <span class="n">shallowViewIndex</span> <span class="o">=</span> <span class="n">viewIndex</span>
+        <span class="n">viewIndex</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">steepViewIndex</span> <span class="o">=</span> <span class="n">viewIndex</span>
+
+        <span class="n">activeViews</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">shallowViewIndex</span><span class="p">,</span>
+                           <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">activeViews</span><span class="p">[</span><span class="n">shallowViewIndex</span><span class="p">]))</span>
+
+        <span class="n">__addSteepBump</span><span class="p">(</span><span class="n">bottomRight</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bottomRight</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                       <span class="n">activeViews</span><span class="p">,</span> <span class="n">shallowViewIndex</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">__checkView</span><span class="p">(</span><span class="n">activeViews</span><span class="p">,</span> <span class="n">shallowViewIndex</span><span class="p">):</span>
+            <span class="n">viewIndex</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">steepViewIndex</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="n">__addShallowBump</span><span class="p">(</span><span class="n">topLeft</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">topLeft</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">activeViews</span><span class="p">,</span>
+                         <span class="n">steepViewIndex</span><span class="p">)</span>
+        <span class="n">__checkView</span><span class="p">(</span><span class="n">activeViews</span><span class="p">,</span> <span class="n">steepViewIndex</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">__addShallowBump</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">activeViews</span><span class="p">,</span> <span class="n">viewIndex</span><span class="p">):</span>
+    <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">shallowLine</span><span class="o">.</span><span class="n">xf</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">shallowLine</span><span class="o">.</span><span class="n">yf</span> <span class="o">=</span> <span class="n">y</span>
+
+    <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">shallowBump</span> <span class="o">=</span> <span class="n">__ViewBump</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
+                                                    <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">shallowBump</span><span class="p">)</span>
+
+    <span class="n">curBump</span> <span class="o">=</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">steepBump</span>
+    <span class="k">while</span> <span class="n">curBump</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">shallowLine</span><span class="o">.</span><span class="n">pAbove</span><span class="p">(</span>
+                <span class="n">curBump</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">curBump</span><span class="o">.</span><span class="n">y</span><span class="p">):</span>
+            <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">shallowLine</span><span class="o">.</span><span class="n">xi</span> <span class="o">=</span> <span class="n">curBump</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">shallowLine</span><span class="o">.</span><span class="n">yi</span> <span class="o">=</span> <span class="n">curBump</span><span class="o">.</span><span class="n">y</span>
+
+        <span class="n">curBump</span> <span class="o">=</span> <span class="n">curBump</span><span class="o">.</span><span class="n">parent</span>
+
+
+<span class="k">def</span> <span class="nf">__addSteepBump</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">activeViews</span><span class="p">,</span> <span class="n">viewIndex</span><span class="p">):</span>
+    <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">steepLine</span><span class="o">.</span><span class="n">xf</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">steepLine</span><span class="o">.</span><span class="n">yf</span> <span class="o">=</span> <span class="n">y</span>
+
+    <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">steepBump</span> <span class="o">=</span> <span class="n">__ViewBump</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
+                                                  <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">steepBump</span><span class="p">)</span>
+
+    <span class="n">curBump</span> <span class="o">=</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">shallowBump</span>
+    <span class="k">while</span> <span class="n">curBump</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">steepLine</span><span class="o">.</span><span class="n">pBelow</span><span class="p">(</span>
+                <span class="n">curBump</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">curBump</span><span class="o">.</span><span class="n">y</span><span class="p">):</span>
+            <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">steepLine</span><span class="o">.</span><span class="n">xi</span> <span class="o">=</span> <span class="n">curBump</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">steepLine</span><span class="o">.</span><span class="n">yi</span> <span class="o">=</span> <span class="n">curBump</span><span class="o">.</span><span class="n">y</span>
+
+        <span class="n">curBump</span> <span class="o">=</span> <span class="n">curBump</span><span class="o">.</span><span class="n">parent</span>
+
+
+<span class="k">def</span> <span class="nf">__checkView</span><span class="p">(</span><span class="n">activeViews</span><span class="p">,</span> <span class="n">viewIndex</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes the view in activeViews at index viewIndex if</span>
+<span class="sd">            - The two lines are coolinear</span>
+<span class="sd">            - The lines pass through either extremity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">shallowLine</span> <span class="o">=</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">shallowLine</span>
+    <span class="n">steepLine</span> <span class="o">=</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span><span class="o">.</span><span class="n">steepLine</span>
+
+    <span class="k">if</span> <span class="n">shallowLine</span><span class="o">.</span><span class="n">lineCollinear</span><span class="p">(</span><span class="n">steepLine</span><span class="p">)</span> \
+        <span class="ow">and</span> <span class="p">(</span><span class="n">shallowLine</span><span class="o">.</span><span class="n">pCollinear</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+             <span class="ow">or</span> <span class="n">shallowLine</span><span class="o">.</span><span class="n">pCollinear</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+        <span class="k">del</span> <span class="n">activeViews</span><span class="p">[</span><span class="n">viewIndex</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lucas Siqueira.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

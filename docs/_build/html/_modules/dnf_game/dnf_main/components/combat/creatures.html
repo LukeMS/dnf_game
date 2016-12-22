@@ -1,0 +1,970 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dnf_game.dnf_main.components.combat.creatures &mdash; Dungeons and Fiends  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../../../search.html"/>
+    <link rel="top" title="Dungeons and Fiends  documentation" href="../../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../../index.html"/> 
+
+  
+  <script src="../../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home"> Dungeons and Fiends
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../dnf_game.html">dnf_game package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../../index.html">Dungeons and Fiends</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+      
+    <li>dnf_game.dnf_main.components.combat.creatures</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dnf_game.dnf_main.components.combat.creatures</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">dnf_game.dnf_main.components.combat</span> <span class="k">import</span> <span class="n">char_roll</span><span class="p">,</span> <span class="n">feats</span><span class="p">,</span> <span class="n">skills</span>
+<span class="kn">from</span> <span class="nn">dnf_game.dnf_main.data_handler.bestiary</span> <span class="k">import</span> <span class="n">Bestiary</span>
+<span class="kn">from</span> <span class="nn">dnf_game.dnf_main.rnd_name</span> <span class="k">import</span> <span class="n">NameGen</span>
+<span class="kn">from</span> <span class="nn">dnf_game.dnf_main</span> <span class="k">import</span> <span class="n">effects</span>
+
+
+<div class="viewcode-block" id="Creature"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature">[docs]</a><span class="k">class</span> <span class="nc">Creature</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+
+    <span class="n">owner</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">age</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">max_age</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">gender</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">race</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_class</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">alignment</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">race_mod</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
+    <span class="n">age_mod</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">height</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">save_mod</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+    <span class="n">level</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ac_enforce</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ac_armor</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">specials_saves</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">damage</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Creature.get_status"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.get_status">[docs]</a>    <span class="k">def</span> <span class="nf">get_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;Age&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="p">,</span>
+            <span class="s2">&quot;Max. Age&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_age</span><span class="p">,</span>
+            <span class="s2">&quot;Gender&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gender</span><span class="p">,</span>
+            <span class="s2">&quot;Race&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">race</span><span class="p">,</span>
+            <span class="s2">&quot;CLass&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_class</span><span class="p">,</span>
+            <span class="s2">&quot;Alignment&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignment</span><span class="p">,</span>
+            <span class="s2">&quot;Base Attributes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_att</span><span class="p">,</span>
+            <span class="s2">&quot;Racial Modifiers&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">race_mod</span><span class="p">,</span>
+            <span class="s2">&quot;Age Modifiers&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">age_mod</span><span class="p">,</span>
+            <span class="s2">&quot;Weight&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span>
+            <span class="s2">&quot;Height&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span>
+        <span class="p">}</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hit_points_current</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hit_points_total</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">damage</span>
+
+<div class="viewcode-block" id="Creature.attack"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.attack">[docs]</a>    <span class="k">def</span> <span class="nf">attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        When the result of the die roll to</span>
+<span class="sd">        make  an  attack  is  a  natural  20  (that  is,  the  die  actually</span>
+<span class="sd">        shows  a  20),  this  is  known  as  a  critical  threat  (although</span>
+<span class="sd">        some weapons can score a critical threat on a roll of less</span>
+<span class="sd">        than 20). If a critical threat is scored, another attack roll is</span>
+<span class="sd">        made, using the same modifiers as the original attack roll.</span>
+<span class="sd">        If this second attack roll exceeds the target’s AC, the hit</span>
+<span class="sd">        becomes a critical hit, dealing additional damage.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">log_atk</span><span class="p">(</span><span class="n">atk_type</span><span class="p">,</span> <span class="n">hit_roll</span><span class="p">,</span> <span class="n">atk_bab</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> attacks (</span><span class="si">{}</span><span class="s2">) </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">fancy_name</span><span class="p">,</span>
+                    <span class="n">atk_type</span><span class="p">,</span>
+                    <span class="n">target</span><span class="o">.</span><span class="n">combat</span><span class="o">.</span><span class="n">fancy_name</span><span class="p">)</span> <span class="o">+</span>
+                <span class="s2">&quot;(</span><span class="si">{}</span><span class="s2">[d20] + </span><span class="si">{}</span><span class="s2">[bonus] = </span><span class="si">{}</span><span class="s2">) x AC </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">hit_roll</span><span class="p">,</span> <span class="n">atk_bab</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">combat</span><span class="o">.</span><span class="n">ac</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">msg_log</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">log_hit</span><span class="p">(</span><span class="n">dmg</span><span class="p">,</span> <span class="n">critical</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">critical</span><span class="p">:</span>
+                <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;and lands a critical hit for </span><span class="si">{}</span><span class="s2"> dmg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dmg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;and hits for </span><span class="si">{}</span><span class="s2"> dmg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dmg</span><span class="p">)</span>
+            <span class="n">msg_log</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">log_miss</span><span class="p">():</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;but misses&quot;</span>
+            <span class="n">msg_log</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+
+        <span class="n">msg_log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">msg_log</span>
+
+        <span class="n">roll</span> <span class="o">=</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">roll</span>
+
+        <span class="n">atk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">melee</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">melee</span><span class="o">.</span><span class="n">keys</span><span class="p">()))]</span>
+        <span class="c1"># print(self.melee, atk)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee&#39;</span><span class="p">])):</span>
+
+            <span class="n">base_result</span> <span class="o">=</span> <span class="n">roll</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="s1">&#39;1d20&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">bonus</span> <span class="o">=</span> <span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">base_result</span> <span class="o">+</span> <span class="n">bonus</span>
+
+            <span class="n">log_atk</span><span class="p">(</span>
+                <span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee_desc&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">base_result</span><span class="p">,</span>
+                <span class="n">bonus</span><span class="p">,</span>
+                <span class="n">result</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee_crit&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">crit_range</span> <span class="o">=</span> <span class="mi">20</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">crit_range</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee_crit&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">result</span> <span class="o">&gt;=</span> <span class="n">target</span><span class="o">.</span><span class="n">combat</span><span class="o">.</span><span class="n">ac</span> <span class="ow">or</span> <span class="n">base_result</span> <span class="o">==</span> <span class="mi">20</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">base_result</span> <span class="o">&gt;=</span> <span class="n">crit_range</span><span class="p">:</span>
+                    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                    IMPLEMENT PROPER CRITICAL ROLL HERE</span>
+<span class="sd">                    &quot;&quot;&quot;</span>
+                    <span class="n">critical</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">dmg</span> <span class="o">=</span> <span class="n">roll</span><span class="p">(</span><span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee_dmg&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">dmg</span> <span class="o">*=</span> <span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee_crit_dmg&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">critical</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">dmg</span> <span class="o">=</span> <span class="n">roll</span><span class="p">(</span><span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee_dmg&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+
+                <span class="c1"># If penalties reduce the damage result to less than 1, a hit</span>
+                <span class="c1"># still deals 1 point of nonlethal(?) damage.</span>
+                <span class="n">dmg</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dmg</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">log_hit</span><span class="p">(</span><span class="n">dmg</span><span class="p">,</span> <span class="n">critical</span><span class="o">=</span><span class="n">critical</span><span class="p">)</span>
+                <span class="n">target</span><span class="o">.</span><span class="n">combat</span><span class="o">.</span><span class="n">receive_dmg</span><span class="p">(</span><span class="n">dmg</span><span class="o">=</span><span class="n">dmg</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log_miss</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Creature.two_handed_atk"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.two_handed_atk">[docs]</a>    <span class="k">def</span> <span class="nf">two_handed_atk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># You receibe a base penalty of -6 to mh and -10 to of.</span>
+        <span class="n">mh_pen</span><span class="p">,</span> <span class="n">oh_pen</span> <span class="o">=</span> <span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span>
+
+        <span class="c1"># Reduce both by 2 if off-hand weapon is light</span>
+        <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="n">light</span><span class="p">:</span>
+            <span class="n">mh_pen</span> <span class="o">+=</span> <span class="mi">2</span>
+            <span class="n">oh_pen</span> <span class="o">+=</span> <span class="mi">2</span>
+
+        <span class="c1"># Reduce mh by 2 and of by 6 if Two-Weapon Fighting Feat</span>
+        <span class="k">if</span> <span class="n">twf</span><span class="p">:</span>
+            <span class="n">mh_pen</span> <span class="o">+=</span> <span class="mi">2</span>
+            <span class="n">oh_pen</span> <span class="o">+=</span> <span class="mi">6</span>
+
+        <span class="c1"># Gain a 2nd attack with -5 and 3rd with -10 on oh</span>
+        <span class="k">if</span> <span class="n">gtwf</span><span class="p">:</span>
+            <span class="n">off_hand_attacks</span> <span class="o">=</span> <span class="p">[</span><span class="n">off_atk</span><span class="p">,</span> <span class="n">off_atk</span> <span class="o">-</span> <span class="mi">5</span><span class="p">,</span> <span class="n">off_atk</span> <span class="o">-</span> <span class="mi">10</span><span class="p">]</span>
+        <span class="c1"># Gain a 2nd attack with -5 on oh</span>
+        <span class="k">elif</span> <span class="n">itwf</span><span class="p">:</span>
+            <span class="n">off_hand_attacks</span> <span class="o">=</span> <span class="p">[</span><span class="n">off_atk</span><span class="p">,</span> <span class="n">off_atk</span> <span class="o">-</span> <span class="mi">5</span><span class="p">]</span>
+        <span class="c1"># If not get a single extra attack oh with adjusted penalty.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">off_hand_attacks</span> <span class="o">=</span> <span class="p">[</span><span class="n">off_atk</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">mh_pen</span><span class="p">,</span> <span class="n">oh_pen</span><span class="p">,</span> <span class="n">off_hand_attacks</span></div>
+
+<div class="viewcode-block" id="Creature.receive_dmg"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.receive_dmg">[docs]</a>    <span class="k">def</span> <span class="nf">receive_dmg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dmg</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hit Points</span>
+<span class="sd">        When your hit point total reaches 0, you’re disabled. When</span>
+<span class="sd">        it  reaches  –1,  you’re  dying.  When  it  gets  to  a  negative</span>
+<span class="sd">        amount equal to your Constitution score, you’re dead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># apply damage if possible</span>
+        <span class="k">if</span> <span class="n">dmg</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">damage</span> <span class="o">+=</span> <span class="n">dmg</span>
+
+        <span class="c1"># check for death. if there&#39;s a death function, call it</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hit_points_current</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">death_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">)</span>
+
+                <span class="c1"># &quot;CR&quot;;&quot;Total XP&quot;;&quot;1–3&quot;;&quot;4–5&quot;;&quot;6+&quot; creatures</span>
+                <span class="n">source</span><span class="o">.</span><span class="n">gain_xp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xp_award</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">update_hp</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Creature.heal"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.heal">[docs]</a>    <span class="k">def</span> <span class="nf">heal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
+        <span class="c1"># heal by the given amount, without going over the maximum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">damage</span> <span class="o">-=</span> <span class="n">amount</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">damage</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">damage</span><span class="p">)</span>  <span class="c1"># no negative damage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">update_hp</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Creature.change_gender"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.change_gender">[docs]</a>    <span class="k">def</span> <span class="nf">change_gender</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the gender of the creature.</span>
+
+<span class="sd">        If the current gender is None (such as in new creatures), the value</span>
+<span class="sd">        is randomly defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">genders</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;male&quot;</span><span class="p">,</span> <span class="s2">&quot;female&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">race</span> <span class="o">==</span> <span class="s1">&#39;changeling&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="s2">&quot;female&quot;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">==</span> <span class="s2">&quot;male&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="s2">&quot;female&quot;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">==</span> <span class="s2">&quot;female&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="s2">&quot;male&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">genders</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">genders</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="Creature.change_age"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.change_age">[docs]</a>    <span class="k">def</span> <span class="nf">change_age</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># make it random</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">race</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_class</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_age</span> <span class="o">=</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">get_age</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">race</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_class</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">age_mod</span> <span class="o">=</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">aging_modifiers</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">race</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Creature.change_height_weight"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.change_height_weight">[docs]</a>    <span class="k">def</span> <span class="nf">change_height_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># make it random</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">race</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">race_mod</span><span class="p">:</span>
+                <span class="c1"># print(self.__dict__)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">height_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_</span> <span class="o">=</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">height_weight</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">race</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gender</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">race_mod</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">unit_conversion</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">height_</span><span class="p">,</span> <span class="s1">&#39;ft&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">unit_conversion</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">weight_</span><span class="p">,</span> <span class="s1">&#39;lb&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Creature.set_equipment_slots"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.set_equipment_slots">[docs]</a>    <span class="k">def</span> <span class="nf">set_equipment_slots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Creature.all_equipped"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.all_equipped">[docs]</a>    <span class="k">def</span> <span class="nf">all_equipped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">inventory</span> <span class="k">if</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">equipment</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">equipment</span><span class="o">.</span><span class="n">is_equipped</span> <span class="ow">and</span>
+            <span class="p">(</span><span class="n">slot</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">equipment</span><span class="p">,</span> <span class="s1">&#39;slot&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="n">slot</span><span class="p">))</span>
+        <span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">equipped_armor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">equipped_in_slot</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Creature.equipped_in_slot"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.equipped_in_slot">[docs]</a>    <span class="k">def</span> <span class="nf">equipped_in_slot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slot</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the equipment in a slot, or None if it&#39;s empty.&quot;&quot;&quot;</span>
+        <span class="n">inventory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">inventory</span>
+
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">inventory</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">equipment</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">equipment</span><span class="o">.</span><span class="n">slot</span> <span class="o">==</span> <span class="n">slot</span> <span class="ow">and</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">equipment</span><span class="o">.</span><span class="n">is_equipped</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">equipment</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Creature.equipment_bonus"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.equipment_bonus">[docs]</a>    <span class="k">def</span> <span class="nf">equipment_bonus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bonus</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">equipment</span><span class="p">,</span> <span class="n">bonus</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_equipped</span><span class="p">())</span>
+        <span class="c1"># for debug move this up</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_equipped</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">bonus</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">equipment</span><span class="p">,</span> <span class="n">bonus</span><span class="p">))</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Creature.test"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Creature.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">types</span>
+
+        <span class="k">class</span> <span class="nc">Owner</span><span class="p">:</span>
+            <span class="n">inventory</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">creature</span> <span class="o">=</span> <span class="n">cls</span><span class="p">()</span>
+        <span class="n">creature</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">Owner</span><span class="p">()</span>
+
+        <span class="n">dic</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dic_keys</span> <span class="o">=</span> <span class="nb">dir</span><span class="p">(</span><span class="n">creature</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">dic_keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">creature</span><span class="p">,</span> <span class="n">att</span><span class="p">),</span> <span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">att</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="s2">&quot;__&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">creature</span><span class="p">),</span> <span class="n">att</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="nb">property</span><span class="p">):</span>
+                <span class="n">dic</span><span class="p">[</span><span class="n">att</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+                    <span class="nb">type</span><span class="p">(</span><span class="n">creature</span><span class="p">),</span> <span class="n">att</span><span class="p">)</span><span class="o">.</span><span class="n">__get__</span><span class="p">(</span><span class="n">creature</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">creature</span><span class="p">))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dic</span><span class="p">[</span><span class="n">att</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">creature</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="kn">from</span> <span class="nn">mylib.data_tree</span> <span class="k">import</span> <span class="n">tk_tree_view</span>
+        <span class="n">tk_tree_view</span><span class="p">(</span><span class="n">dic</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Character"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Character">[docs]</a><span class="k">class</span> <span class="nc">Character</span><span class="p">(</span><span class="n">Creature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;docstring for Character&quot;&quot;&quot;</span>
+    <span class="n">hp_history</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">melee</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;main&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;melee_desc&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;melee&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;melee_dmg&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;melee_crit&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;melee_crit_dmg&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;melee_esp&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">xp</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">race</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_att</span> <span class="o">=</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">roll_attributes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">races</span> <span class="o">=</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">races</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes</span> <span class="o">=</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">classes</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_race</span><span class="p">(</span><span class="n">race</span><span class="o">=</span><span class="n">race</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_class</span><span class="p">(</span><span class="n">_class</span><span class="o">=</span><span class="n">_class</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">feats</span> <span class="o">=</span> <span class="n">feats</span><span class="o">.</span><span class="n">FeatTree</span><span class="p">(</span><span class="n">creature</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skills</span> <span class="o">=</span> <span class="n">skills</span><span class="o">.</span><span class="n">SkillTree</span><span class="p">(</span><span class="n">creature</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_gender</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_height_weight</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_alignment</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_age</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_hit_points</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_unarmed_atk</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">death_func</span> <span class="o">=</span> <span class="n">effects</span><span class="o">.</span><span class="n">player_death</span>
+
+
+<div class="viewcode-block" id="Character.change_race"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Character.change_race">[docs]</a>    <span class="k">def</span> <span class="nf">change_race</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">race</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">race</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># make it random</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">race</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">races</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">race</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">races</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">race</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="n">race</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">races</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">race</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">races</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">race</span> <span class="o">=</span> <span class="n">race</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_age</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_height_weight</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Character.change_class"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Character.change_class">[docs]</a>    <span class="k">def</span> <span class="nf">change_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_class</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the class of the creature.</span>
+
+<span class="sd">        If the current class is None (such as in new creatures), the value</span>
+<span class="sd">        is randomly defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_class</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_class</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">classes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_class</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="n">_class</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_class</span> <span class="o">=</span> <span class="n">classes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">_class</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">info</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a valid character class; &quot;</span> <span class="o">%</span> <span class="n">_class</span>
+                <span class="n">e</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">info</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">*</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="k">raise</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_class</span> <span class="o">=</span> <span class="n">_class</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">alignments</span> <span class="o">=</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">alignments</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_class</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_hit_points</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_unarmed_atk</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Character.change_alignment"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Character.change_alignment">[docs]</a>    <span class="k">def</span> <span class="nf">change_alignment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alignment</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignments</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">alignments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignments</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">alignments</span><span class="o">.</span><span class="n">index</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">alignment</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="n">value</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">alignments</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alignment</span> <span class="o">=</span> <span class="n">alignments</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Character.change_name"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Character.change_name">[docs]</a>    <span class="k">def</span> <span class="nf">change_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">race</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">gender</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">surname</span> <span class="o">=</span> <span class="n">NameGen</span><span class="o">.</span><span class="n">get_name</span><span class="p">(</span>
+                    <span class="n">race</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">race</span><span class="p">,</span>
+                    <span class="n">gender</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gender</span><span class="p">,</span>
+                    <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">surname</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">surname</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fancy_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+
+<div class="viewcode-block" id="Character.set_hit_points"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Character.set_hit_points">[docs]</a>    <span class="k">def</span> <span class="nf">set_hit_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hit Points (hp): Hit points are an abstraction signifying how robust</span>
+<span class="sd">        and healthy a creature is at the current moment. To determine a</span>
+<span class="sd">        creature&#39;s hit points, roll the dice indicated by its Hit Dice. A</span>
+<span class="sd">        creature gains maximum hit points if its first Hit Die roll is for a</span>
+<span class="sd">        character class level. Creatures whose first Hit Die comes from an NPC</span>
+<span class="sd">        class or from his race roll their first Hit Die normally. Wounds</span>
+<span class="sd">        subtract hit points, while healing (both natural and magical) restores</span>
+<span class="sd">        hit points. Some abilities and spells grant temporary hit points that</span>
+<span class="sd">        disappear after a specific duration. When a creature&#39;s hit points drop</span>
+<span class="sd">        below 0, it becomes unconscious. When a creature&#39;s hit points reach a</span>
+<span class="sd">        negative total equal to its Constitution score, it dies.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hp_history</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">:</span>
+            <span class="n">dice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hit_dice</span>
+            <span class="n">att_mod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># constitution</span>
+            <span class="n">tough_mod</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># toughness</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">dice</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span>
+                    <span class="n">faces</span><span class="o">=</span><span class="n">dice</span><span class="p">,</span>
+                    <span class="n">modifier</span><span class="o">=</span><span class="n">att_mod</span> <span class="o">+</span> <span class="n">tough_mod</span>
+                <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">hp_history</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s2">&quot;dice&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">dice</span><span class="p">),</span>
+                <span class="s1">&#39;att_mod&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">att_mod</span><span class="p">),</span>
+                <span class="s1">&#39;tough_mod&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">tough_mod</span><span class="p">),</span>
+                <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hit_points_total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hp_history</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;result&#39;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">)])</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">xp_award</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">cr_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">char_roll</span><span class="o">.</span><span class="n">xp_award</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+        <span class="n">hd_cr</span> <span class="o">=</span> <span class="n">cr_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">xp_award</span><span class="p">[</span><span class="n">cr_list</span><span class="p">[</span><span class="n">hd_cr</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]][</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Base Attack Bonus (BAB): Each creature has a base</span>
+<span class="s2">        attack bonus and it represents its skill in combat.</span>
+<span class="s2">        As a character gains levels or Hit Dice, his base attack bonus</span>
+<span class="s2">        improves. When a creature&#39;s base attack bonus reaches +6, +11, or +16,</span>
+<span class="s2">        he receives an additional attack in combat when he takes a full-attack</span>
+<span class="s2">        action (which is one type of full-round action.</span>
+<span class="s2">        Attack Roll: An attack roll represents your attempt to strike your</span>
+<span class="s2">        opponent on your turn in a round. When you make an attack roll, you</span>
+<span class="s2">        roll a d20 and add your attack bonus. (Other modifiers may also apply</span>
+<span class="s2">        to this roll.) If your result equals or beats the target&#39;s Armor</span>
+<span class="s2">        Class, you hit and deal damage.</span>
+<span class="s2">        Automatic Misses and Hits: A natural 1 (the d20 comes up 1) on an</span>
+<span class="s2">        attack roll is always a miss. A natural 20 (the d20 comes up 20) is</span>
+<span class="s2">        always a hit. A natural 20 is also a threat — a possible critical</span>
+<span class="s2">        hit.</span>
+<span class="s2">        Melee Attack Bonus</span>
+<span class="s2">            BAB + Strength modifier + size modifier</span>
+<span class="s2">        Ranged Attack Bonus</span>
+<span class="s2">            BAB + Dexterity modifier + size modifier + range penalty&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">bab</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_class</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ranged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">atk</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">size_modifier</span>
+                <span class="k">for</span> <span class="n">atk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bab</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Character.set_atk"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Character.set_atk">[docs]</a>    <span class="k">def</span> <span class="nf">set_atk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">atk</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;melee_desc&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;melee&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;melee_dmg&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;melee_crit&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;melee_crit_dmg&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;melee_esp&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">base_atk</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">atk</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">base_atk</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">base_atk</span> <span class="o">=</span> <span class="n">obj</span>
+
+        <span class="n">base_atk</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;melee&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">base_atk</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;melee_esp&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bab</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">melee_dmg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">base_atk</span><span class="p">[</span><span class="s1">&#39;melee_dmg&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">melee_dmg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">+</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">base_atk</span><span class="p">[</span><span class="s1">&#39;melee_dmg&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">melee_dmg</span> <span class="o">=</span> <span class="n">base_atk</span><span class="p">[</span><span class="s1">&#39;melee_dmg&#39;</span><span class="p">]</span>
+
+            <span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee_dmg&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">melee_dmg</span><span class="p">)</span>
+            <span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee_desc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">base_atk</span><span class="p">[</span><span class="s1">&#39;melee_desc&#39;</span><span class="p">])</span>
+            <span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee_crit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">base_atk</span><span class="p">[</span><span class="s1">&#39;melee_crit&#39;</span><span class="p">])</span>
+            <span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee_crit_dmg&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">base_atk</span><span class="p">[</span><span class="s1">&#39;melee_crit_dmg&#39;</span><span class="p">])</span>
+            <span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee_esp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">base_atk</span><span class="p">[</span><span class="s1">&#39;melee_esp&#39;</span><span class="p">])</span>
+
+            <span class="n">atk</span><span class="p">[</span><span class="s1">&#39;melee&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">base_atk</span><span class="p">[</span><span class="s1">&#39;melee&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">size_modifier</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">melee</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atk</span></div>
+
+<div class="viewcode-block" id="Character.set_melee_atk"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Character.set_melee_atk">[docs]</a>    <span class="k">def</span> <span class="nf">set_melee_atk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_equipped</span><span class="p">(</span><span class="n">slot</span><span class="o">=</span><span class="s1">&#39;right hand&#39;</span><span class="p">)</span>
+        <span class="c1"># print(&quot;items&quot;, items)</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">items</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="c1"># print(&quot;item&quot;, item)</span>
+        <span class="k">if</span> <span class="n">item</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_atk</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">equipment</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_unarmed_atk</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Character.set_unarmed_atk"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Character.set_unarmed_atk">[docs]</a>    <span class="k">def</span> <span class="nf">set_unarmed_atk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">punch</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;melee_dmg&#39;</span><span class="p">:</span> <span class="s2">&quot;1d3&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;melee_desc&#39;</span><span class="p">:</span> <span class="s2">&quot;Unarmed strike&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;melee_crit&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;melee_crit_dmg&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;melee_esp&quot;</span><span class="p">:</span> <span class="s2">&quot;nonlethal&quot;</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_atk</span><span class="p">(</span><span class="n">punch</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hit_dice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Hit Dice (HD): Hit Dice represent a creature&#39;s</span>
+<span class="s2">        general level of power and skill. As a creature gains levels, it gains</span>
+<span class="s2">        additional Hit Dice.</span>
+<span class="s2">        Monsters, on the other hand, gain racial Hit Dice, which represent the</span>
+<span class="s2">        monster&#39;s general prowess and ability. Hit Dice are represented by the</span>
+<span class="s2">        number the creature possesses followed by a type of die, such as</span>
+<span class="s2">        &quot;3d8&quot;. This value is used to determine a creature&#39;s total hit points.</span>
+<span class="s2">        In this example, the creature has 3 Hit Dice. When rolling for this</span>
+<span class="s2">        creature&#39;s hit points, you would roll a d8 three times and add the</span>
+<span class="s2">        results together, along with other modifiers.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">hit_dice</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_class</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ac</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;AC (armor class).</span>
+
+<span class="sd">        10 + armor bonus + shield bonus + Dex modifier</span>
+<span class="sd">         + other modifiers.</span>
+<span class="sd">        Armor, shield and natural armor bonuses do not applyto touch AC.</span>
+<span class="sd">        Dex and Dodge bonuses do not apply to flat footed AC (unless you have</span>
+<span class="sd">        an ability like uncanny dodge to mitigate things)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># print(&quot;calling &#39;ac&#39; property&quot;)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">10</span> <span class="o">+</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ac_from_equip</span> <span class="o">+</span>
+                <span class="c1"># dodge_bonus</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">size_modifier</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ac_from_equip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">equipment</span><span class="p">,</span> <span class="s1">&#39;ac_bonus&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                   <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_equipped</span><span class="p">())</span>
+        <span class="c1">### for debug move this up</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_equipped</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">equipment</span><span class="p">,</span> <span class="s1">&#39;ac_bonus&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ac_flat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            Flat-Footed: At the start of a battle, before you have had a</span>
+<span class="s2">            chance to act (specifically, before your first regular turn in the</span>
+<span class="s2">            initiative order), you are flat-footed. You can&#39;t use your</span>
+<span class="s2">            Dexterity bonus to AC (if any) while flat-footed. Barbarians and</span>
+<span class="s2">            rogues of high enough level have the uncanny dodge extraordinary</span>
+<span class="s2">            ability, which means that they cannot be caught flat-footed.</span>
+<span class="s2">            Characters with uncanny dodge retain their Dexterity bonus to</span>
+<span class="s2">            their AC and can make attacks of opportunity before they have</span>
+<span class="s2">            acted in the first round of combat. A flat-footed character can&#39;t</span>
+<span class="s2">            make attacks of opportunity, unless he has the Combat Reflexes</span>
+<span class="s2">            feat.</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">10</span> <span class="o">+</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ac_from_equip</span> <span class="o">+</span>
+                <span class="c1"># dodge_bonus</span>
+                <span class="c1"># self.att_mod[1] if *uncanny dodge* else 0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">size_modifier</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ac_touch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            Touch Attacks: Some attacks completely disregard armor, including</span>
+<span class="s2">            shields and natural armor—the aggressor need only touch a foe for</span>
+<span class="s2">            such an attack to take full effect. In these cases, the attacker</span>
+<span class="s2">            makes a touch attack roll (either ranged or melee). When you are</span>
+<span class="s2">            the target of a touch attack, your AC doesn&#39;t include any armor</span>
+<span class="s2">            bonus, shield bonus, or natural armor bonus. All other modifiers,</span>
+<span class="s2">            such as your size modifier, Dexterity modifier, and deflection</span>
+<span class="s2">            bonus (if any) apply normally. Some creatures have the ability to</span>
+<span class="s2">            make incorporeal touch attacks. These attacks bypass solid</span>
+<span class="s2">            objects, such as armor and shields, by passing through them.</span>
+<span class="s2">            Incorporeal touch attacks work similarly to normal touch attacks</span>
+<span class="s2">            except that they also ignore cover bonuses. Incorporeal touch</span>
+<span class="s2">            attacks do not ignore armor bonuses granted by force effects, such</span>
+<span class="s2">            as mage armor and bracers of armor.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">10</span> <span class="o">+</span>
+                <span class="c1"># dodge_bonus</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">size_modifier</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span> <span class="o">+</span> <span class="n">r</span> <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_att</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">race_mod</span><span class="p">)]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">race_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">race_modifiers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">race</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">hw_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">race</span><span class="p">][</span><span class="s1">&#39;size&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size_modifier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">size_modifier</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">base_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">speed</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">race</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">speed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_speed</span>  <span class="c1"># +- something</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">save_base</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">saving_throws</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_class</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">save_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">base</span> <span class="o">+</span> <span class="n">mod</span> <span class="k">for</span> <span class="n">base</span><span class="p">,</span> <span class="n">mod</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">save_base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_att_bonus</span><span class="p">)]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">attributes_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">char_roll</span><span class="o">.</span><span class="n">att_names</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">)}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">att_mod_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">char_roll</span><span class="o">.</span><span class="n">att_names</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">)}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">save_att_bonus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fortitude: + Constitution</span>
+<span class="sd">        Reflex: + Dexterity</span>
+<span class="sd">        Will: + Wisdom</span>
+<span class="sd">        att: [&#39;Str&#39;, &#39;Dex&#39;, &#39;Con&#39;, &#39;Int&#39;, &#39;Wis&#39;, &#39;Cha&#39;],</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">att_mod</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">att_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">char_roll</span><span class="o">.</span><span class="n">AttributeModifers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Beast"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Beast">[docs]</a><span class="k">class</span> <span class="nc">Beast</span><span class="p">(</span><span class="n">Creature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;docstring for Beast&quot;&quot;&quot;</span>
+
+    <span class="n">history</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">xp</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model</span> <span class="ow">or</span> <span class="n">Bestiary</span><span class="o">.</span><span class="n">get_model</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="n">Bestiary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="c1"># number of instances for sequential naming</span>
+        <span class="n">Beast</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">Beast</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="n">model</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">race</span> <span class="o">=</span> <span class="n">model</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="o">+</span>
+                     <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">Beast</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="n">model</span><span class="p">])</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;class1&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;class1&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_class</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_att</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hit_dice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;hd&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hit_points_total</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;hp&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac_flat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;ac_flat-footed&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fancy_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;fancy&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;ac&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ac_touch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;ac_touch&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">melee</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;melee&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;speed&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;space&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reach</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;reach&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xp_award</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;xp award&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;cr&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alignment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;alignment&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_age</span> <span class="o">=</span> <span class="n">char_roll</span><span class="o">.</span><span class="n">get_age</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">race</span><span class="p">,</span>
+                                                          <span class="bp">self</span><span class="o">.</span><span class="n">_class</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_gender</span><span class="p">()</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        weight: d&amp;d 3.5 monster manual appears to have a table of creature&#39;s</span>
+<span class="sd">        weight/size. If so, make a similar base per size table, creating of</span>
+<span class="sd">        inheriting some variance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">char_roll</span><span class="o">.</span><span class="n">get_age</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_height_weight</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">death_func</span> <span class="o">=</span> <span class="n">effects</span><span class="o">.</span><span class="n">monster_death</span>
+
+<div class="viewcode-block" id="Beast.set_att"><a class="viewcode-back" href="../../../../../dnf_game.dnf_main.components.combat.html#dnf_game.dnf_main.components.combat.creatures.Beast.set_att">[docs]</a>    <span class="k">def</span> <span class="nf">set_att</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; [&#39;strenght&#39;, &#39;dexterity&#39;, &#39;constitution&#39;,</span>
+<span class="sd">        &#39;intelligence&#39;, &#39;wisdom&#39;, &#39;charisma&#39;]&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">att</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">&#39;str&#39;</span><span class="p">,</span> <span class="s1">&#39;dex&#39;</span><span class="p">,</span> <span class="s1">&#39;con&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;wis&#39;</span><span class="p">,</span> <span class="s1">&#39;cha&#39;</span><span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="n">att</span><span class="p">]</span></div></div>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">mylib</span> <span class="k">import</span> <span class="n">compare_classes</span>
+
+    <span class="n">pc</span> <span class="o">=</span> <span class="n">Character</span><span class="p">(</span><span class="n">_class</span><span class="o">=</span><span class="s2">&quot;fighter&quot;</span><span class="p">,</span> <span class="n">race</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">)</span>
+
+    <span class="n">exit</span><span class="p">()</span>
+
+    <span class="n">beast</span> <span class="o">=</span> <span class="n">Beast</span><span class="p">()</span>
+    <span class="n">beast</span><span class="o">.</span><span class="n">test</span><span class="p">()</span>
+    <span class="n">pc</span><span class="o">.</span><span class="n">change_race</span><span class="p">(</span><span class="s2">&quot;dwarf&quot;</span><span class="p">)</span>
+    <span class="n">pc</span><span class="o">.</span><span class="n">change_class</span><span class="p">(</span><span class="s2">&quot;fighter&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">pc</span><span class="o">.</span><span class="n">_class</span><span class="p">)</span>
+    <span class="n">pc</span><span class="o">.</span><span class="n">test</span><span class="p">()</span>
+
+
+    <span class="n">compare_classes</span><span class="o">.</span><span class="n">compare_classes</span><span class="p">(</span>
+        <span class="n">pc</span><span class="p">,</span> <span class="n">beast</span><span class="p">,</span>
+        <span class="n">excluded</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;alignments&quot;</span><span class="p">,</span> <span class="s2">&quot;classes&quot;</span><span class="p">,</span> <span class="s2">&quot;races&quot;</span><span class="p">,</span> <span class="s2">&quot;first_name&quot;</span><span class="p">,</span> <span class="s2">&quot;surname&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;height_&quot;</span><span class="p">,</span> <span class="s2">&quot;weight_&quot;</span><span class="p">,</span> <span class="s2">&quot;bestiary&quot;</span><span class="p">,</span> <span class="s2">&quot;game&quot;</span><span class="p">,</span> <span class="s2">&quot;hp_history&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;namegen&quot;</span><span class="p">,</span> <span class="s2">&quot;table&quot;</span><span class="p">,</span> <span class="s2">&quot;owner&quot;</span><span class="p">],</span>
+        <span class="n">ordered</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lucas Siqueira.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
