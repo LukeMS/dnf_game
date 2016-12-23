@@ -1,0 +1,21 @@
+"""..."""
+
+import unittest
+
+from dnf_game.scene_manager import Manager
+from dnf_game.dnf_main.scenes.scene_title import SceneTitle
+
+
+class SceneTitleTest(unittest.TestCase):
+    """..."""
+
+    def setUp(self):
+        """..."""
+        print("\n", "#" * 30, "\n%s" % __file__)
+
+    def test_scene(self):
+        """..."""
+        Manager(scene=SceneTitle, test=True).execute()
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

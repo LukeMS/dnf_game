@@ -5,3 +5,4 @@
 run_env_cmd.cmd
 __pycache__/
 save/
+docs/
