@@ -7,7 +7,7 @@ from dnf_game.scene_manager.scenes.base_scenes import SceneMultiLayer
 from dnf_game.scene_manager.layers.base_layers import Layer
 
 
-class GradientWindowTestPySDL2(unittest.TestCase):
+class PySDL2GradientWindowTest(unittest.TestCase):
     """..."""
 
     def setUp(self):
@@ -16,7 +16,7 @@ class GradientWindowTestPySDL2(unittest.TestCase):
 
     def test_scene(self):
         """..."""
-        Manager(scene=SceneGradientWindowTestPySDL2, test=True).execute()
+        Manager(scene=ScenePySDL2GradientWindowTest, test=True).execute()
 
 
 class GradientWindow(Layer):
@@ -32,7 +32,7 @@ class GradientWindow(Layer):
         self.manager.spriterenderer.render(sprites=self.surface)
 
 
-class SceneGradientWindowTestPySDL2(SceneMultiLayer):
+class ScenePySDL2GradientWindowTest(SceneMultiLayer):
     """..."""
 
     def __init__(self, **kwargs):

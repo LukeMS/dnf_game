@@ -115,6 +115,8 @@ class DbfilenameZShelf(ZShelf):
 
 
 if __name__ == '__main__':
-    obj = "descriptions"
-    pack_json(source=objects[obj]['source'],
-              dest=objects[obj]['dest'])
+    from dnf_game.util import dnf_path
+    STD_WEAPONS_PATH = os.path.join(dnf_path(), 'data', 'weapons.bzp')
+    d = load_dict(STD_WEAPONS_PATH)
+    print(type(d), d.keys())
+

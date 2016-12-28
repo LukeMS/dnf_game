@@ -2,7 +2,7 @@
 
 import random
 
-from dnf_game.data.tiles_index import TilesetIndex
+from dnf_game.dnf_main import data_handler
 from dnf_game.dnf_main.map_entities import TileEntity
 from dnf_game.util import CustomSet, PriorityQueue
 
@@ -185,10 +185,10 @@ class Map(object):
         try:
             status = (self.grid[t1].feature.id ==
                       self.grid[t2].feature.id)
-        except AttributeError as e:
+        except AttributeError:
             print(self.grid[t1])
             print(self.grid[t2])
-            raise e
+            raise
         return status
 
     def set_tile_variation(self, pos=None):
@@ -196,7 +196,7 @@ class Map(object):
         if pos is None:
             for x, y in self.grid.keys():
                 cell = self.grid[x, y].feature
-                cell.max_var = TilesetIndex.get_var(cell)
+                cell.max_var = data_handler.get_tile_var(cell.name)
                 # TODO: use perlin noise instead of rnd
                 if cell.max_var:
                     cell.tile_variation = random.randrange(0, cell.max_var)
@@ -566,9 +566,9 @@ class Map(object):
         """Act as a interface for grid attribute __getitem__."""
         try:
             return self.grid.__getitem__(key)
-        except KeyError as k:
+        except KeyError:
             print(key, tuple(key) in self.grid)
-            raise k
+            raise
 
     def __iter__(self):
         """Act as a interface for grid attribute __iter__."""

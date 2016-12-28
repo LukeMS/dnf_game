@@ -1,22 +1,19 @@
 """..."""
 
-import os
 import random
 
-from dnf_game.util import packer, RangedDictionary
+from dnf_game.util import RangedDictionary, SingletonMeta
+from dnf_game.dnf_main import data_handler
 
 
-class NameGen(dict):
+class NameGen(dict, metaclass=SingletonMeta):
     """..."""
 
-    @classmethod
-    def __init__(cls):
+    def __init__(self):
         """..."""
-        _path = os.path.join(os.path.dirname(__file__), '..', 'data')
+        self.names_db = data_handler.get_names()
 
-        cls.names_db = packer.unpack_json(os.path.join(_path, 'names.bzp'))
-
-        cls.name_dict = {
+        self.name_dict = {
             'human': {
                 'names': RangedDictionary({
                     range(0, 75): 'human',
@@ -91,46 +88,44 @@ class NameGen(dict):
             }
         }
 
-    @classmethod
-    def get_name(cls, race=None, gender=None, number=1):
-        """..."""
-        if race is None:
-            race = random.choice(list(cls.name_dict.keys()))
-        if gender is None:
-            gender = random.choice(['male', 'female'])
 
-        name_list = []
-        surname_list = []
+def get_name(race=None, gender=None, number=1):
+    """..."""
+    name_gen = NameGen()
+    race = race or random.choice(list(name_gen.name_dict.keys()))
+    gender = gender or random.choice(['male', 'female'])
 
-        surnames = cls.name_dict[race]['surnames']
-        names = cls.name_dict[race]['names']
+    name_list = []
+    surname_list = []
 
-        for x in range(number):
-            try:
-                name_key = names[random.randint(0, 99)]
-                surname_key = surnames[random.randint(0, 99)]
-            except KeyError:
-                print("Race {}, Gender {}, Key {}".format(race, gender, x))
-                raise
+    surnames = name_gen.name_dict[race]['surnames']
+    names = name_gen.name_dict[race]['names']
 
-            if name_key == 'generic':
-                name_list.append(
-                    random.choice(cls.names_db[name_key]['names']))
-            else:
-                name_list.append(
-                    random.choice(cls.names_db[name_key]['names'][gender]))
-            if surname_key is None:
-                surname_list.append("")
-            else:
-                surname_list.append(
-                    random.choice(cls.names_db[surname_key]['surnames']))
+    for x in range(number):
+        try:
+            name_key = names[random.randint(0, 99)]
+            surname_key = surnames[random.randint(0, 99)]
+        except KeyError:
+            print("Race %s, Gender %s, Key %s" % (race, gender, x))
+            raise
 
-        return name_list, surname_list
+        if name_key == 'generic':
+            name_list.append(
+                random.choice(name_gen.names_db[name_key]['names']))
+        else:
+            name_list.append(
+                random.choice(name_gen.names_db[name_key]['names'][gender]))
+        if surname_key is None:
+            surname_list.append("")
+        else:
+            surname_list.append(
+                random.choice(name_gen.names_db[surname_key]['surnames']))
 
-NameGen()
+    return name_list, surname_list
+
 
 if __name__ == '__main__':
-    name_list, surname_list = NameGen.get_name(
-        race='human', number=1)
-    for name, surname in zip(name_list, surname_list):
-        print(name, surname)
+    name_list, surname_list = get_name(race='human', number=1)
+    [print(name, surname) for name, surname in zip(name_list, surname_list)]
+    name_list, surname_list = get_name(race='human', number=1)
+    [print(name, surname) for name, surname in zip(name_list, surname_list)]

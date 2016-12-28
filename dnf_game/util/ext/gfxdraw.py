@@ -38,12 +38,30 @@ PygameSDL2 Notice:
 
 import ctypes
 
-from sdl2 import sdlgfx
+from sdl2 import sdlgfx as sdlgfx_tex
+from sdl2.ext import SDLError
 from sdl2.ext.color import Color
 from dnf_game.util.ext.rect import Rect
+from dnf_game.util.ext import pygame_sdl2_gfx_sfc as sdlgfx_sfc
 
 
-def pixel(surface, x, y, color):
+__all__ = (
+    'pixel', 'pixelRGBA', 'hline', 'hlineRGBA', 'vline', 'vlineRGBA',
+    'rectangle', 'rectangleRGBA', 'rounded_rectangle', 'roundedRectangleRGBA',
+    'rounded_box', 'boxRGBA', 'line', 'lineRGBA', 'aaline', 'aalineRGBA',
+    'circle', 'circleRGBA', 'arc', 'arcRGBA', 'aacircle', 'aacircleRGBA',
+    'filled_circle', 'filledCircleRGBA', 'ellipse', 'ellipseRGBA',
+    'aaellipse', 'aaellipseRGBA', 'filled_ellipse', 'filledEllipseRGBA',
+    'pie', 'pieRGBA', 'filled_pie', 'filledPieRGBA', 'trigon', 'trigonRGBA',
+    'aatrigon', 'aatrigonRGBA', 'filled_trigon', 'filledTrigonRGBA',
+    'polygon', 'polygonRGBA', 'aapolygon', 'aapolygonRGBA',
+    'filled_polygon', 'filledPolygonRGBA',
+    'textured_polygon', 'texturedPolygon', 'bezier', 'bezierRGBA',
+    'thick_line', 'thickLineRGBA'
+)
+
+
+def pixel(surface, x, y, color, sdlgfx=None):
     """Draw pixel with blending enabled if alpha < 255.
 
     Args:
@@ -53,16 +71,18 @@ def pixel(surface, x, y, color):
         y (int): Y (vertical) coordinate of the pixel.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.pixelRGBA(surface, x, y, c.r, c.g, c.b, c.a)
+    if sdlgfx.pixelRGBA(surface, x, y, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.pixelRGBA failure")
 
 pixelRGBA = pixel
 
 
-def hline(surface, x1, x2, y, color):
+def hline(surface, x1, x2, y, color, sdlgfx=None):
     """Draw horizontal line with blending.
 
     Args:
@@ -73,16 +93,18 @@ def hline(surface, x1, x2, y, color):
         y  (int):  Y coordinate of the points of the line.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.hlineRGBA(surface, x1, x2, y, c.r, c.g, c.b, c.a)
+    if sdlgfx.hlineRGBA(surface, x1, x2, y, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.hlineRGBA failure")
 
 hlineRGBA = hline
 
 
-def vline(surface, x, y1, y2, color):
+def vline(surface, x, y1, y2, color, sdlgfx=None):
     """Draw vertical line with blending.
 
     Args:
@@ -93,16 +115,18 @@ def vline(surface, x, y1, y2, color):
         y2 (int):  Y coordinate of the second point (i.e. bottom) of the line.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.vlineRGBA(surface, x, y1, y2, c.r, c.g, c.b, c.a)
+    if sdlgfx.vlineRGBA(surface, x, y1, y2, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.vlineRGBA failure")
 
 vlineRGBA = vline
 
 
-def rectangle(surface, rect, color):
+def rectangle(surface, rect, color, sdlgfx=None):
     """Draw rectangle with blending.
 
     Args:
@@ -118,19 +142,21 @@ def rectangle(surface, rect, color):
         rectangle.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
     if not isinstance(rect, Rect):
         rect = Rect(rect)
-    sdlgfx.rectangleRGBA(surface, rect.x, rect.y, rect.x + rect.w,
-                         rect.y + rect.h, c.r, c.g, c.b, c.a)
+    if sdlgfx.rectangleRGBA(surface, rect.x, rect.y, rect.x + rect.w,
+                            rect.y + rect.h, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.rectangleRGBA failure")
 
 rectangleRGBA = rectangle
 
 
-def rounded_rectangle(surface, rect, rad, color):
+def rounded_rectangle(surface, rect, rad, color, sdlgfx=None):
     """Draw rounded-corner rectangle with blending.
 
     Args:
@@ -140,21 +166,24 @@ def rounded_rectangle(surface, rect, rad, color):
         rad (int): The radius of the corner arc.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
     if not isinstance(rect, Rect):
         rect = Rect(rect)
-    return sdlgfx.roundedRectangleRGBA(surface,
-                                       rect.right - 1, rect.top + 1,
-                                       rect.left + 1, rect.bottom - 1,
-                                       rad, c.r, c.g, c.b, c.a)
+    if sdlgfx.roundedRectangleRGBA(surface,
+                                   rect.right - 1, rect.top + 1,
+                                   rect.left + 1, rect.bottom - 1,
+                                   rad, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.rectangleRGBA failure")
+
 
 roundedRectangleRGBA = rounded_rectangle
 
 
-def rounded_box(surface, rect, rad, color):
+def rounded_box(surface, rect, rad, color, sdlgfx=None):
     """Draw rounded-corner filled rectangle with blending.
 
     Args:
@@ -164,21 +193,23 @@ def rounded_box(surface, rect, rad, color):
         rad (int): The radius of the corner arc.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
     if not isinstance(rect, Rect):
         rect = Rect(rect)
-    return sdlgfx.roundedBoxRGBA(surface,
-                                 rect.right, rect.top,
-                                 rect.left, rect.bottom,
-                                 rad, c.r, c.g, c.b, c.a)
+    if sdlgfx.roundedBoxRGBA(surface,
+                             rect.right, rect.top,
+                             rect.left, rect.bottom,
+                             rad, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.roundedBoxRGBA failure")
 
 roundedBoxRGBA = rounded_box
 
 
-def box(surface, rect, color):
+def box(surface, rect, color, sdlgfx=None):
     """Draw a filled rectangle with blending.
 
     Args:
@@ -188,19 +219,21 @@ def box(surface, rect, color):
         rad (int): The radius of the corner arc.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
     if not isinstance(rect, Rect):
         rect = Rect(rect)
-    return sdlgfx.boxRGBA(surface, rect.x, rect.y, rect.x + rect.w,
-                          rect.y + rect.h, c.r, c.g, c.b, c.a)
+    if sdlgfx.boxRGBA(surface, rect.x, rect.y, rect.x + rect.w,
+                      rect.y + rect.h, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.boxRGBA failure")
 
 boxRGBA = box
 
 
-def line(surface, x1, y1, x2, y2, color):
+def line(surface, x1, y1, x2, y2, color, sdlgfx=None):
     """Draw line with alpha blending.
 
     Args:
@@ -212,16 +245,18 @@ def line(surface, x1, y1, x2, y2, color):
         y2 (int): Y coordinate of the second point of the line.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.lineRGBA(surface, x1, y1, x2, y2, c.r, c.g, c.b, c.a)
+    if sdlgfx.lineRGBA(surface, x1, y1, x2, y2, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.lineRGBA failure")
 
 lineRGBA = line
 
 
-def aaline(surface, x1, y1, x2, y2, color):
+def aaline(surface, x1, y1, x2, y2, color, sdlgfx=None):
     """Draw anti-aliased line with alpha blending.
 
     Args:
@@ -233,16 +268,18 @@ def aaline(surface, x1, y1, x2, y2, color):
         y2 (int): Y coordinate of the second point of the line.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.aalineRGBA(surface, x1, y1, x2, y2, c.r, c.g, c.b, c.a)
+    if sdlgfx.aalineRGBA(surface, x1, y1, x2, y2, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.aalineRGBA failure")
 
 aalineRGBA = aaline
 
 
-def circle(surface, x, y, r, color):
+def circle(surface, x, y, r, color, sdlgfx=None):
     """Draw circle with blending.
 
     Args:
@@ -253,16 +290,18 @@ def circle(surface, x, y, r, color):
         rad (int): Radius in pixels of the circle.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.circleRGBA(surface, x, y, r, c.r, c.g, c.b, c.a)
+    if sdlgfx.circleRGBA(surface, x, y, r, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.circleRGBA failure")
 
 circleRGBA = circle
 
 
-def arc(surface, x, y, r, start, end, color):
+def arc(surface, x, y, r, start, end, color, sdlgfx=None):
     """Draw arc with blending.
 
     Args:
@@ -277,16 +316,18 @@ def arc(surface, x, y, r, start, end, color):
         increasing counterclockwise.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.arcRGBA(surface, x, y, r, start, end, c.r, c.g, c.b, c.a)
+    if sdlgfx.arcRGBA(surface, x, y, r, start, end, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.arcRGBA failure")
 
 arcRGBA = arc
 
 
-def aacircle(surface, x, y, r, color):
+def aacircle(surface, x, y, r, color, sdlgfx=None):
     """Draw anti-aliased circle with blending.
 
     Args:
@@ -297,16 +338,18 @@ def aacircle(surface, x, y, r, color):
         rad (int): Radius in pixels of the aa-circle.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.aacircleRGBA(surface, x, y, r, c.r, c.g, c.b, c.a)
+    if sdlgfx.aacircleRGBA(surface, x, y, r, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.aacircleRGBA failure")
 
 aacircleRGBA = aacircle
 
 
-def filled_circle(surface, x, y, r, color):
+def filled_circle(surface, x, y, r, color, sdlgfx=None):
     """Draw filled circle with blending.
 
     Args:
@@ -317,16 +360,18 @@ def filled_circle(surface, x, y, r, color):
         rad (int): Radius in pixels of the filled circle.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.filledCircleRGBA(surface, x, y, r, c.r, c.g, c.b, c.a)
+    if sdlgfx.filledCircleRGBA(surface, x, y, r, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.filledCircleRGBA failure")
 
 filledCircleRGBA = filled_circle
 
 
-def ellipse(surface, x, y, rx, ry, color):
+def ellipse(surface, x, y, rx, ry, color, sdlgfx=None):
     """Draw ellipse with blending.
 
     Args:
@@ -338,16 +383,18 @@ def ellipse(surface, x, y, rx, ry, color):
         ry (int): Vertical radius in pixels of the ellipse.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.ellipseRGBA(surface, x, y, rx, ry, c.r, c.g, c.b, c.a)
+    if sdlgfx.ellipseRGBA(surface, x, y, rx, ry, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.ellipseRGBA failure")
 
 ellipseRGBA = ellipse
 
 
-def aaellipse(surface, x, y, rx, ry, color):
+def aaellipse(surface, x, y, rx, ry, color, sdlgfx=None):
     """Draw anti-aliased ellipse with blending.
 
     Args:
@@ -359,16 +406,18 @@ def aaellipse(surface, x, y, rx, ry, color):
         ry (int): Vertical radius in pixels of the aa-ellipse.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.aaellipseRGBA(surface, x, y, rx, ry, c.r, c.g, c.b, c.a)
+    if sdlgfx.aaellipseRGBA(surface, x, y, rx, ry, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.aaellipseRGBA failure")
 
 aaellipseRGBA = aaellipse
 
 
-def filled_ellipse(surface, x, y, rx, ry, color):
+def filled_ellipse(surface, x, y, rx, ry, color, sdlgfx=None):
     """Draw filled ellipse with blending.
 
     Args:
@@ -380,16 +429,18 @@ def filled_ellipse(surface, x, y, rx, ry, color):
         ry (int): Vertical radius in pixels of the filled ellipse.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.filledEllipseRGBA(surface, x, y, rx, ry, c.r, c.g, c.b, c.a)
+    if sdlgfx.filledEllipseRGBA(surface, x, y, rx, ry, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.filledEllipseRGBA failure")
 
 filledEllipseRGBA = filled_ellipse
 
 
-def pie(surface, x, y, r, start, end, color):
+def pie(surface, x, y, r, start, end, color, sdlgfx=None):
     """Draw pie outline with alpha blending.
 
     Args:
@@ -402,16 +453,18 @@ def pie(surface, x, y, r, start, end, color):
         end (int): Ending radius in degrees of the pie.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.pieRGBA(surface, x, y, r, start, end, c.r, c.g, c.b, c.a)
+    if sdlgfx.pieRGBA(surface, x, y, r, start, end, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.pieRGBA failure")
 
 pieRGBA = pie
 
 
-def filled_pie(surface, x, y, r, start, end, color):
+def filled_pie(surface, x, y, r, start, end, color, sdlgfx=None):
     """Draw filled pie with alpha blending.
 
     Args:
@@ -424,17 +477,18 @@ def filled_pie(surface, x, y, r, start, end, color):
         end (int): Ending radius in degrees of the filled pie.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.filledPieRGBA(
-        surface, x, y, r, start, end, c.r, c.g, c.b, c.a)
+    if sdlgfx.filledPieRGBA(surface, x, y, r, start, end, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.filledPieRGBA failure")
 
 filledPieRGBA = filled_pie
 
 
-def trigon(surface, x1, y1, x2, y2, x3, y3, color):
+def trigon(surface, x1, y1, x2, y2, x3, y3, color, sdlgfx=None):
     """Draw trigon (triangle outline) with alpha blending.
 
     Args:
@@ -448,17 +502,18 @@ def trigon(surface, x1, y1, x2, y2, x3, y3, color):
         y3 (int): Y coordinate of the third point of the trigon.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.trigonRGBA(
-        surface, x1, y1, x2, y2, x3, y3, c.r, c.g, c.b, c.a)
+    if sdlgfx.trigonRGBA(surface, x1, y1, x2, y2, x3, y3, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.trigonRGBA failure")
 
 trigonRGBA = trigon
 
 
-def aatrigon(surface, x1, y1, x2, y2, x3, y3, color):
+def aatrigon(surface, x1, y1, x2, y2, x3, y3, color, sdlgfx=None):
     """Draw anti-aliased trigon (triangle outline) with alpha blending.
 
     Args:
@@ -472,17 +527,19 @@ def aatrigon(surface, x1, y1, x2, y2, x3, y3, color):
         y3 (int): Y coordinate of the third point of the aa-trigon.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.aatrigonRGBA(
-        surface, x1, y1, x2, y2, x3, y3, c.r, c.g, c.b, c.a)
+    if sdlgfx.aatrigonRGBA(
+            surface, x1, y1, x2, y2, x3, y3, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.aatrigonRGBA failure")
 
 aatrigonRGBA = aatrigon
 
 
-def filled_trigon(surface, x1, y1, x2, y2, x3, y3, color):
+def filled_trigon(surface, x1, y1, x2, y2, x3, y3, color, sdlgfx=None):
     """Draw filled trigon (triangle) with alpha blending.
 
     Note: Creates vertex array and uses aapolygon routine to render.
@@ -498,17 +555,19 @@ def filled_trigon(surface, x1, y1, x2, y2, x3, y3, color):
         y3 (int): Y coordinate of the third point of the aa-trigon.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.filledTrigonRGBA(
-        surface, x1, y1, x2, y2, x3, y3, c.r, c.g, c.b, c.a)
+    if sdlgfx.filledTrigonRGBA(
+            surface, x1, y1, x2, y2, x3, y3, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.filledTrigonRGBA failure")
 
 filledTrigonRGBA = filled_trigon
 
 
-def polygon(surface, points, color):
+def polygon(surface, points, color, sdlgfx=None):
     """
     Draw polygon with alpha blending.
 
@@ -521,9 +580,10 @@ def polygon(surface, points, color):
     coordinates for the polygon.
     color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
     lx, ly = zip(*points)
 
@@ -532,12 +592,13 @@ def polygon(surface, points, color):
 
     n = len(vy)
 
-    return sdlgfx.polygonRGBA(surface, vx, vy, n, c.r, c.g, c.b, c.a)
+    if sdlgfx.polygonRGBA(surface, vx, vy, n, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.polygonRGBA failure")
 
 polygonRGBA = polygon
 
 
-def aapolygon(surface, points, color):
+def aapolygon(surface, points, color, sdlgfx=None):
     """
     Draw anti-aliased polygon with alpha blending.
 
@@ -550,9 +611,10 @@ def aapolygon(surface, points, color):
     coordinates for the aa-polygon.
     color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
     lx, ly = zip(*points)
 
@@ -561,12 +623,13 @@ def aapolygon(surface, points, color):
 
     n = len(vy)
 
-    return sdlgfx.aapolygonRGBA(surface, vx, vy, n, c.r, c.g, c.b, c.a)
+    if sdlgfx.aapolygonRGBA(surface, vx, vy, n, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.aapolygonRGBA failure")
 
 aapolygonRGBA = aapolygon
 
 
-def filled_polygon(surface, points, color):
+def filled_polygon(surface, points, color, sdlgfx=None):
     """
     Draw filled polygon with alpha blending.
 
@@ -579,9 +642,10 @@ def filled_polygon(surface, points, color):
     coordinates for the filled polygon.
     color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
     lx, ly = zip(*points)
 
@@ -590,12 +654,15 @@ def filled_polygon(surface, points, color):
 
     n = len(vy)
 
-    return sdlgfx.filledPolygonRGBA(surface, vx, vy, n, c.r, c.g, c.b, c.a)
+    if sdlgfx.filledPolygonRGBA(surface, vx, vy, n, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.filledPolygonRGBA failure")
 
 filledPolygonRGBA = filled_polygon
 
 
-def textured_polygon(surface, points, texture, texture_dx, texture_dy):
+def textured_polygon(
+    surface, points, texture, texture_dx, texture_dy, sdlgfx=None
+):
     """
     Draw a polygon filled with the given texture.
 
@@ -614,9 +681,10 @@ def textured_polygon(surface, points, texture, texture_dx, texture_dy):
         texture_dy (int): the vertical offset of the texture relative to
         the screeen.
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     lx, ly = zip(*points)
 
     vx = (ctypes.c_short * len(lx))(*lx)
@@ -624,13 +692,14 @@ def textured_polygon(surface, points, texture, texture_dx, texture_dy):
 
     n = len(vy)
 
-    return sdlgfx.texturedPolygon(
-        surface, vx, vy, n, texture, texture_dx, texture_dy)
+    if sdlgfx.texturedPolygon(
+            surface, vx, vy, n, texture, texture_dx, texture_dy):
+        raise SDLError("sdlgfx.texturedPolygon failure")
 
 texturedPolygon = textured_polygon
 
 
-def bezier(surface, points, steps, color):
+def bezier(surface, points, steps, color, sdlgfx=None):
     """
     Draw a bezier curve with alpha blending.
 
@@ -645,9 +714,10 @@ def bezier(surface, points, steps, color):
         steps (int): Number of steps for the interpolation.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
     lx, ly = zip(*points)
 
@@ -656,12 +726,13 @@ def bezier(surface, points, steps, color):
 
     n = len(vy)
 
-    return sdlgfx.bezierRGBA(surface, vx, vy, n, steps, c.r, c.g, c.b, c.a)
+    if sdlgfx.bezierRGBA(surface, vx, vy, n, steps, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.bezierRGBA failure")
 
 bezierRGBA = bezier
 
 
-def thick_line(surface, x1, y1, x2, y2, width, color):
+def thick_line(surface, x1, y1, x2, y2, width, color, sdlgfx=None):
     """Draw a thick line with alpha blending.
 
     Width of the line in pixels. Must be greater then 0.
@@ -676,11 +747,40 @@ def thick_line(surface, x1, y1, x2, y2, width, color):
         width (int): Width of the line in pixels. Must be >0.
         color (Color or 4-tuple with ints between 0-255): RGBA color
 
-    Returns:
-        Returns 0 on success, -1 on failure.
+    Raises:
+        SDLError
     """
+    sdlgfx = sdlgfx_tex if (sdlgfx is None or sdlgfx == "tex") else sdlgfx_sfc
     c = Color(*color)
-    return sdlgfx.thickLineRGBA(
-        surface, x1, y1, x2, y2, width, c.r, c.g, c.b, c.a)
+    if sdlgfx.thickLineRGBA(
+            surface, x1, y1, x2, y2, width, c.r, c.g, c.b, c.a):
+        raise SDLError("sdlgfx.thickLineRGBA failure")
 
 thickLineRGBA = thick_line
+
+
+def rotozoom_surface_xy(surface, angle, zoomx, zoomy, smooth):
+    """Rotate and zooms a surface.
+
+    Uses different horizontal and vertival scaling factors and optional
+    anti-aliasing.
+
+    Rotates and zooms a 32bit or 8bit 'src' surface to newly created 'dst'
+    surface. 'angle' is the rotation in degrees, 'zoomx and 'zoomy' scaling
+    factors. If 'smooth' is set then the destination 32bit surface is
+    anti-aliased. If the surface is not 8bit or 32bit RGBA/ABGR it will be
+    converted into a 32bit RGBA format on the fly.
+
+    Args:
+    src (SDL_Surface): The surface to rotozoom.
+    angle (float): The angle to rotate in degrees.
+    zoomx (float): The horizontal scaling factor.
+    zoomy (float): The vertical scaling factor.
+    smooth (sdl2.sdlgfx.SMOOTHING_OFF|SMOOTHING_ON): Antialiasing flag; set
+        to SMOOTHING_ON to enable.
+
+    Returns:
+        The new rotozoomed surface."""
+    return sdlgfx_tex.rotozoomSurfaceXY(surface, angle, zoomx, zoomy, smooth)
+
+rotozoomSurfaceXY = rotozoom_surface_xy

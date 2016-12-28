@@ -16,10 +16,10 @@ class InventoryTest(unittest.TestCase):
 
     def test_scene(self):
         """..."""
-        Manager(scene=SceneInventoryTest, test=True).execute()
+        Manager(scene=SceneLayerInventoryTest, test=True).execute()
 
 
-class SceneInventoryTest(SceneMultiLayer):
+class SceneLayerInventoryTest(SceneMultiLayer):
     """..."""
 
     def __init__(self, **kwargs):

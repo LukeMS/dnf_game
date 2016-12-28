@@ -1,0 +1,6 @@
+C:\Users\Lucas\Documents\Python\pygame\cnl\15_4_dnf_game\dnf_game\resources\tilesets\ind\cursor.png
+C:\Users\Lucas\Documents\Python\pygame\cnl\15_4_dnf_game\dnf_game\resources\tilesets\ind\_tile0035$default$32px$08v$16v$cavern_wall$Luis_Zunocaverns.png
+C:\Users\Lucas\Documents\Python\pygame\cnl\15_4_dnf_game\dnf_game\resources\tilesets\ind\_tile0062$default$32px$1p$2v$stone_stairs_down$dcss.png
+C:\Users\Lucas\Documents\Python\pygame\cnl\15_4_dnf_game\dnf_game\resources\tilesets\ind\DejaVuSansMono-Bold32.png
+C:\Users\Lucas\Documents\Python\pygame\cnl\15_4_dnf_game\dnf_game\resources\tilesets\ind\_tile0046$default$32px$16v$dungeon_floor$sharandra.png
+C:\Users\Lucas\Documents\Python\pygame\cnl\15_4_dnf_game\dnf_game\resources\tilesets\ind\window_32px.png

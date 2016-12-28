@@ -6,7 +6,7 @@ from dnf_game.scene_manager import Manager
 from dnf_game.scene_manager.scenes import base_scenes
 
 
-class MouseTestPySDL2(unittest.TestCase):
+class PySDL2MouseTest(unittest.TestCase):
     """..."""
 
     def setUp(self):
@@ -15,10 +15,10 @@ class MouseTestPySDL2(unittest.TestCase):
 
     def test_scene(self):
         """..."""
-        Manager(scene=SceneMouseTestPySDL2, test=True).execute()
+        Manager(scene=ScenePySDL2MouseTest, test=True).execute()
 
 
-class SceneMouseTestPySDL2(base_scenes.SceneBase):
+class ScenePySDL2MouseTest(base_scenes.SceneBase):
     """..."""
 
     def __init__(self, **kwargs):

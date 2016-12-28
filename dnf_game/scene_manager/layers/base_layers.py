@@ -2,7 +2,7 @@
 
 import sdl2
 
-from dnf_game.data.constants import COLORS
+from dnf_game.dnf_main.data_handler import get_color
 from dnf_game.scene_manager.base_entity import (EntityBase,
                                                 MultiLayeredEntityBase)
 from dnf_game.util import roundrobin, Font, LBPercentTable
@@ -521,7 +521,7 @@ class Choice(Layer):
         self.head_title_obj.center = (x, y)
 
         self.head_title_shadow_sfc = self.head_font.render(
-            self._title, True, COLORS["darker_gray"])
+            self._title, True, get_color("darker_gray"))
         self.head_title_shadow_obj = self.head_title_sfc.get_rect()
         self.head_title_shadow_obj.center = (x + 2, y + 2)
 
@@ -548,7 +548,7 @@ class Choice(Layer):
             txt_obj.midtop = x, y
 
             txt_shd_sfc = self.main_font.render(
-                item, True, COLORS["black"])
+                item, True, get_color("black"))
             txt_shd_obj = txt_shd_sfc.get_rect()
             txt_shd_obj.midtop = x + 2, y + 2
 
@@ -639,7 +639,7 @@ class Msg(Layer):
             msg_obj.center = self.center
             msg_sfc.set_rect(msg_obj)
 
-            msg_shadow_sfc = render(text, color=COLORS["gray"])
+            msg_shadow_sfc = render(text, color=get_color("gray"))
             msg_shadow_sfc.set_rect(msg_obj.move(2, 2))
 
             self.sprites = [msg_shadow_sfc, msg_sfc]
@@ -737,7 +737,7 @@ class Inventory(Layer):
     def create_fonts(self):
         """..."""
         fonts = self.fonts
-        color = COLORS["chartreuse"]
+        color = get_color("chartreuse")
         self.head_font = Font(font_size=26, color=color, renderer=fonts)
         self.main_font = Font(font_size=18, color=color, renderer=fonts)
 
@@ -759,7 +759,7 @@ class Inventory(Layer):
         head_title_sfc.set_rect(head_title_obj)
 
         head_title_shadow_sfc = head_font.render(
-            "< Inventory >", color=COLORS["black"])
+            "< Inventory >", color=get_color("black"))
         head_title_shadow_sfc.set_rect(head_title_obj.move(2, 2))
 
         self.head_rect = head_rect
@@ -833,7 +833,7 @@ class Inventory(Layer):
             txt_obj.top = self.main_rect.top + (self.main_item_h * row) + 12
             txt_sfc.set_rect(txt_obj)
 
-            txt_shd_sfc = main_font.render(text, color=COLORS["black"])
+            txt_shd_sfc = main_font.render(text, color=get_color("black"))
             txt_shd_sfc.set_rect(txt_obj.mode(2, 2))
 
             self.inv_render.append(txt_shd_sfc, txt_sfc)
@@ -873,7 +873,7 @@ class MsgLog(Layer):
 
     def add(self, string, color=None):
         if color is None:
-            color = COLORS["desaturated_green"]
+            color = get_color("desaturated_green")
         print(string)
         img = self.font.render(string, color)
         self._history.append(img)
@@ -904,7 +904,7 @@ class Hud(Layer):
         self.text = " "
         self.font = Font(name='caladea-bold.ttf', font_size=14,
                          renderer=parent.manager.fonts,
-                         color=COLORS["desaturated_green"])
+                         color=get_color("desaturated_green"))
         self.def_topright = self.parent.manager.width - 8, 8
 
         self.previous_text = None
@@ -954,9 +954,9 @@ class Bar(Layer):
             default_to_first=True,
             table=(
                 (0, (223, 0, 0, 192)),  # red
-                (25, (*COLORS["yellow"][:3], 176)),
-                (50, (*COLORS["lime"][:3], 160)),
-                (75, (*COLORS["green"][:3], 144))
+                (25, (*get_color("yellow")[:3], 176)),
+                (50, (*get_color("lime")[:3], 160)),
+                (75, (*get_color("green")[:3], 144))
             )
         )
         self.previous_value = None

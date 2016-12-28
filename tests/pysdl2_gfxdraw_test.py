@@ -8,7 +8,7 @@ from dnf_game.util.ext import gfxdraw
 from dnf_game.util.ext.rect import Rect
 
 
-class TextTestPySDL2(unittest.TestCase):
+class PySDL2GfxdrawTest(unittest.TestCase):
     """..."""
 
     def setUp(self):
@@ -17,10 +17,10 @@ class TextTestPySDL2(unittest.TestCase):
 
     def test_scene(self):
         """..."""
-        Manager(scene=SceneSDL2GfxdrawTest, test=False).execute()
+        Manager(scene=ScenePySDL2GfxdrawTest, test=False).execute()
 
 
-class SceneSDL2GfxdrawTest(base_scenes.SceneBase):
+class ScenePySDL2GfxdrawTest(base_scenes.SceneBase):
     """..."""
 
     def __init__(self, **kwargs):

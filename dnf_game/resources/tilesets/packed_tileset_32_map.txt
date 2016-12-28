@@ -1,0 +1,6 @@
+_tile0035$default$32px$08v$16v$cavern_wall$Luis_Zunocaverns = 0 512 512 256
+_tile0046$default$32px$16v$dungeon_floor$sharandra = 512 0 512 512
+_tile0062$default$32px$1p$2v$stone_stairs_down$dcss = 512 608 32 64
+cursor = 608 512 32 32
+DejaVuSansMono-Bold32 = 0 0 512 512
+window_32px = 512 512 96 96

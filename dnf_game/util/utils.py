@@ -8,6 +8,40 @@ import heapq
 import dnf_game
 
 
+def describe_error(e, info=None, dict_data=None):
+    from pprint import pformat
+    info = str(info) or " "
+    arg_zero = str(e.args[0]) or " "
+    if isinstance(e, (KeyError)):
+        e.args = (">key = ", arg_zero, "; >info=%s" % info,
+                  "; >data = ", dict_data)
+    else:
+        dict_data = pformat(dict_data, indent=4)
+        info = arg_zero + ";\n" + info + ";\n" + dict_data
+        e.args = (info, *e.args[1:])
+
+if __name__ == '__main__':
+    class F:
+        def __init__(self):
+            self.a = "a"
+            self.b = "b"
+            self.c = {**self.__dict__}
+
+    f = F()
+    try:
+        f.d
+    except AttributeError as e:
+        info = "This is a custom AttributeError description"
+        describe_error(e, info, f.__dict__)
+        raise
+    try:
+        f.c["c"]
+    except KeyError as e:
+        info = "This is a custom KeyError description"
+        describe_error(e, info, f.__dict__)
+        raise
+
+
 class SingletonMeta(type):
     """Restrict the instantiation of each class to one object.
 
@@ -28,9 +62,9 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 
-def dnf_path():
+def dnf_path(*args):
     """Get the dnf_game base path."""
-    return os.path.join(os.path.dirname(dnf_game.__file__))
+    return os.path.join(os.path.dirname(dnf_game.__file__), *args)
 
 
 class Font(object):

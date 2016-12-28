@@ -4,10 +4,11 @@ import unittest
 
 from dnf_game.scene_manager import Manager
 from dnf_game.scene_manager.scenes import base_scenes
+from dnf_game.util.ext import gfxdraw
 from dnf_game.util.ext.rect import Rect
 
 
-class GradientSpriteTestPySDL2(unittest.TestCase):
+class PySDL2TextTest(unittest.TestCase):
     """..."""
 
     def setUp(self):
@@ -16,20 +17,22 @@ class GradientSpriteTestPySDL2(unittest.TestCase):
 
     def test_scene(self):
         """..."""
-        Manager(scene=SceneGradientSpriteTestPySDL2, test=True).execute()
+        Manager(scene=ScenePySDL2TextTest, test=False).execute()
 
 
-class SceneGradientSpriteTestPySDL2(base_scenes.SceneBase):
+class ScenePySDL2TextTest(base_scenes.SceneBase):
     """..."""
 
     def __init__(self, **kwargs):
         """..."""
         super().__init__(**kwargs)
-        from_gradient = self.manager.factory.from_gradient
-        self.sprite = from_gradient(color_start=(10, 36, 106, 0),
-                                    color_end=(166, 202, 240, 0),
-                                    rect=Rect(0, 0, 320, 240),
-                                    mode="v")
+        rect = Rect(50, 50, 200, 50)
+        color = (255, 0, 0, 255)
+        surface = self.factory.create_surface(rect.w, rect.h)
+        gfxdraw.hlineRGBA(surface, 0, 50, 25, color,
+                          sdlgfx="sfc")
+
+        self.sprite = self.factory.from_surface(surface)
 
     def on_update(self):
         """..."""

@@ -4,10 +4,9 @@ import unittest
 
 from dnf_game.scene_manager import Manager
 from dnf_game.scene_manager.scenes import base_scenes
-from dnf_game.scene_manager.layers import base_layers
 
 
-class GradientWindowTestPySDL2(unittest.TestCase):
+class PySDL2TextTest(unittest.TestCase):
     """..."""
 
     def setUp(self):
@@ -16,19 +15,23 @@ class GradientWindowTestPySDL2(unittest.TestCase):
 
     def test_scene(self):
         """..."""
-        Manager(scene=LayerMsgLogTest, test=True).execute()
+        Manager(scene=ScenePySDL2TextTest, test=False).execute()
 
 
-class LayerMsgLogTest(base_scenes.SceneMultiLayer):
+class ScenePySDL2TextTest(base_scenes.SceneBase):
     """..."""
 
     def __init__(self, **kwargs):
         """..."""
         super().__init__(**kwargs)
-        msg_log = base_layers.MsgLog(parent=self)
-        self.insert_layer(msg_log)
-        msg_log.add("One")
-        msg_log.add("Two")
+        self.text = self.manager.fonts.render(
+            "Lorem Ipsum", "caladea-regular.ttf", 16, (255, 127, 255))
+        print(type(self.text))
+        self.window = self.manager._window
+
+    def on_update(self):
+        """..."""
+        self.manager.spriterenderer.render(sprites=self.text)
 
 
 if __name__ == '__main__':

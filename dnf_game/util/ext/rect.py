@@ -36,8 +36,7 @@ PygameSDL2 Notice:
 ----------------------------------------------------------------------------
 """
 
-import warnings
-
+from sdl2 import SDL_Rect
 from dnf_game.util import flatten
 
 
@@ -651,24 +650,25 @@ class Rect:
                 other.y >= self.y and other.bottom <= self.bottom and
                 other.left < self.right and other.top < self.bottom)
 
-    def collidepoint(self, x, y=None):
+    def collidepoint(self, x, y):
         """Test if a point is inside a rectangle.
 
-        Returns true if the given point is inside the rectangle. A point
+        Returns True if the given point is inside the rectangle. A point
         along the right or bottom edge is not considered to be inside the
         rectangle.
 
+        Args:
+            x (int): X (horizontal) coordinate of the point
+            y (int): Y (vertical) coordinate of the point
+
         Usage:
-            rect.collidepoint(x, y)
-            rect.collidepoint((x,y))
+            rect.collidepoint(0, 3)
+            rect.collidepoint(x=0, y=3)
 
         Returns:
             bool
         """
-        if type(x) == tuple:
-            x, y = x
-        return (x >= self.x and y >= self.y and
-                x < self.right and y < self.bottom)
+        return (self.right > x >= self.x) and (self.bottom > y >= self.y)
 
     def colliderect(self, other):
         """Test if two rectangles overlap.
@@ -769,23 +769,16 @@ class Rect:
                if colliderect(val)]
         return ret
 
-    def gap(self, other_rect):
-        """..."""
-        warnings.warn(
-            FutureWarning("Rect.gap is in earley experimental stage."))
-        rect_a = Rect(self).normalize()
-        rect_b = Rect(other_rect).normalize()
-        if rect_a.colliderect(rect_b):
-            return None
-        left = min(rect_a.right, rect_b.right) + 1
-        top = min(rect_a.bottom, rect_b.bottom) + 1
-        right = max(rect_a.left, rect_b.left) - 1
-        bottom = max(rect_a.top, rect_b.top) - 1
-        width = right - left
-        height = bottom - top
-        r = Rect(left, top, width, height)
-        if r.collidelist([rect_a, rect_b]) != -1:
-            print("overlapping gap: %s, rect_a: %s, rect_b: %s" % (
-                r, rect_a, rect_b))
-            return None
-        return r
+
+def to_sdl_rect(rl):
+    """Convert `rectlike` to the SDL_Rect `rect`.
+
+    Args:
+        rl (tuple|Rect): a rectlike object to be converted, may be a Rect or
+        a (x, y, w, h) tuple.
+    Returns:
+        SDL_Rect
+    """
+
+    rl = Rect(rl)
+    return SDL_Rect(rl.x, rl.y, rl.w, rl.h)

@@ -3,53 +3,55 @@
 import os
 import random
 
-from dnf_game.util import packer, dnf_path
+from dnf_game.util import packer, dnf_path, SingletonMeta
+from dnf_game.util.ext.queries import Query, where
 
 PATH = dnf_path()
 
 
-class Bestiary:
+class Bestiary(metaclass=SingletonMeta):
     """...
 
     Usage:
-        bestiary = Bestiary()
-        bestiary.get("aasimar")
+        Bestiary().get("aasimar")
     """
 
-    @classmethod
-    def __init__(cls, optmize=False):
+    _cr_dict = None
+    _db = None
+
+    def __init__(self, optmize=False):
         """..."""
-        _path = os.path.join(PATH, 'data')
 
-        fname = os.path.join(_path, 'bestiary_optimized.bzp')
+    @property
+    def cr_dict(self):
+        """Return cr_dict."""
+        if getattr(self, "_cr_dict") is None:
+            print("%s: caching cr_dict" % self.__class__.__name__)
 
-        cls.db = packer.unpack_json(fname)
+            cr_dict = {}
+            for k, v in self.db.items():
+                cr = float(v.__getitem__('cr'))
+                try:
+                    cr_dict[cr].append(v.__getitem__('def_name'))
+                except KeyError:
+                    cr_dict[cr] = []
+                    cr_dict[cr].append(v.__getitem__('def_name'))
+            self._cr_dict = cr_dict
 
-        cls.create_cr_dict()
+        return self._cr_dict
 
-    @classmethod
-    def create_cr_dict(cls):
+    @property
+    def db(self):
+        """Return db."""
+        if getattr(self, "_db") is None:
+            print("%s: caching db" % self.__class__.__name__)
+            fname = os.path.join(dnf_path(), 'data', 'bestiary_optimized.bzp')
+            self._db = packer.unpack_json(fname)
+        return self._db
+
+    def filter_empty_melee(self, creature_key):
         """..."""
-        cls.cr_dict = {}
-        for creature in sorted(list(cls.db.keys())):
-            cr = float(cls.db[creature]['cr'])
-            if cr not in cls.cr_dict:
-                cls.cr_dict[cr] = []
-            cls.cr_dict[cr].append(cls.db[creature]['def_name'])
-        return cls.cr_dict
-
-    @classmethod
-    def print_cr_dict(cls):
-        """..."""
-        if "cr_dict" not in cls.__dict__:
-            cls.create_cr_dict()
-        for cr in sorted(list(cls.cr_dict.keys())):
-            print("CR {}: {}".format(cr, cls.cr_dict[cr]))
-
-    @classmethod
-    def filter_empty_melee(cls, creature_key):
-        """..."""
-        creature = cls.db[creature_key]
+        creature = self.db[creature_key]
         status = creature['melee'] != ""
         print("Creature {}'s melee: '{}', valid:{}".format(
             creature_key,
@@ -58,20 +60,31 @@ class Bestiary:
         ))
         return status
 
-    @classmethod
-    def get_model(cls):
-        """..."""
-        return random.choice(cls.get_filtered())
+    def search(self, cond):
+        """Search for all elements matching a 'where' cond.
 
-    @classmethod
-    def get(cls, creature=None):
-        """..."""
-        if creature is None:
-            model = cls.get_model()
-        else:
-            model = creature
+        :param cond: the condition to check against
+        :type cond: Query
 
-        creature = cls.db[model]
+        :returns: list of matching elements
+        :rtype: list[Element]
+        """
+        elements = [element for element in self.db.values() if cond(element)]
+
+        return elements
+
+    def get_model(self):
+        """..."""
+        creature = Query()
+        creatures = self.search((creature.cr != "") &
+                                (creature.melee != ""))
+        return random.choice(creatures)
+
+    def get(self, creature=None):
+        """..."""
+        creature = (self.db.__getitem__(creature)
+                    if creature
+                    else self.get_model())
 
         if creature["type"] in [
             "aberration", "vermin", "outsider", "undead", "magical beast",
@@ -116,120 +129,31 @@ class Bestiary:
 
         return creature
 
-    @classmethod
-    def get_by_cr(cls, cr):
+    def get_by_cr(self, cr):
         """..."""
         cr = float(cr)
-        return random.choice(cls.cr_dict[cr])
+        return random.choice(self.cr_dict[cr])
 
-    @classmethod
-    def get_field(cls, string):
+    def get_field(self, string):
         """..."""
-        list_ = []
-        for creature in cls.db.keys():
-            list_.append(cls.db[creature][string])
-        return list_
+        return [v[string] for v in self.db.values()]
 
-    @classmethod
-    def get_field_with_value(cls, string, value=None):
+    def get_field_with_value(self, string, value=None):
         """..."""
-        d = {}
-        [d.update({key: field[string]})
-         for key, field in cls.db.items() if not value or
-         field[string] == value]
-        return d
+        return self.search((where(string) == value))
 
-    @classmethod
-    def get_filtered(cls, filter_list=None):
-        """...
-
-        filter_list: a list of 4 element tuples containing:
-            [0] the key to be searched;
-            [1] the value to be searched;
-            [2] the re function (match or search);
-            [3] the condition: if True, the result will be valid
-            if the function returns True.
-        """
-        filter_list = filter_list if filter_list else []
-        import re
-
-        matches = []
-
-        for name, creature in cls.db.items():
-            match = True
-            if name == "":
-                continue
-            if creature['def_name'] == "":
-                continue
-            if creature['melee'] == "":
-                continue
-            for filter in filter_list:
-                field, pattern, func, match = filter
-                func = getattr(re, func)
-                string = creature[field]
-                match_result = True
-                if pattern is None or string is None:
-                    if match:
-                        if pattern == string:
-                            continue
-                        else:
-                            match_result = False
-                            break
-                    else:
-                        if pattern == string:
-                            match_result = False
-                            break
-                        else:
-                            continue
-                else:
-                    result = func(pattern, string)
-                    if result:
-                        if filter[3]:
-                            continue
-                        else:
-                            match_result = False
-                            break
-                    else:
-                        if not filter[3]:
-                            continue
-                        else:
-                            match_result = False
-                            break
-            if match_result:
-                matches.append(name)
-
-        return matches
-
-Bestiary()
-
-"""
-Get a beast by its name:
-    Bestiary.get("tarrasque")
-
-Get a beast that pass on certain filters:
-    Bestiary.get_filtered(filter_list=[
-        ("type", "aberration", "match", True)
-    ])
-"""
-"""
-    print(Bestiary.get_filtered(filter_list=[
-        ("feats", "light armor proficiency", "search", True)
-    ]))
-"""
-
-"""
-Get all "field" values of existing monsters:
-    fields = set()
-    bestiary_fields = Bestiary.get_field("source")
-    for creature in bestiary_fields:
-        for feat in creature.split(","):
-            fields.add(feat.strip())
-
-    import json
-    print(json.dumps(list(fields), indent=4))
-"""
 
 if __name__ == '__main__':
-    print(Bestiary.get_filtered(filter_list=[
-        ("treasure", "SQ", "search", True)
-    ]))
+    from dnf_game.util.rnd_utils import rnd_cr_per_level
+    b = Bestiary()
+    b.get()
+    b.get("tarrasque")
+    b.search((
+        (where('type') == "aberration") &
+        (where('hp') < 10)
+    ))
+    b.search((
+        (where('feats').any(["light armor proficiency"]))
+    ))
+    from pprint import pprint
+    pprint(b.get_by_cr(rnd_cr_per_level(2)), indent=4)

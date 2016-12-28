@@ -6,6 +6,7 @@ from dnf_game.dnf_main.components import combat
 from dnf_game.dnf_main.data_handler.bestiary import Bestiary
 from dnf_game.dnf_main.map_entities import NPCreature
 from dnf_game.util import tree_view
+from dnf_game.util.ext.queries import where
 
 
 class TestBeast(unittest.TestCase):
@@ -49,13 +50,15 @@ class TestBeast(unittest.TestCase):
 
     def test_all_dragons(self):
         """..."""
-        d = {k: None for k in Bestiary.get_filtered(
-            filter_list=[
-                ("type", "dragon", "match", True)])}
+        b = Bestiary()
+        l = (b.search(
+            (where('type') == "dragon")
+        ))
 
-        for template in d:
-            d[template] = NPCreature(
-                name=template, scene=self._scene, pos=(0, 0)).combat
+        d = {template["def_name"]: NPCreature(name=template["def_name"],
+                                              scene=self._scene,
+                                              pos=(0, 0)).combat
+             for template in l}
 
         if __name__ == '__main__':
             tree_view.tree_view(d, expand=[combat.creatures.Beast])

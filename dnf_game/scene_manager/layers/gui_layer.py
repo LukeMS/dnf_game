@@ -1,435 +1,395 @@
 """..."""
 
-import string
+from array import array
 
-from dnf_game.data.constants import COLORS
-from dnf_game.scene_manager.layers.base_layers import Layer
+import sdl2
+
+from dnf_game.dnf_main.data_handler import get_color
+from dnf_game.scene_manager.layers.base_layers import Layer, LayerMultiLayer
 from dnf_game.util.ext import gfxdraw
 from dnf_game.util.ext.rect import Rect
 
 
-class GUILayer(Layer):
+class GUILayer(LayerMultiLayer):
     """..."""
 
     def __init__(self, *, parent, **kwargs):
         """..."""
         super().__init__(parent=parent, **kwargs)
-        self.buttons = []
-        self.textboxes = []
 
     def create_button(self, **kwargs):
         """..."""
         button = GuiButton(parent=self, **kwargs)
-        self.buttons.append(button)
+        self.insert_layer(button)
 
     def create_textbox(self, **kwargs):
         """..."""
-        textbox = GuiButton(parent=self, **kwargs)
-        self.textboxes.append(textbox)
-
-    def on_key_press(self, event, mod):
-        """Called on keyboard input, when a key is held down."""
-        [element.on_key_press(event, mod)
-         for group in [self.buttons, self.textboxes]
-         for element in group
-         if element.active]
-
-    def on_key_release(self, event, mod):
-        """Called on keyboard input, when a key is released."""
-        [element.on_key_release(event, mod)
-         for group in [self.buttons, self.textboxes]
-         for element in group
-         if element.active]
-
-    def on_mouse_drag(self, x, y, dx, dy, button):
-        """Called when mouse buttons are pressed and the mouse is dragged."""
-        [element.on_mouse_drag(x, y, dx, dy, button)
-         for group in [self.buttons, self.textboxes]
-         for element in group
-         if element.active]
-
-    def on_mouse_motion(self, x, y, dx, dy):
-        """Called when the mouse is moved."""
-        [element.on_mouse_motion(x, y, dx, dy)
-         for group in [self.buttons, self.textboxes]
-         for element in group
-         if element.active]
-
-    def on_mouse_press(self, event, x, y, button, double):
-        """Called when mouse buttons are pressed."""
-        [element.on_mouse_press(event, x, y, button, double)
-         for group in [self.buttons, self.textboxes]
-         for element in group
-         if element.active]
-
-    def on_mouse_scroll(self, event, offset_x, offset_y):
-        """Called when the mouse wheel is scrolled."""
-        [element.on_mouse_scroll(event, offset_x, offset_y)
-         for group in [self.buttons, self.textboxes]
-         for element in group
-         if element.active]
-
-    def on_update(self):
-        """Graphical logic."""
-        [element.on_update()
-         for group in [self.buttons, self.textboxes]
-         for element in group
-         if element.visible]
+        textbox = GuiTextbox(parent=self, **kwargs)
+        self.insert_layer(textbox)
 
 
 class GuiElementBase(Layer):
-    """..."""
-
-    def __init__(self, *args, **kwargs):
-        """Initialization."""
-        super().__init__(*args, **kwargs)
-        self.active = True
-        self.visible = True
+    """Base for GUI elements."""
 
 
 class GuiButton(GuiElementBase):
     """Button GUI element."""
 
+    clicked = False
+    hovered = False
+    disabled = False
+
+    radius = 15
+    click_sound = None
+    hover_sound = None
+
+    states = ["regular", "clicked", "hovered", "disabled"]
+
+    regular_color = (160, 160, 160)
+    regular_color_mod = None
+    regular_alpha_mod = None
+
+    clicked_color = None
+    clicked_color_mod = (160, 160, 180)
+    clicked_alpha_mod = None
+
+    hovered_color = None
+    hovered_color_mod = (255, 255, 160)
+    hovered_alpha_mod = None
+
+    disabled_color = None
+    disabled_color_mod = 0.7
+    disabled_alpha_mod = 127
+
+    regular_text = None
+    regular_font = "caladea-regular.ttf"
+    regular_font_size = 16
+    regular_font_color = (31, 31, 63)
+    regular_font_color_mod = None
+
+    clicked_text = None
+    clicked_font = None
+    clicked_font_size = None
+    clicked_font_color = None
+    clicked_font_color_mod = None
+
+    hovered_text = None
+    hovered_font = "caladea-bold.ttf"
+    hovered_font_size = None
+    hovered_font_color = (7, 7, 15)
+    hovered_font_color_mod = None
+
+    disabled_text = None
+    disabled_font = "caladea-italic.ttf"
+    disabled_font_size = None
+    disabled_font_color = None
+    disabled_font_color_mod = 0.7
+
     def __init__(self, rect, command, **kwargs):
-        """Initialization.
-
-        Optional kwargs and their defaults:
-            "color"             : pg.Color('red'),
-            "text"              : None,
-            "font"              : None, #pg.font.Font(None,16),
-            "call_on_release"   : True,
-            "hover_color"       : None,
-            "clicked_color"     : None,
-            "font_color"        : pg.Color("white"),
-            "hover_font_color"  : None,
-            "clicked_font_color": None,
-            "click_sound"       : None,
-            "hover_sound"       : None,
-            'border_color'      : pg.Color('black'),
-            'border_hover_color': pg.Color('yellow'),
-            'disabled'          : False,
-            'disabled_color'     : pg.Color('grey'),
-            'radius'            : 3,
-
-        Values:
-            self.command = command
-            self.clicked = False
-            self.hovered = False
-            self.hover_text = None
-            self.clicked_text = None
-        """
+        """Initialization."""
         super().__init__(rect=rect, **kwargs)
+        self.__dict__.update(kwargs)
+
+        self.sprites = {}
         self.command = command
 
-        self.clicked = False
-        self.hovered = False
-        self.hover_text = None
-        self.clicked_text = None
+        self.create_buttons()
+        self.create_text()
 
-        self.process_kwargs(kwargs)
+    def create_buttons(self):
+        """Create the button sprites."""
+        sdlrenderer = self.sdlrenderer
+        new_render_target = self.factory.new_render_target
+        from_new_texture = self.factory.from_new_texture
 
-        self.render_text()
+        rad = self.radius
+        size = self.size
+        rect = Rect(0, 0, *size)
+        color = self.regular_color
 
-    def process_kwargs(self, kwargs):
-        """..."""
-        settings = {
-            "color": COLORS['red'],
-            "text": None,
-            "font": None,  # pg.font.Font(None,16),
-            "call_on_release": True,
-            "hover_color": None,
-            "clicked_color": None,
-            "font_color": COLORS["white"],
-            "hover_font_color": None,
-            "clicked_font_color": None,
-            "click_sound": None,
-            "hover_sound": None,
-            'border_color': COLORS['black'],
-            'border_hover_color': COLORS['yellow'],
-            'disabled': False,
-            'disabled_color': COLORS['grey'],
-            'radius': 15,
-        }
-        self.__dict__.update({**settings, **kwargs})
+        # e.g. regular_color, regular_color_mod
+        for state in self.states:
+            sprite = from_new_texture(*size)
+            sprite_color = getattr(self, "%s_color" % state) or color
+            color_mod = getattr(self, "%s_color_mod" % state)
+            alpha_mod = getattr(self, "%s_alpha_mod" % state)
+            with new_render_target(sprite.texture):
+                gfxdraw.rounded_box(sdlrenderer,
+                                    rect, rad, sprite_color)
+            sprite.set_color_mod(color_mod)
+            sprite.set_alpha_mod(alpha_mod)
 
-    def center_on(self, sprite, ref):
-        """..."""
-        rect = sprite.get_rect()
-        rect.center = ref.get_rect().center
-        sprite.position = rect.topleft
+            sprite.position = self.topleft
 
-    def render_text(self):
-        """Pre render the button text."""
+            self.sprites[state] = [sprite]
+
+    def create_text(self):
+        """Create the text sprites."""
         fonts = self.manager.fonts
-        if self.text:
-            if self.hover_font_color:
-                color = self.hover_font_color
-                self.hover_text = fonts.render(
-                    text=self.text, name=self.font_name, size=self.font_size,
-                    color=color)
 
-            if self.clicked_font_color:
-                color = self.clicked_font_color
-                self.clicked_text = fonts.render(
-                    text=self.text, name=self.font_name, size=self.font_size,
-                    color=color)
+        text = self.regular_text
+        font = self.regular_font
+        color = self.regular_font_color
+        size = self.regular_font_size
 
-            self.text = fonts.render(
-                text=self.text, name=self.font_name, size=self.font_size,
-                color=self.font_color)
+        # e.g. regular_text, regular_font, regular_font_size,
+        # regular_font_color, regular_font_color_mod
+        for state in self.states:
+            sprite_text = getattr(self, "%s_text" % state) or text
+            sprite_font = getattr(self, "%s_font" % state) or font
+            sprite_size = getattr(self, "%s_font_size" % state) or size
+            sprite_color = getattr(self, "%s_font_color" % state) or color
+            sprite_color_mod = getattr(self, "%s_font_color_mod" % state)
 
-    def on_key_press(self, event, mod):
-        """Called on keyboard input, when a key is held down."""
-        return
-        [element.on_key_press(event, mod)
-         for group in [self.buttons, self.textboxes]
-         for element in group
-         if element.active]
+            sprite = fonts.render(text=sprite_text, name=sprite_font,
+                                  size=sprite_size, color=sprite_color)
 
-    def on_key_release(self, event, mod):
-        """Called on keyboard input, when a key is released."""
-        return
-        [element.on_key_release(event, mod)
-         for group in [self.buttons, self.textboxes]
-         for element in group
-         if element.active]
+            sprite.set_color_mod(sprite_color_mod)
 
-    def on_mouse_drag(self, x, y, dx, dy, button):
-        """Called when mouse buttons are pressed and the mouse is dragged."""
-        return
-        [element.on_mouse_drag(x, y, dx, dy, button)
-         for group in [self.buttons, self.textboxes]
-         for element in group
-         if element.active]
+            button_sprite = self.sprites[state][0]
+            sprite.center_on(button_sprite)
+
+            self.sprites[state] = (button_sprite, sprite)
+
+    def on_update(self):
+        """super__doc__."""
+        if self.disabled:
+            state = "disabled"
+        elif self.clicked:
+            state = "clicked"
+        elif self.hovered:
+            state = "hovered"
+        else:
+            state = "regular"
+
+        self.manager.spriterenderer.render(sprites=self.sprites[state])
 
     def on_mouse_motion(self, x, y, dx, dy):
         """Called when the mouse is moved."""
         if self.collidepoint(x=x, y=y):
-            if not self.hovered:
-                self.hovered = True
-                if self.hover_sound:
-                    self.hover_sound.play()
+            if not self.hovered and self.hover_sound:
+                self.hover_sound.play()
+            self.hovered = True
+            self.on_update()
         else:
             self.hovered = False
 
     def on_mouse_press(self, event, x, y, button, double):
         """Called when mouse buttons are pressed."""
-        print("mouse pressed")
         if self.collidepoint(x=x, y=y):
-            self.clicked = True
-            self.draw()
-            self.command()
-        self.clicked = False
-
-    def on_mouse_scroll(self, event, offset_x, offset_y):
-        """Called when the mouse wheel is scrolled."""
-        return
-        [element.on_mouse_scroll(event, offset_x, offset_y)
-         for group in [self.buttons, self.textboxes]
-         for element in group
-         if element.active]
-
-    def draw(self):
-        """
-        Args:
-            surface: screen
-        Call once on your main game loop
-        """
-        color = self.color
-        text = self.text
-        border = self.border_color
-        if not self.disabled:
-            if self.clicked and self.clicked_color:
-                color = self.clicked_color
-                if self.clicked_font_color:
-                    text = self.clicked_text
-            elif self.hovered and self.hover_color:
-                color = self.hover_color
-                if self.hover_font_color:
-                    text = self.hover_text
-
-            if self.hovered and not self.clicked:
-                border = self.border_hover_color
+            if button == "RIGHT":
+                self.disabled = not self.disabled
+            else:
+                self.clicked = True
+                self.command()
+                self.on_update()
         else:
-            color = self.disabled_color
+            self.clicked = False
 
-        if self.radius:
-            rad = self.radius
-        else:
-            rad = 0
-        manager = self.manager
-        factory = manager.factory
-        renderer = manager.renderer
-        self.sprite = factory.from_new_texture(*self.size)
-        texture = self.sprite.texture
-
-        with factory.new_render_target(texture):
-            rect = Rect(0, 0, *self.size)
-            gfxdraw.rounded_box(renderer.sdlrenderer,
-                                rect, rad, color)
-            self.sprite.position = self.topleft
-
-        if self.text:
-            self.center_on(self.text, self.sprite)
-            sprites = (self.sprite, self.text)
-        else:
-            sprites = self.sprite
-
-        manager.spriterenderer.render(sprites=sprites)
+    def texture_loader(self):
+        """..."""
+        pass
 
 
-class GuiTextBox(object):
-    """
-    Example can found in run_textbox.py.py
+class GuiTextbox(GuiButton):
+    """Textbox GUI element."""
 
-    """
+    states = ["regular", "disabled"]
 
-    def __init__(self, rect, **kwargs):
+    radius = 0
+
+    regular_color = get_color("darkest_grey")
+    regular_color_mod = None
+    regular_alpha_mod = None
+
+    regular_font_color = get_color("green")
+
+    outline_color = get_color("black")
+    outline_width = 2
+    clear_on_execute = False  # remove text upon enter
+    disable_on_execute = True
+    blink_speed = 500  # prompt blink time in milliseconds
+    delete_speed = 60  # backspace held clear speed in milliseconds
+
+    def __init__(self, rect, command, **kwargs):
         """Initialization.
 
-        Optional kwargs and their defaults:
-            "id": None,
-            "command": None,
-                function to execute upon enter key
-                Callback for command takes 2 args, id and final (the string
-                in the textbox)
-            "active" : True,
-                textbox active on opening of window
-            "color" : pg.Color("white"),
-                background color
-            "font_color" : pg.Color("black"),
-            "outline_color" : pg.Color("black"),
-            "outline_width" : 2,
-            "active_color" : pg.Color("blue"),
-            "font" : pg.font.Font(None, self.rect.height+4),
-            "clear_on_enter" : False,
-                remove text upon enter
-            "inactive_on_enter" : True
-            "blink_speed": 500
-                prompt blink time in milliseconds
-            "delete_speed": 500
-                backspace held clear speed in milliseconds
-
-        Values:
-            self.buffer = []
-            self.final = None
-            self.rendered = None
-            self.render_rect = None
-            self.render_area = None
-            self.blink = True
-            self.blink_timer = 0.0
-            self.delete_timer = 0.0
-            self.accepted = (string.ascii_letters + string.digits +
-                             string.punctuation + " ")
+        Args.:
+            command (method): callback to execute when enter key is pressed.
+                Callback will receive 2 arguments: id and final (the string
+                in the textbox).
         """
-        super().__init__(rect=rect, **kwargs)
-        self.buffer = []
-        self.final = None
-        self.rendered = None
-        self.render_rect = None
-        self.render_area = None
+        self.buffer = array("B")
         self.blink = True
         self.blink_timer = 0.0
         self.delete_timer = 0.0
-        self.accepted = (string.ascii_letters + string.digits +
-                         string.punctuation + " ")
-        self.process_kwargs(kwargs)
 
-    def process_kwargs(self, kwargs):
+        super().__init__(rect=rect, command=command, **kwargs)
+
+        self.create_cursor()
+        self.manager.set_text_input(True, self)
+
+    def on_text_input(self, event):
         """..."""
-        defaults = {"id": None,
-                    "command": None,
-                    "active": True,
-                    "color": pg.Color("white"),
-                    "font_color": pg.Color("black"),
-                    "outline_color": pg.Color("black"),
-                    "outline_width": 2,
-                    "active_color": pg.Color("blue"),
-                    "font": pg.font.Font(None, self.rect.height + 4),
-                    "clear_on_enter": False,
-                    "inactive_on_enter": True,
-                    "blink_speed": 500,
-                    "delete_speed": 75}
-        for kwarg in kwargs:
-            if kwarg in defaults:
-                defaults[kwarg] = kwargs[kwarg]
-            else:
-                raise KeyError("TextBox accepts no keyword {}.".format(kwarg))
-        self.__dict__.update(defaults)
+        if event.type == sdl2.SDL_TEXTINPUT:
+            self.buffer.append(ord(event.text.text))
+            self.create_text()
 
-    def get_event(self, event, mouse_pos=None):
-        """Call this on your event loop.
+    def on_key_press(self, event, mod):
+        """super__doc__."""
+        sym = event.key.keysym.sym
+        if sym == sdl2.SDLK_BACKSPACE:
+            self.handle_backspace()
 
-            for event in pg.event.get():
-                TextBox.get_event(event)
-        """
-        if event.type == pg.KEYDOWN and self.active:
-            if event.key in (pg.K_RETURN, pg.K_KP_ENTER):
-                self.execute()
-            elif event.key == pg.K_BACKSPACE:
-                if self.buffer:
-                    self.buffer.pop()
-            elif event.unicode in self.accepted:
-                self.buffer.append(event.unicode)
-        elif event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-            if not mouse_pos:
-                mouse_pos = pg.mouse.get_pos()
-            self.active = self.rect.collidepoint(mouse_pos)
+    def on_key_release(self, event, mod):
+        """super__doc__."""
+        sym = event.key.keysym.sym
+        if sym == sdl2.SDLK_RETURN:
+            self.execute()
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        """super__doc__."""
+        if self.collidepoint(x=x, y=y):
+            self.disabled = False
+        else:
+            self.disabled = True
+
+    def on_mouse_press(self, event, x, y, button, double):
+        """super__doc__."""
+        if self.collidepoint(x=x, y=y):
+            self.disabled = False
+        else:
+            self.disabled = True
 
     def execute(self):
         """..."""
         if self.command:
-            self.command(self.id, self.final)
-        self.active = not self.inactive_on_enter
-        if self.clear_on_enter:
-            self.buffer = []
+            self.command(self, self.regular_text)
+        self.active = not self.disable_on_execute
+        if self.clear_on_execute:
+            del self.buffer[:]
 
     def switch_blink(self):
         """..."""
-        if pg.time.get_ticks() - self.blink_timer > self.blink_speed:
+        ticks = sdl2.SDL_GetTicks()
+        if ticks - self.blink_timer > self.blink_speed:
             self.blink = not self.blink
-            self.blink_timer = pg.time.get_ticks()
+            self.blink_timer = ticks
 
-    def update(self):
-        """
-        Call once on your main game loop
-        """
-        new = "".join(self.buffer)
-        if new != self.final:
-            self.final = new
-            self.rendered = self.font.render(self.final, True, self.font_color)
-            self.render_rect = self.rendered.get_rect(x=self.rect.x + 2,
-                                                      centery=self.rect.centery)
-            if self.render_rect.width > self.rect.width - 6:
-                offset = self.render_rect.width - (self.rect.width - 6)
-                self.render_area = pg.Rect(offset, 0, self.rect.width - 6,
-                                           self.render_rect.height)
+    def handle_backspace(self):
+        """..."""
+        ticks = sdl2.SDL_GetTicks()
+        if ticks - self.delete_timer > self.delete_speed:
+            self.delete_timer = ticks
+            try:
+                self.buffer.pop()
+            except IndexError:
+                pass
             else:
-                self.render_area = self.rendered.get_rect(topleft=(0, 0))
+                self.create_text()
+
+    @property
+    def regular_text(self):
+        """..."""
+        return self.buffer.tobytes().decode("utf-8") or " "
+
+    def create_cursor(self):
+        """..."""
+        self.cursor = self.fonts.render(
+            text="|", name=self.regular_font, size=self.regular_font_size,
+            color=self.regular_font_color)
+        self.cursor.set_color_mod(self.regular_font_color_mod)
+
+    def on_update(self):
+        """super__doc__."""
         self.switch_blink()
-        self.handle_held_backspace()
+        if self.disabled:
+            state = "disabled"
+        elif self.clicked:
+            state = "clicked"
+        elif self.hovered:
+            state = "hovered"
+        else:
+            state = "regular"
 
-    def handle_held_backspace(self):
-        if pg.time.get_ticks() - self.delete_timer > self.delete_speed:
-            self.delete_timer = pg.time.get_ticks()
-            keys = pg.key.get_pressed()
-            if keys[pg.K_BACKSPACE]:
-                if self.buffer:
-                    self.buffer.pop()
+        sprites = self.sprites[state]
 
-    def draw(self, surface):
-        """
-        Call once on your main game loop
-        """
-        outline_color = self.active_color if self.active else self.outline_color
-        outline = self.rect.inflate(
-            self.outline_width * 2, self.outline_width * 2)
-        surface.fill(outline_color, outline)
-        surface.fill(self.color, self.rect)
-        if self.rendered:
-            surface.blit(self.rendered, self.render_rect, self.render_area)
-        if self.blink and self.active:
-            curse = self.render_area.copy()
-            curse.topleft = self.render_rect.topleft
-            surface.fill(self.font_color,
-                         (curse.right + 1, curse.y, 2, curse.h))
+        text_sprite = sprites[1]
+
+        rect = text_sprite.get_rect()
+
+        if self.blink:
+            sprites = (*sprites, self.cursor)
+            self.cursor.position = rect.topright
+
+        self.manager.spriterenderer.render(sprites=sprites)
+
+    def create_text(self):
+        """Create the text sprites."""
+        fonts = self.manager.fonts
+        text_size = fonts.text_size
+
+        text = self.regular_text
+        font = self.regular_font
+        color = self.regular_font_color
+        size = self.regular_font_size
+
+        # e.g. regular_text, regular_font, regular_font_size,
+        # regular_font_color, regular_font_color_mod
+        for state in self.states:
+            start = 0
+            sprite_text = getattr(self, "%s_text" % state) or text
+            sprite_font = getattr(self, "%s_font" % state) or font
+            sprite_size = getattr(self, "%s_font_size" % state) or size
+            sprite_color = getattr(self, "%s_font_color" % state) or color
+            sprite_color_mod = getattr(self, "%s_font_color_mod" % state)
+            while (text_size(sprite_text[start:],
+                             sprite_font,
+                             sprite_size
+                             )[0] > (self.width - 6)):
+                start += 1
+            sprite_text = sprite_text[start:]
+
+            sprite = fonts.render(text=sprite_text, name=sprite_font,
+                                  size=sprite_size, color=sprite_color)
+
+            sprite.set_color_mod(sprite_color_mod)
+
+            button_sprite = self.sprites[state][0]
+            sprite.center_on(button_sprite)
+
+            self.sprites[state] = (button_sprite, sprite)
+
+if __name__ == '__main__':
+    from dnf_game.scene_manager import Manager
+    from dnf_game.scene_manager.scenes import base_scenes
+    from dnf_game.scene_manager.layers import base_layers
+    from dnf_game.scene_manager.layers import gui_layer
+
+    class SceneLayerGuiTextboxTest(base_scenes.SceneMultiLayer):
+        """..."""
+
+        def __init__(self, **kwargs):
+            """..."""
+            super().__init__(**kwargs)
+            frame = base_layers.Layer(parent=self)
+            frame.create_gradient_surface()
+            gui = gui_layer.GUILayer(parent=self)
+            rect = Rect(0, 0, 150, 30)
+            # rect.bottomleft = (gui.left, gui.height)
+            rect.bottomright = (self.width, self.height)
+            gui.create_textbox(rect=rect,
+                               command=print_on_enter,
+                               disable_on_execute=False)
+            self.insert_layer(frame, gui)
+
+    def print_on_enter(id, final):
+        """Sample callback function that prints a message to the screen."""
+        locals()["manager"] = Manager()
+        print('enter pressed, textbox contains "{}"'.format(final))
+        try:
+            eval(final)
+        except SyntaxError:
+            print("not a valid command.")
+
+    Manager(scene=SceneLayerGuiTextboxTest, test=False).execute()

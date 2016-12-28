@@ -9,7 +9,7 @@ from dnf_game.scene_manager import Manager
 from dnf_game.scene_manager.scenes import base_scenes
 
 
-class TilesTextPySDL2(unittest.TestCase):
+class PySDL2TilesText(unittest.TestCase):
     """..."""
 
     def setUp(self):
@@ -19,10 +19,10 @@ class TilesTextPySDL2(unittest.TestCase):
     def test_scene(self):
         """..."""
         Manager(
-            scene=SceneTilesTextPySDL2, test=False).execute()
+            scene=ScenePySDL2TilesText, test=False).execute()
 
 
-class SceneTilesTextPySDL2(base_scenes.SceneBase):
+class ScenePySDL2TilesText(base_scenes.SceneBase):
     """..."""
 
     def __init__(self, **kwargs):

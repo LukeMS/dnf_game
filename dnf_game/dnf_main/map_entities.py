@@ -2,13 +2,14 @@
 
 import random
 
-from dnf_game.data.constants import TILE_W, TILE_H, COLORS
+from dnf_game.data.constants import TILE_W, TILE_H
 from dnf_game.util import Position
 from dnf_game.util.ext.rect import Rect
 from dnf_game.dnf_main.components import (
     ai, ArmorComponent, ItemComponent, FeatureComponent, WeaponComponent)
 from dnf_game.dnf_main.components.combat import char_roll, creatures
 from dnf_game.dnf_main.data_handler.template_handler import TemplateableObject
+from dnf_game.dnf_main.data_handler import get_color
 
 
 class MapEntityAbstract(TemplateableObject):
@@ -106,6 +107,11 @@ class MapEntityAbstract(TemplateableObject):
         return self.rect.bottom
 
     @property
+    def topleft(self):
+        """..."""
+        return self.rect.topleft
+
+    @property
     def current_level(self):
         """..."""
         return self.scene.current_level
@@ -125,6 +131,7 @@ class MapEntityAbstract(TemplateableObject):
                 var=self.tile_variation,
                 _id=self.id,
                 color=self.color)
+            self._sprite.__parent = self
         return self._sprite
 
     def __getstate__(self):
@@ -207,10 +214,10 @@ class DungeonObjectsAbstract(MapEntityAbstract):
                 [setattr(self, field, temp[field])
                  for field in ['id', 'color']
                  if field in temp]
-        except ValueError as e:
+        except ValueError:
             from pprint import pprint
             pprint(templates, indent=4)
-            raise e
+            raise
 
 
 class FeatureEntity(DungeonObjectsAbstract):
@@ -296,7 +303,7 @@ class CreatureEntityAbstract(MapEntityAbstract):
         def gain_ability():
             self.scene.gfx.msg_log.add(
                 'Your battle skills grow stronger! You reached level ' +
-                str(self.combat.level) + '!', COLORS["cyan"])
+                str(self.combat.level) + '!', get_color("cyan"))
             self.scene.parent.choice(
                 title='Level up! Choose a stat to raise:',
                 items=[
@@ -346,7 +353,7 @@ class CreatureEntityAbstract(MapEntityAbstract):
 
         self.scene.gfx.msg_log.add(
             desc.replace("current", "previous"),
-            COLORS["cyan"])
+            get_color("cyan"))
 
 
 class PCreature(CreatureEntityAbstract):
@@ -361,14 +368,14 @@ class PCreature(CreatureEntityAbstract):
             combat = creatures.Character(race=race, _class=_class, owner=self)
         self.combat = combat
 
-        self.color = COLORS["yellow"]
+        self.color = get_color("yellow")
         super().__init__(name=combat.name, **kwargs)
 
     def set_starting_position(self, pos, header):
         """..."""
         try:
             self.scene.rem_obj(self, self.pos)
-        except ValueError as v:
+        except ValueError:
             print("Failed to remove player...")
         self.pos = pos
         self.last_map = header
@@ -435,7 +442,7 @@ class NPCreature(CreatureEntityAbstract):
     def __init__(self, name, **kwargs):
         """..."""
         self.combat = creatures.Beast(model=name, owner=self)
-        self.color = COLORS['blood_red']
+        self.color = get_color('blood_red')
         self.ai = ai.Basic(owner=self)
         super().__init__(name=self.combat.name, **kwargs)
 

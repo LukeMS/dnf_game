@@ -1,7 +1,6 @@
 """..."""
 
-from dnf_game.data.constants import COLORS
-
+from dnf_game.dnf_main.data_handler import get_color
 from dnf_game.util.interpreter import interpreter
 
 
@@ -59,7 +58,7 @@ class ItemComponent(ComponentAbstract):
             if getter == self.player:
                 self.scene.msg_log.add(
                     'Your inventory is full, cannot pick up ' +
-                    self.owner.name + '.', COLORS["yellow"])
+                    self.owner.name + '.', get_color("yellow"))
         else:
             self.scene.rem_obj(self.owner, 'objects', self.owner.pos)
 
@@ -68,7 +67,7 @@ class ItemComponent(ComponentAbstract):
 
             msg_log.add(
                 'You picked up a ' + self.owner.name + '!',
-                COLORS["blue"])
+                get_color("blue"))
 
     def drop(self, dropper):
         """Add to the map and remove from the player's inventory.
@@ -84,7 +83,7 @@ class ItemComponent(ComponentAbstract):
         self.possessor = None
 
         self.scene.msg_log.add(
-            'You dropped a ' + self.owner.name + '.', COLORS["yellow"])
+            'You dropped a ' + self.owner.name + '.', get_color("yellow"))
         return 'dropped'
 
     def use(self, user, target=None):
@@ -163,7 +162,7 @@ class EquipmentComponentAbstract(ComponentAbstract):
 
         self.scene.msg_log.add(
             'Unequipped ' + self.owner.name + ' from ' +
-            self.slot + '.', COLORS["light_yellow"])
+            self.slot + '.', get_color("light_yellow"))
         self.slot = None
 
 
@@ -214,7 +213,7 @@ class WeaponComponent(EquipmentComponentAbstract):
         self.is_equipped = True
         self.scene.msg_log.add(
             'Equipped ' + self.owner.name + ' on ' +
-            self.slot + '.', COLORS["light_green"])
+            self.slot + '.', get_color("light_green"))
 
     # 'light melee weapons', 'one-handed melee weapons',
     # 'two-handed melee weapons'}
@@ -255,7 +254,7 @@ class ArmorComponent(EquipmentComponentAbstract):
         self.is_equipped = True
         self.scene.msg_log.add(
             'Equipped ' + self.owner.name + ' on ' +
-            self.slot + '.', COLORS["light_green"])
+            self.slot + '.', get_color("light_green"))
 
     # 'light melee weapons', 'one-handed melee weapons',
     # 'two-handed melee weapons'}

@@ -130,7 +130,7 @@ class LayerNavigator(Layer):
         self.sftext.on_update()
 
     def on_key_press(self, event, mod):
-        """Called on keyboard input, when a key is held down."""
+        """super__doc__."""
         sym = event.key.keysym.sym
         if sym == sdl2.SDLK_LEFT:
             self.previous_item()

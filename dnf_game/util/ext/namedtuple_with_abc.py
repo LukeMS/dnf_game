@@ -50,8 +50,13 @@ import collections
 from abc import ABCMeta, abstractproperty
 from functools import wraps
 
-__all__ = ('namedtuple',)
+__all__ = ('namedtuple', 'ntuple_from_dict',)
 _namedtuple = collections.namedtuple
+
+
+def ntuple_from_dict(d):
+    """Create a named tuple from a dictionary."""
+    return namedtuple('TupleFromDict', d.keys())(**d)
 
 
 class _NamedTupleABCMeta(ABCMeta):

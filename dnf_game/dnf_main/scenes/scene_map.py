@@ -2,8 +2,9 @@
 
 import sdl2
 
-from dnf_game.data.constants import (FOV_RADIUS, SCR_ROWS, SCR_COLS, COLORS,
+from dnf_game.data.constants import (FOV_RADIUS, SCR_ROWS, SCR_COLS,
                                      TILE_W, TILE_H)
+from dnf_game.dnf_main.data_handler import get_color
 from dnf_game.dnf_main.layers import layer_map, layer_session_mgr
 from dnf_game.dnf_main.map_entities import (PCreature, NPCreature,
                                             FeatureEntity, ItemEntity, Cursor)
@@ -34,19 +35,19 @@ class SceneMap(SceneMultiLayer):
                 (
                     'Welcome stranger! '
                     'Prepare to perish in the Tombs of the Ancient Kings.'),
-                COLORS["purple"]
+                get_color("purple")
             )
         else:
             self.msg_log.add(
                 ('Welcome back stranger! '
                  'This time you WILL perish in the Tombs of the Ancient'
                  ' Kings!'),
-                COLORS["purple"]
+                get_color("purple")
             )
         self.msg_log.add(
             ('You are at level {} of the dungeon.'.format(
                 self.current_level.header.level)),
-            COLORS["orange"]
+            get_color("orange")
         )
         # self.manager.disable_fps()
         # [layer.__setattr__('visible', False) for layer in self.layers]

@@ -4,7 +4,7 @@ import random
 
 from dnf_game.dnf_main.components.combat import char_roll, feats, skills
 from dnf_game.dnf_main.data_handler.bestiary import Bestiary
-from dnf_game.dnf_main.rnd_name import NameGen
+from dnf_game.dnf_main.rnd_name import get_name
 from dnf_game.dnf_main import effects
 
 
@@ -393,7 +393,7 @@ class Character(Creature):
     def change_name(self, value=None):
         if value is None:
             if self.race and self.gender:
-                self.first_name, self.surname = NameGen.get_name(
+                self.first_name, self.surname = get_name(
                     race=self.race,
                     gender=self.gender,
                     number=1)
@@ -698,9 +698,11 @@ class Beast(Creature):
     def __init__(self, model=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        model = model or Bestiary.get_model()
+        beastiary = Bestiary()
 
-        self.table = Bestiary.get(model)
+        model = model or beastiary.get_model()
+
+        self.table = beastiary.get(model)
 
         # number of instances for sequential naming
         Beast.history.setdefault(model, 0)

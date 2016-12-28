@@ -66,3 +66,9 @@ class SceneMultiLayer(MultiLayeredEntityBase, SceneBase):
         """Initialization."""
         SceneBase.__init__(self, **kwargs)
         MultiLayeredEntityBase.__init__(self, draw_all=draw_all, **kwargs)
+
+    def on_key_release(self, event, mod):
+        """super__doc__."""
+        if event.key.keysym.sym == sdl2.SDLK_ESCAPE:
+            self.quit()
+        super().on_key_release(event=event, mod=mod)

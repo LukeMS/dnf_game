@@ -1,0 +1,4 @@
+"""Specific (named) armors."""
+
+SPECIFIC = {
+}

@@ -7,7 +7,7 @@ from dnf_game.scene_manager.scenes import base_scenes
 from dnf_game.util.ext.rect import Rect
 
 
-class TextSizeTextPySDL2(unittest.TestCase):
+class PySDL2TextSizeText(unittest.TestCase):
     """..."""
 
     def setUp(self):
@@ -16,10 +16,10 @@ class TextSizeTextPySDL2(unittest.TestCase):
 
     def test_scene(self):
         """..."""
-        Manager(scene=SceneTextSizeTextPySDL2, test=True).execute()
+        Manager(scene=ScenePySDL2TextSizeText, test=True).execute()
 
 
-class SceneTextSizeTextPySDL2(base_scenes.SceneBase):
+class ScenePySDL2TextSizeText(base_scenes.SceneBase):
     """..."""
 
     def __init__(self, **kwargs):

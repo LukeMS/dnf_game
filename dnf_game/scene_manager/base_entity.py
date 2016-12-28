@@ -75,6 +75,16 @@ class EntityBase(ManagerObjectMeta):
         """super__doc__."""
         return self.manager.factory
 
+    @property
+    def renderer(self):
+        """super__doc__."""
+        return self.manager.renderer
+
+    @property
+    def sdlrenderer(self):
+        """super__doc__."""
+        return self.manager.renderer.sdlrenderer
+
     def clear(self):
         """Clear the entity."""
         pass

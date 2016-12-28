@@ -2,7 +2,8 @@
 
 import random
 
-from dnf_game.data.constants import COLORS, CONFUSE_NUM_TURNS
+from dnf_game.data.constants import CONFUSE_NUM_TURNS
+from dnf_game.dnf_main.data_handler import get_color
 
 
 class Ai:
@@ -42,7 +43,7 @@ class Confused(Ai):
             # confused
             if monster.visible:
                 monster.scene.msg_log.add(
-                    (monster.name + " looks confused"), COLORS["pink"])
+                    (monster.name + " looks confused"), get_color("pink"))
             if random.randint(1, 100) > 33:
                 monster.move_rnd()
             else:
@@ -57,7 +58,7 @@ class Confused(Ai):
             monster.color = monster.default_color
             monster.scene.msg_log.add(
                 'The ' + monster.name + ' is no longer confused!',
-                COLORS["yellow"])
+                get_color("yellow"))
 
 
 class Basic(Ai):
@@ -91,11 +92,11 @@ class Basic(Ai):
                     for i, pos in enumerate(old_path[2:-1]):
 
                         if i == 0:
-                            color = COLORS["orange"]
+                            color = get_color("orange")
                         elif i == 1:
-                            color = COLORS["yellow"]
+                            color = get_color("yellow")
                         else:
-                            color = COLORS["green"]
+                            color = get_color("green")
                         """
                         monster.scene.tile_fx.add(
                             coord=[pos],
@@ -112,7 +113,7 @@ class Basic(Ai):
                     """
                     monster.scene.tile_fx.add(
                         coord=monster.path[2:-1],
-                        color=COLORS["green"],
+                        color=get_color("green"),
                         duration=1)
                     """
                     moved = monster.move(monster.path.pop(2))

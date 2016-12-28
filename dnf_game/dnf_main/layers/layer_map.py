@@ -116,7 +116,14 @@ class LayerMap(base_layers.Layer):
     def update_pos(self, pos, scr_pos):
         """Logic for redrawing specific positions of the screen."""
         def draw_feature():
-            render(sprites=feature.sprite, x=x, y=y)
+            try:
+                render(sprites=feature.sprite, x=x, y=y)
+            except AttributeError as e:
+                from dnf_game.util import describe_error
+                describe_error(e,
+                               feature.__class__.__name__,
+                               feature.__dict__)
+                raise
 
         def draw_objects():
             objects = tile.objects

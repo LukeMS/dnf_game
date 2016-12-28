@@ -1,8 +1,7 @@
 """..."""
-from dnf_game.data.constants import COLORS
 from dnf_game.dnf_main import effects
 from dnf_game.dnf_main.data_handler.data_handler import (
-    get_all_weapons, get_all_armors)
+    get_all_weapons, get_all_armors, get_color)
 
 
 def get_templates():
@@ -33,45 +32,45 @@ def get_templates():
             },
             "water": {
                 "id": ord("="),
-                "color": COLORS["blue"]
+                "color": get_color("blue")
             },
             "mountain": {
                 "id": ord("M"),
-                "color": COLORS["light_chartreuse"]
+                "color": get_color("light_chartreuse")
             },
             "hill": {
                 "id": ord("h"),
-                "color": COLORS["dark_chartreuse"]
+                "color": get_color("dark_chartreuse")
             },
             "land": {
                 "id": ord("."),
-                "color": COLORS["darker_green"]
+                "color": get_color("darker_green")
             },
             "coast": {
                 "id": ord("c"),
-                "color": COLORS["darker_amber"]
+                "color": get_color("darker_amber")
             },
             "shallow_water": {
                 "id": ord("~"),
-                "color": COLORS["dark_blue"]
+                "color": get_color("dark_blue")
             },
             "deep_water": {
                 "id": ord("¬"),
-                "color": COLORS["darkest_blue"]
+                "color": get_color("darkest_blue")
             },
 
             "arctic_shallow_water": {
                 "id": ord("~"),
-                "color": COLORS["sky"]
+                "color": get_color("sky")
             },
             "arctic_deep_water": {
                 "id": ord("¬"),
-                "color": COLORS["dark_sky"]
+                "color": get_color("dark_sky")
             },
             "arctic coast": {
                 "id": ord("c"),
                 "color": (248, 243, 223)
-                # COLORS["lightest_amber"]  # (255, 255, 255)
+                # get_color("lightest_amber")  # (255, 255, 255)
             },
             "arctic land": {
                 "id": ord("."),
@@ -101,36 +100,36 @@ def get_templates():
 
             "boreal grassland": {
                 "id": ord("."),
-                "color": COLORS["dark_sea"]
+                "color": get_color("dark_sea")
             },
             "grassland": {
                 "id": ord("."),
-                "color": COLORS["darker_green"]
+                "color": get_color("darker_green")
             },
             "savana": {
                 "id": ord("."),
-                "color": COLORS["darker_yellow"]  # (153, 219, 33)
+                "color": get_color("darker_yellow")  # (153, 219, 33)
             },
 
             "woodland": {
                 "id": ord("w"),
-                "color": COLORS["dark_turquoise"]  # (0, 255, 255)
+                "color": get_color("dark_turquoise")  # (0, 255, 255)
             },
             "boreal forest": {
                 "id": ord("B"),
-                "color": COLORS["dark_sea"]  # (5, 100, 33)
+                "color": get_color("dark_sea")  # (5, 100, 33)
             },
             "temperate deciduous forest": {
                 "id": ord("D"),
-                "color": COLORS["dark_chartreuse"]  # (47, 186, 74)
+                "color": get_color("dark_chartreuse")  # (47, 186, 74)
             },
             "temperate rain forest": {
                 "id": ord("T"),
-                "color": COLORS["dark_green"]  # (7, 250, 160)
+                "color": get_color("dark_green")  # (7, 250, 160)
             },
             "tropical rain forest": {
                 "id": ord("R"),
-                "color": COLORS["darker_green"]  # (8, 250, 50)
+                "color": get_color("darker_green")  # (8, 250, 50)
             },
 
             # removed
@@ -145,7 +144,7 @@ def get_templates():
         },
         "FeatureEntity": {
             '_default': {
-                'color': COLORS["gray"],
+                'color': get_color("gray"),
                 "block_mov": False,
                 "block_sight": False
             },
@@ -191,12 +190,12 @@ def get_templates():
         "ItemComponent": {
             "_default": {
                 'use_function': None,
-                'color': COLORS["papyrus"]
+                'color': get_color("papyrus")
             },
             'healing potion': {
                 'use_function': effects.cast_heal,
                 'id': ord('!'),
-                'color': COLORS["blood_red"]
+                'color': get_color("blood_red")
             },
             'scroll of lightning bolt': {
                 'use_function': effects.cast_lightning,
@@ -213,20 +212,20 @@ def get_templates():
             'remains': {
                 'use_function': effects.cast_heal,
                 'id': ord('?'),
-                'color': COLORS["corpse"]
+                'color': get_color("corpse")
             }
         },
         "WeaponComponent": {
             "_default": {
                 "id": ord("|"),
-                "color": COLORS["grey"]
+                "color": get_color("grey")
             },
             **get_all_weapons()
         },
         "ArmorComponent": {
             "_default": {
                 "id": ord("["),
-                "color": COLORS["grey"],
+                "color": get_color("grey"),
                 "on_equip": [],
                 "on_unequip": []
             },

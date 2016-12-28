@@ -6,18 +6,23 @@ import os
 
 import sdl2
 import sdl2.ext
+from sdl2.ext.color import Color
 
 from dnf_game.data.constants import SCR_W, SCR_H, FPS, TILE_W
-from dnf_game.data.tiles_index import TilesetIndex
+from dnf_game.dnf_main import data_handler
 from dnf_game.scene_manager.resources import FontsManager
 from dnf_game.scene_manager.base_entity import ManagerSingletonMeta
 from dnf_game.util.ext import time
 from dnf_game.util.ext.namedtuple_with_abc import namedtuple
-from dnf_game.util.ext.rect import Rect
+from dnf_game.util.ext.rect import Rect, to_sdl_rect
 
 RESOURCES = sdl2.ext.Resources(
     os.path.join(os.path.dirname(__file__), "..", "resources"))
 TILESET = sdl2.ext.load_image(RESOURCES.get("tileset{}.png".format(TILE_W)))
+
+__all__ = (
+    'Manager', 'SpriteFactory', 'TextureSprite', 'TextureSpriteRenderSystem',
+    'FeedbackEntry', 'EventFeedback')
 
 
 class Manager(metaclass=ManagerSingletonMeta):
@@ -32,7 +37,8 @@ class Manager(metaclass=ManagerSingletonMeta):
         show_play_time=False, scene=None, test=False, scene_args=None,
         opacity=255, window_color=None
     ):
-        """
+        """Initialization.
+
         Args:
             opacity (int): a number from 0 to 255, where 0 will make the
             window fully transparent (invisible) and 255 fully opaque (
@@ -40,6 +46,7 @@ class Manager(metaclass=ManagerSingletonMeta):
         """
         self.alive = False
         self._scene = None
+        self.text_input = False
 
         self.show_fps = show_fps
         self.width = width
@@ -59,6 +66,7 @@ class Manager(metaclass=ManagerSingletonMeta):
         self._window = window
         self.opacity = opacity
         self.window_color = window_color or (0, 0, 0, 255)
+        self.colors = data_handler.get_colors()
 
         renderer = sdl2.ext.Renderer(window)
         self.renderer = renderer
@@ -131,6 +139,15 @@ class Manager(metaclass=ManagerSingletonMeta):
         sdl2.ext.quit()
         return 0
 
+    def set_text_input(self, status, target=None):
+        """..."""
+        if status:
+            sdl2.SDL_StartTextInput()
+        else:
+            sdl2.SDL_StopTextInput()
+        self.text_input = status
+        self.text_input_target = target
+
     def on_event(self):
         """Handle the events and distribute them."""
         scene = self.scene
@@ -142,15 +159,12 @@ class Manager(metaclass=ManagerSingletonMeta):
                 self.quit()
             if event.type == sdl2.SDL_WINDOWEVENT_FOCUS_GAINED:
                 self.on_update()
+                continue
 
             self.key_mods = modifiers = self._modifiers_translate(
                 event.key.keysym.mod)
 
-            if event.type == sdl2.SDL_KEYUP:
-                scene.on_key_release(event=event, mod=modifiers)
-            elif event.type == sdl2.SDL_KEYDOWN:
-                scene.on_key_press(event=event, mod=modifiers)
-            elif event.type == sdl2.SDL_MOUSEMOTION:
+            if event.type == sdl2.SDL_MOUSEMOTION:
                 x = event.motion.x
                 y = event.motion.y
                 buttons = event.motion.state
@@ -169,6 +183,7 @@ class Manager(metaclass=ManagerSingletonMeta):
                                         button="RIGHT")
                 else:
                     scene.on_mouse_motion(x=x, y=y, dx=dx, dy=dy)
+                continue
             elif event.type == sdl2.SDL_MOUSEBUTTONDOWN:
                 x = event.button.x
                 y = event.button.y
@@ -185,12 +200,39 @@ class Manager(metaclass=ManagerSingletonMeta):
 
                 scene.on_mouse_press(event=event, x=x, y=y,
                                      button=button, double=double)
+                continue
 
             elif event.type == sdl2.SDL_MOUSEWHEEL:
                 offset_x = event.wheel.x
                 offset_y = event.wheel.y
                 scene.on_mouse_scroll(event=event,
                                       offset_x=offset_x, offset_y=offset_y)
+                continue
+
+            if self.text_input and event.type in (sdl2.SDL_TEXTINPUT,
+                                                  sdl2.SDL_TEXTEDITING):
+                """
+                case SDL_TEXTINPUT:
+                    /* Add new text onto the end of our text */
+                    strcat(text, event.text.text);
+                    break;
+                case SDL_TEXTEDITING:
+                    /*
+                    Update the composition text.
+                    Update the cursor position.
+                    Update the selection length (if any).
+                    */
+                    composition = event.edit.text;
+                    cursor = event.edit.start;
+                    selection_len = event.edit.length;
+                """
+                self.text_input_target.on_text_input(event=event)
+                continue
+
+            if event.type == sdl2.SDL_KEYUP:
+                scene.on_key_release(event=event, mod=modifiers)
+            elif event.type == sdl2.SDL_KEYDOWN:
+                scene.on_key_press(event=event, mod=modifiers)
         return
 
     def _modifiers_translate(self, modifiers):
@@ -254,10 +296,11 @@ class SpriteFactory(sdl2.ext.SpriteFactory):
             target (SDL_RENDERER, SDL_TEXTURE): the target of the renderer
             to be used during this context.
         """
-        renderer = self.default_args["renderer"]
-        sdl2.SDL_SetRenderTarget(renderer.sdlrenderer, target)
+        sdlrenderer = self.default_args["renderer"].sdlrenderer
+        sdl2.SDL_SetRenderTarget(sdlrenderer, target)
+        sdl2.SDL_SetTextureBlendMode(target, sdl2.SDL_BLENDMODE_BLEND)
         yield
-        sdl2.SDL_SetRenderTarget(renderer.sdlrenderer, None)
+        sdl2.SDL_SetRenderTarget(sdlrenderer, None)
 
     def create_sprite_render_system(self, *args, **kwargs):
         """Create a new SpriteRenderSystem.
@@ -282,10 +325,15 @@ class SpriteFactory(sdl2.ext.SpriteFactory):
             sprite.position = position
         return sprite
 
-    def from_new_texture(self, w, h, drawable=True):
+    def from_new_texture(self, w, h, mode="draw"):
         """..."""
         sdlrenderer = self.default_args["renderer"].sdlrenderer.contents
-        access = sdl2.SDL_TEXTUREACCESS_TARGET if drawable else None
+        if mode == "draw":
+            access = sdl2.SDL_TEXTUREACCESS_TARGET
+        elif mode == "stream":
+            access = sdl2.SDL_TEXTUREACCESS_STREAMING
+        else:
+            access = None
         sprite = self.create_texture_sprite(sdlrenderer, (w, h),
                                             access=access)
         sprite.__class__ = TextureSprite
@@ -310,7 +358,7 @@ class SpriteFactory(sdl2.ext.SpriteFactory):
         if position:
             raise DeprecationWarning(
                 "Position not used anymore, use rect instead.")
-        area = area or TilesetIndex.get_tile_rect(
+        area = area or data_handler.get_tile_rect(
             tile=tile, var=var, pos=pos, _id=_id)
         sprite = self._from_tileset_area(area)
         sprite.set_rect(rect)
@@ -412,19 +460,48 @@ class SpriteFactory(sdl2.ext.SpriteFactory):
         return sprite
 
 
-class TextureSprite(sdl2.ext.TextureSprite):
-    """A simple, visible, texture-based 2D object, using a renderer."""
+class Sprite:
+    """..."""
 
-    frame_rect = None
+    _frame_rect = None
 
-    def flip_sprite(self, mode=None):
+    @property
+    def frame_rect(self):
+        return self._frame_rect
+
+    @frame_rect.setter
+    def frame_rect(self, val):
+        self._frame_rect = to_sdl_rect(val) if val else None
+
+    @property
+    def w(self):
         """..."""
-        if mode in ("h", "H"):
-            self.flip ^= sdl2.SDL_FLIP_HORIZONTAL
-        elif mode in ("v", "V"):
-            self.flip ^= sdl2.SDL_FLIP_VERTICAL
-        else:
-            self.flip = sdl2.SDL_FLIP_NONE
+        return self.get_rect().width
+
+    @property
+    def width(self):
+        """..."""
+        return self.get_rect().width
+
+    @property
+    def h(self):
+        """..."""
+        return self.get_rect().h
+
+    @property
+    def height(self):
+        """..."""
+        return self.get_rect().height
+
+    @property
+    def bottomright(self):
+        """..."""
+        return self.get_rect().bottomright
+
+    @property
+    def topleft(self):
+        """..."""
+        return self.get_rect().topleft
 
     def get_rect(self, **kwargs):
         """Get the rectangular area of the sprite.
@@ -443,10 +520,116 @@ class TextureSprite(sdl2.ext.TextureSprite):
         Returns:
             Rect
         """
-        r = Rect(self.position, self.size)
+        frame_rect = self.frame_rect
+        if frame_rect is not None:
+            r = Rect(*[getattr(frame_rect, v) for v in ("x", "y", "w", "h")])
+        else:
+            r = Rect(self.position, self.size)
         for k, v in kwargs.items():
             setattr(r, k, v)
         return r
+
+    def set_rect(self, rect):
+        """Set the position and size of the sprite from a Rect.
+
+        Args:
+            rect: a Rect from which position and size will be taken.
+        """
+        tl = rect.topleft if rect else (0, 0)
+        self.position = tl
+        # TODO implement sprite resizing on sdl2.ext.sprite
+        # self.size = rect.size
+
+    def move(self, *args):
+        """..."""
+        self.set_rect(self.get_rect().move(*args))
+
+
+class SoftwareSprite(sdl2.ext.SoftwareSprite, Sprite):
+    """A simple, visible, pixel-based 2D object using software buffers."""
+
+    def __init__(self, imgsurface, free=True):
+        """Creates a new SoftwareSprite."""
+        try:
+            super().__init__(imgsurface, free)
+        except TypeError:
+            super().__init__(imgsurface.contents, free)
+
+    def blit(self, source, dest, area=None, special_flags=0):
+        """..."""
+        sdl2.SDL_SetSurfaceBlendMode(source.surface, sdl2.SDL_BLENDMODE_BLEND)
+
+        dest_rect = to_sdl_rect(dest)
+
+        area_rect = to_sdl_rect(area) if area is not None else None
+
+        err = sdl2.SDL_BlitSurface(source.surface, area_rect,
+                                   self.surface, dest_rect)
+        if err:
+            raise sdl2.SDLError()
+
+        dirty = Rect(dest[0], dest[1],
+                     source.w, source.h)
+        return dirty.clip(self.get_rect())
+
+    def fill(self, color, rect=None, special_flags=0):
+        """..."""
+        sfc = self.surface
+        fmt = sfc.format.contents
+        color = Color(*color)
+        pixel = sdl2.SDL_MapRGBA(fmt, color.r, color.g, color.b, color.a)
+
+        if rect is not None:
+            sdl_rect = to_sdl_rect(rect)
+
+            if sdl_rect.x < 0:
+                sdl_rect.w = sdl_rect.w + sdl_rect.x
+                sdl_rect.x = 0
+
+            if sdl_rect.y < 0:
+                sdl_rect.w = sdl_rect.h + sdl_rect.y
+                sdl_rect.y = 0
+
+            if sdl_rect.w <= 0 or sdl_rect.h <= 0:
+                return Rect(0, 0, 0, 0)
+
+            err = sdl2.SDL_FillRect(self.surface, sdl_rect, pixel)
+
+            if err:
+                raise sdl2.SDLError()
+
+            return Rect(sdl_rect.x, sdl_rect.y, sdl_rect.w, sdl_rect.h)
+
+        else:
+            err = sdl2.SDL_FillRect(self.surface, None, pixel)
+
+            if err:
+                raise sdl2.SDLError()
+
+            return Rect(0, 0, self.w, self.h)
+
+    def convert_to_texture(self):
+        """..."""
+        return Manager().factory.from_surface(self.surface)
+
+
+class TextureSprite(sdl2.ext.TextureSprite, Sprite):
+    """A simple, visible, texture-based 2D object, using a renderer."""
+
+    def flip_sprite(self, mode=None):
+        """..."""
+        if mode in ("h", "H"):
+            self.flip ^= sdl2.SDL_FLIP_HORIZONTAL
+        elif mode in ("v", "V"):
+            self.flip ^= sdl2.SDL_FLIP_VERTICAL
+        else:
+            self.flip = sdl2.SDL_FLIP_NONE
+
+    def center_on(self, other):
+        """Align the center of the current sprite with the center of other."""
+        rect = self.get_rect()
+        rect.center = other.get_rect().center
+        self.position = rect.topleft
 
     def get_alpha_mod(self):
         """Get the alpha value multiplier for render copy operations.
@@ -504,7 +687,12 @@ class TextureSprite(sdl2.ext.TextureSprite):
         Returns:
             None
         """
-        color = color or (255, 255, 255)
+        if isinstance(color, float):
+            color = tuple(
+                min(max(int(255 * color), 0), 255) for i in range(3))
+        else:
+            color = color or (255, 255, 255)
+
         sdl2.SDL_SetTextureColorMod(self.texture, *color)
 
     def set_animation(self, cols, rows, col_w, row_h, col=0, row=0):
@@ -566,28 +754,6 @@ class TextureSprite(sdl2.ext.TextureSprite):
         """Redefine the color multiplier on the sprite texture to default."""
         self.set_color_mod(color=None)
 
-    @property
-    def bottomright(self):
-        """..."""
-        return self.get_rect().bottomright
-
-    @property
-    def topleft(self):
-        """..."""
-        return self.get_rect().topleft
-
-    def set_rect(self, rect):
-        """Set the position and size of the sprite from a Rect.
-
-        Args:
-            rect: a Rect from which position and size will be taken.
-        """
-        if rect is None:
-            return
-        self.position = rect.topleft
-        # TODO implement sprite resizing on sdl2.ext.sprite
-        # self.size = rect.size
-
 
 class TextureSpriteRenderSystem(sdl2.ext.TextureSpriteRenderSystem):
     """A rendering system for TextureSprite components.
@@ -617,8 +783,9 @@ class TextureSpriteRenderSystem(sdl2.ext.TextureSpriteRenderSystem):
                 r.x = x + sprite.x
                 r.y = y + sprite.y
                 r.w, r.h = sprite.size
-                if rcopy(renderer, sprite.texture, None, r, sprite.angle,
-                         sprite.center, sprite.flip) == -1:
+                frame_rect = sprite.frame_rect or None
+                if rcopy(renderer, sprite.texture, frame_rect, r,
+                         sprite.angle, sprite.center, sprite.flip) == -1:
                     raise sdl2.ext.SDLError()
         else:
             r.x = sprites.x
@@ -673,6 +840,10 @@ class FeedbackEntry(namedtuple.abc):
                 ' entity={0.entity.__class__.__name__}),'
                 ' data={0.data})'.format(self))
 
+    def __getstate__(self):
+        """..."""
+        return None
+
 
 class EventFeedback(object):
     """A structured feedback sent by entities when events are caught.
@@ -718,5 +889,13 @@ class EventFeedback(object):
         """..."""
         return None
 
+
 if __name__ == '__main__':
-    Manager()
+    m = Manager()
+    colors = m.colors
+    print(colors.__slots__)
+    try:
+        colors.shitty_brown = (0, 255, 255, 127)
+    except AttributeError:
+        print("no attribute creation is possible.")
+    print(colors.grey)

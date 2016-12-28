@@ -8,6 +8,7 @@ import re
 from dnf_game.dnf_main.components.combat import loot_coins
 from dnf_game.dnf_main.components.combat import loot_gems
 from dnf_game.dnf_main.data_handler.bestiary import Bestiary
+from dnf_game.util.ext.queries import where
 
 
 treasure_budget = {
@@ -436,19 +437,10 @@ def main(creature):
 
 
 if __name__ == '__main__':
-    results = Bestiary.get_filtered(filter_list=[
-        ('treasure', None, 'search', False)
-    ])
-    print(results)
-    tables = {}
+    from pprint import pprint
+    bestiary = Bestiary()
+    results = bestiary.search((
+        where("treasure").none([None])
+    ))
 
-    for i, result in enumerate(results):
-        tables[result] = main(Bestiary.get(result))
-
-    with open('treasure_gen_test.json', 'w') as outfile:
-        json.dump(tables, outfile, indent=4)
-        # json.dumps(tables, indent=4)
-"""
-description:
-view&mdash;
-"""
+    pprint(results, indent=4)

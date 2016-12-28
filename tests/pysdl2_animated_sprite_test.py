@@ -10,7 +10,7 @@ from dnf_game.scene_manager.manager import Manager
 from dnf_game.scene_manager.scenes import base_scenes
 
 
-class TilesTextPySDL2(unittest.TestCase):
+class PySDL2AnimatedSpriteTest(unittest.TestCase):
     """..."""
 
     def setUp(self):
@@ -20,10 +20,10 @@ class TilesTextPySDL2(unittest.TestCase):
     def test_scene(self):
         """..."""
         Manager(
-            scene=SceneTilesTextPySDL2, test=False).execute()
+            scene=ScenePySDL2AnimatedSpriteTest, test=False).execute()
 
 
-class SceneTilesTextPySDL2(base_scenes.SceneBase):
+class ScenePySDL2AnimatedSpriteTest(base_scenes.SceneBase):
     """..."""
 
     def __init__(self, **kwargs):

@@ -7,7 +7,7 @@ from dnf_game.scene_manager import Manager
 from dnf_game.scene_manager.scenes import base_scenes
 
 
-class RectTestPySDL2(unittest.TestCase):
+class PySDL2FromGradientWithAlpha(unittest.TestCase):
     """..."""
 
     def setUp(self):
@@ -16,10 +16,10 @@ class RectTestPySDL2(unittest.TestCase):
 
     def test_scene(self):
         """..."""
-        Manager(scene=SceneFromGradientWithAlphaPySDL2, test=False).execute()
+        Manager(scene=ScenePySDL2FromGradientWithAlpha, test=False).execute()
 
 
-class SceneFromGradientWithAlphaPySDL2(base_scenes.SceneBase):
+class ScenePySDL2FromGradientWithAlpha(base_scenes.SceneBase):
     """..."""
 
     def __init__(self, **kwargs):

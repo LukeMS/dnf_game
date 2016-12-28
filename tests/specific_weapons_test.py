@@ -5,7 +5,7 @@ import unittest
 from dnf_game.dnf_main.map_entities import PCreature, ItemEntity
 
 
-class TestSpecificWeapon(unittest.TestCase):
+class TestSpecificWeapons(unittest.TestCase):
     """..."""
 
     def setUp(self):

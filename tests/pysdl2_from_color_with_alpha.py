@@ -7,7 +7,7 @@ from dnf_game.scene_manager.scenes import base_scenes
 from dnf_game.util.ext.rect import Rect
 
 
-class RectTestPySDL2(unittest.TestCase):
+class PySDL2FromColorWithAlphaTest(unittest.TestCase):
     """..."""
 
     def setUp(self):
@@ -16,10 +16,10 @@ class RectTestPySDL2(unittest.TestCase):
 
     def test_scene(self):
         """..."""
-        Manager(scene=SceneFromColorWithAlphaPySDL2, test=True).execute()
+        Manager(scene=ScenePySDL2FromColorWithAlphaTest, test=True).execute()
 
 
-class SceneFromColorWithAlphaPySDL2(base_scenes.SceneBase):
+class ScenePySDL2FromColorWithAlphaTest(base_scenes.SceneBase):
     """..."""
 
     def __init__(self, **kwargs):
